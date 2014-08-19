@@ -118,7 +118,7 @@ public class ShowEllipsoids
 		final Interval imgSourceInterval = imgSource.getSource( timepointIndex, 0 );
 
 		final HashMap< Integer, EllipsoidRealRandomAccessible > timepointIndexToEllipsoidAccessible = new HashMap< Integer, EllipsoidRealRandomAccessible >();
-		for ( int tp = 240; tp < 248; ++tp )
+		for ( int tp = 240; tp < 250; ++tp )
 		{
 			final int timepointId = tp + 1;
 			final String tgmmFilename = "/Users/pietzsch/Desktop/data/Fernando/extract/GMEMfinalResult_frame0" + timepointId + ".xml";

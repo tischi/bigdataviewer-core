@@ -11,24 +11,6 @@ import org.jdom2.input.SAXBuilder;
 
 public class TgmmXmlReader
 {
-	public static void main( final String[] args )
-	{
-		try
-		{
-			final ArrayList< Gaussian > gaussians = read( "/Users/pietzsch/Desktop/data/Fernando/extract/GMEMfinalResult_frame0249.xml" );
-//			for ( final Gaussian g : gaussians )
-//				System.out.println( g );
-		}
-		catch ( final IOException e )
-		{
-			e.printStackTrace();
-		}
-		catch ( final JDOMException e )
-		{
-			e.printStackTrace();
-		}
-	}
-
 	public static class Gaussian
 	{
 		private final double nu;
@@ -110,24 +92,12 @@ public class TgmmXmlReader
 
 	public static double[] getDoubleArrayAttribute( final Element parent, final String name )
 	{
-		try
-		{
-			final String text = parent.getAttributeValue( name );
-			final String[] entries = text.split( "\\s+" );
-			final double[] array = new double[ entries.length ];
-			for ( int i = 0; i < entries.length; ++i )
-				array[ i ] = Double.parseDouble( entries[ i ] );
-			return array;
-		}
-		catch ( final Exception e )
-		{
-			final String text = parent.getAttributeValue( name );
-			System.out.println( text );
-			final String[] entries = text.split( "\\s+" );
-			for ( int i = 0; i < entries.length; ++i )
-				System.out.println( entries[ i ] );
-			return null;
-		}
+		final String text = parent.getAttributeValue( name );
+		final String[] entries = text.split( "\\s+" );
+		final double[] array = new double[ entries.length ];
+		for ( int i = 0; i < entries.length; ++i )
+			array[ i ] = Double.parseDouble( entries[ i ] );
+		return array;
 	}
 
 	public static int getIntAttribute( final Element parent, final String name )
@@ -145,14 +115,22 @@ public class TgmmXmlReader
 		final ArrayList< Gaussian > gaussians = new ArrayList< Gaussian >();
 		for ( final Element elem : gaussianMixtureModels )
 		{
-			final double nu = getDoubleAttribute( elem, "nu" );
-			final double[] m = getDoubleArrayAttribute( elem, "m" );
-			final double[] W = getDoubleArrayAttribute( elem, "W" );
-			final int id = getIntAttribute( elem, "id" );
-			final int lineage = getIntAttribute( elem, "lineage" );
-			final int parent = getIntAttribute( elem, "parent" );
+			try
+			{
+				final double nu = getDoubleAttribute( elem, "nu" );
+				final double[] m = getDoubleArrayAttribute( elem, "m" );
+				final double[] W = getDoubleArrayAttribute( elem, "W" );
+				final int id = getIntAttribute( elem, "id" );
+				final int lineage = getIntAttribute( elem, "lineage" );
+				final int parent = getIntAttribute( elem, "parent" );
 
-			gaussians.add( new Gaussian( nu, m, W, id, lineage, parent ) );
+				gaussians.add( new Gaussian( nu, m, W, id, lineage, parent ) );
+			}
+			catch ( final NumberFormatException e )
+			{
+				e.printStackTrace();
+				System.out.println( "ignoring " + elem );
+			}
 		}
 		return gaussians;
 	}
