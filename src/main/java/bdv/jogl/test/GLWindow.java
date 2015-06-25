@@ -1,5 +1,6 @@
 package bdv.jogl.test;
 
+import java.awt.Color;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashMap;
@@ -158,15 +159,20 @@ public class GLWindow extends JFrame {
 				initLocalCamera(camera,drawable.getSurfaceWidth(),drawable.getSurfaceHeight());
 				
 				spaces.clear();
+				int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
+				float colorLinearFactor = 1.f/numberOfSources;
+				float r =0, g=1,b=1 ;
 				for(SourceState<?> source:bigDataViewer.getViewer().getState().getSources()){
 					
 					UnitCube cubeShader = new UnitCube();
 					cubeShader.setCamera(camera);
 					spaces.add(cubeShader);
 					cubeShader.init(gl2);
+					cubeShader.setRenderWireframe(true);
+					cubeShader.setColor(new Color(r,g,b,1));
+					r+=colorLinearFactor;
+					b-=colorLinearFactor;
 				}
-				
-
 			}
 
 			@Override

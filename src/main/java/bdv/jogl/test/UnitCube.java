@@ -1,10 +1,10 @@
 package bdv.jogl.test;
 
+import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -20,7 +20,7 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
  *
  */
 public class UnitCube {
-
+	
 	public static final String shaderVariablePosition = "inPosition";
 
 	public static final String shaderVariableProjectionMatrix = "inProjection";
@@ -54,6 +54,10 @@ public class UnitCube {
 	private int vertexBufferId = 0;
 	
 	private int vertexArrayId = 0;
+
+	private boolean renderWireframe = false;
+	
+	private Color color = new Color(1f, 1f, 1f, 1f);
 	
 	/**
 	 * releases all gl resources
@@ -174,6 +178,9 @@ public class UnitCube {
 		int modelID = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableModelMatrix);
 		shaderVariableMapping.put(shaderVariableModelMatrix, modelID);
 		
+		int colorID = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableColor);
+		shaderVariableMapping.put(shaderVariableColor, colorID);
+		
 		int positionID =gl2.glGetAttribLocation(shaderProgram.program(), shaderVariablePosition);
 		shaderVariableMapping.put(shaderVariablePosition, positionID);
 		
@@ -184,7 +191,9 @@ public class UnitCube {
 		
 		shaderProgram.useProgram(gl2, true);
 		
+		
 		//memcopy
+		gl2.glUniform4f(shaderVariableMapping.get(shaderVariableColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
 		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableProjectionMatrix), 1, false, camera.getProjectionMatix().getMatrix(),0);
 		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableViewMatrix), 1, false, camera.getViewMatrix().getMatrix(),0);
 		if(!modelTransformations.isEmpty()){
@@ -194,47 +203,38 @@ public class UnitCube {
 		shaderProgram.useProgram(gl2, false);
 	}
 
-	private List<Float> createVertex(Float x,Float y,Float z){
-		List<Float> vertex = new LinkedList<Float>();
-
-		vertex.add(x);
-		vertex.add(y);
-		vertex.add(z);
-
-		return vertex;
-	}
 	private float[] getBufferVertices(){
-		List<Float> vertices = new LinkedList<Float>();
-
-		//2 faces
-		for(Integer z=0;z < 2;z++){
-			vertices.addAll(createVertex(0f, 0f, z.floatValue()));
-			vertices.addAll(createVertex(1f, 0f, z.floatValue()));
-			vertices.addAll(createVertex(1f, 0f, z.floatValue()));
-			vertices.addAll(createVertex(1f, 1f, z.floatValue()));
-			vertices.addAll(createVertex(1f, 1f, z.floatValue()));
-			vertices.addAll(createVertex(0f, 1f, z.floatValue()));
-			vertices.addAll(createVertex(0f, 1f, z.floatValue()));
-			vertices.addAll(createVertex(0f, 0f, z.floatValue()));
-		}
-
-		
-		
-		//connections of faces
-		for(Integer y=0; y <2; y++){
-			for(Integer x=0; x <2; x++){
-				for(Integer z=0; z <2; z++){
-					vertices.addAll(createVertex(x.floatValue(), y.floatValue(), z.floatValue()));
-				}
-			}
-		}
-		
-		float [] array = new float[vertices.size()];
-		int i = 0;
-		for(Float f : vertices){
-			array[i] = f.floatValue();
-			i++;
-		}
+		float [] array = {
+				0,0,0,
+				1,0,0,
+				1,1,0,
+				0,1,0,
+				
+				0,0,0,
+				0,1,0,
+				0,1,1,
+				0,0,1,
+				
+				0,0,0,
+				1,0,0,
+				1,0,1,
+				0,0,1,
+				
+				1,0,0,
+				1,0,1,
+				1,1,1,
+				1,1,0,
+				
+				1,0,1,
+				0,0,1,
+				0,1,1,
+				1,1,1,
+				
+				0,1,0,
+				1,1,0,
+				1,1,1,
+				0,1,1,
+				};
 		return array;
 	}
 
@@ -276,9 +276,14 @@ public class UnitCube {
 		shaderProgram.useProgram(gl2, true);
 		
 		gl2.glBindVertexArray(vertexArrayId);
+		if(isRenderWireframe()){
+			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
+		}
 		
-		gl2.glDrawArrays(GL2.GL_LINES, 0,coordinates.length);
-			
+		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+		if(isRenderWireframe()){
+			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_FILL );
+		}
 		gl2.glBindVertexArray(0);
 		
 		shaderProgram.useProgram(gl2, false);
@@ -294,32 +299,30 @@ public class UnitCube {
 	}
 
 	/**
-	 * rendering methode
-	 * @param gl2 gl2 context
+	 * @return the renderWireframe
 	 */
-	/*public static void render(GL gl2){
-		gl2.glColor3f(1, 1, 1);
+	public boolean isRenderWireframe() {
+		return renderWireframe;
+	}
 
-		//2 faces
-		for(int z=0;z < 2;z++){
-			gl2.glBegin(GL2.GL_LINE_STRIP);
-			gl2.glVertex3f(0, 0, z);
-			gl2.glVertex3f(1, 0, z);
-			gl2.glVertex3f(1, 1, z);
-			gl2.glVertex3f(0, 1, z);
-			gl2.glVertex3f(0, 0, z);
-			gl2.glEnd();
-		}
+	/**
+	 * @param renderWireframe the renderWireframe to set
+	 */
+	public void setRenderWireframe(boolean renderWireframe) {
+		this.renderWireframe = renderWireframe;
+	}
 
-		//connections of faces
-		gl2.glBegin(GL2.GL_LINES);
-		for(int y=0; y <2; y++){
-			for(int x=0; x <2; x++){
-				for(int z=0; z <2; z++){
-					gl2.glVertex3f(x, y, z);
-				}
-			}
-		}
-		gl2.glEnd();
-	}*/
+	/**
+	 * @return the color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * @param color the color to set
+	 */
+	public void setColor(Color color) {
+		this.color = color;
+	}
 }
