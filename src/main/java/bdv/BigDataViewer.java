@@ -37,6 +37,7 @@ import org.jdom2.output.XMLOutputter;
 import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterConsole;
 import bdv.img.cache.Cache;
+import bdv.jogl.test.GLWindow;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.WrapBasicImgLoader;
 import bdv.spimdata.XmlIoSpimDataMinimal;
@@ -671,10 +672,11 @@ public class BigDataViewer
 	}
 
 	public static void main( final String[] args )
-	{
+	{	
 //		final String fn = "http://tomancak-mac-17.mpi-cbg.de:8080/openspim/";
 //		final String fn = "/Users/Pietzsch/Desktop/openspim/datasetHDF.xml";
-		final String fn = "/Users/pietzsch/workspace/data/111010_weber_full.xml";
+		//final String fn = "/Users/pietzsch/workspace/data/111010_weber_full.xml";
+		final String fn = "/home/michael/Dokumente/Uni/Masterarbeit/data/drosophila.xml";
 //		final String fn = "/Users/Pietzsch/Desktop/spimrec2/dataset.xml";
 //		final String fn = "/Users/pietzsch/Desktop/HisYFP-SPIM/dataset.xml";
 //		final String fn = "/Users/Pietzsch/Desktop/bdv example/drosophila 2.xml";
@@ -696,7 +698,8 @@ public class BigDataViewer
 		try
 		{
 			System.setProperty( "apple.laf.useScreenMenuBar", "true" );
-			open( fn, new File( fn ).getName(), new ProgressWriterConsole() );
+			BigDataViewer bdv = open( fn, new File( fn ).getName(), new ProgressWriterConsole() );
+			GLWindow.createAndConnect3DView(bdv);
 		}
 		catch ( final Exception e )
 		{
