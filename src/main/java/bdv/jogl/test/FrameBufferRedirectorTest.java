@@ -97,7 +97,7 @@ public class FrameBufferRedirectorTest {
 
 				cube.setProjection(camera.getProjectionMatix());
 				cube.setView(camera.getViewMatrix());
-				cube.update(gl2);
+				//cube.update(gl2);
 
 				GLErrorHandler.assertGL(gl2);
 

@@ -101,7 +101,7 @@ public class UnitCubeTest {
 			@Override
 			public void display(GLAutoDrawable drawable) {
 				GL2 gl2 = drawable.getGL().getGL2();
-				cube.update(gl2);
+		//		cube.update(gl2);
 				cube.render(gl2);
 
 				try {
@@ -194,7 +194,7 @@ public class UnitCubeTest {
 			public void display(GLAutoDrawable drawable) {
 				GL2 gl2 = drawable.getGL().getGL2();
 				for(UnitCube cube:cubes){
-					cube.update(gl2);
+				//	cube.update(gl2);
 					cube.render(gl2);
 
 					try {

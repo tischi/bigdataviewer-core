@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import bdv.jogl.test.AbstractShaderSceneElement;
 import bdv.jogl.test.MatrixUtils;
 
 import com.jogamp.common.nio.Buffers;
@@ -19,7 +20,7 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
  * @author michael
  *
  */
-public class UnitCube {
+public class UnitCube extends AbstractShaderSceneElement{
 	
 	public static final String shaderVariablePosition = "inPosition";
 
@@ -95,7 +96,7 @@ public class UnitCube {
 	/**
 	 * update all shader variables 
 	 */
-	public void update(GL2 gl){
+	private void update(GL2 gl){
 		updateShaderAttributes(gl);
 		
 		updateVertexBuffer(gl);
@@ -280,6 +281,8 @@ public class UnitCube {
 	}
 
 	public void render(GL2 gl2){
+		
+		update(gl2);
 		
 		shaderProgram.useProgram(gl2, true);
 		

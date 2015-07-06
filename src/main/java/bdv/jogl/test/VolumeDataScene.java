@@ -21,82 +21,31 @@ import com.jogamp.opengl.math.Matrix4;
  * @author michael
  *
  */
-public class VolumeDataScene {
-
-	private Camera camera = new Camera();
+public class VolumeDataScene extends AbstractScene{
 
 	private BigDataViewer bigDataViewer;
 
-	private List<UnitCube> sceneElements = new ArrayList<UnitCube>();
+	@Override
+	protected void disposeSpecial(GL2 gl2) {}
+	
 
+	@Override
+	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
+
+	
 	public VolumeDataScene(BigDataViewer bdv){
 		bigDataViewer = bdv;
 	}
 
-	/**
-	 * @return the camera
-	 */
-	public Camera getCamera() {
-		return camera;
-	}
 
-	/**
-	 * does std gl camera initializations
-	 * @param camera2 camera to init
-	 */
-	private void initLocalCamera(Camera camera2, int width, int height){
-		float[] center = {50,50,50};
-		float[] eye = {50,50,300};
-
-		camera2.addCameraListener(new CameraListener() {
-
-			@Override
-			public void viewMatrixUpdate(Matrix4 matrix) {
-
-				//update all views
-				for(UnitCube element : sceneElements){
-					element.setView(matrix);
-				}
-			}
-
-			@Override
-			public void projectionMatrixUpdate(Matrix4 matrix) {
-
-				//update all projections
-				for(UnitCube element : sceneElements){
-					element.setProjection(matrix);
-				}
-			}
-		});
-		camera2.setAlpha(45);
-		camera2.setWidth(width);
-		camera2.setHeight(height);
-		camera2.setZfar(100000);
-		camera2.setZnear(0);
-		camera2.setLookAtPoint(center);
-		camera2.setEyePoint(eye);
-		camera2.update();
-	}
-
-
-	/**
-	 * @param camera the camera to set
-	 */
-	public void setCamera(Camera camera) {
-		this.camera = camera;
-	}
-
-	
 	/**
 	 * initializes the scene once
 	 * @param gl2
 	 * @param width
 	 * @param height
 	 */
-	public void init(GL2 gl2, int width, int height){
+	protected void initSpecial(GL2 gl2, int width, int height){
 
-		initLocalCamera(camera,width,height);
-		sceneElements.clear();
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
 		float colorLinearFactor = 1.f/numberOfSources;
 		float r =0, g=1,b=1 ;
@@ -117,14 +66,13 @@ public class VolumeDataScene {
 	 * render the scene
 	 * @param gl2
 	 */
-	public void render(GL2 gl2){
+	protected void renderSpecial(GL2 gl2){
 		gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 
 		AffineTransform3D viewerTransform = new AffineTransform3D();
 		bigDataViewer.getViewer().getState().getViewerTransform(viewerTransform);
-
-
+		
 		ViewerState state = bigDataViewer.getViewer().getState();
 		state.getViewerTransform(viewerTransform);
 		List<SourceState<?>> sources = state.getSources();
@@ -155,41 +103,11 @@ public class VolumeDataScene {
 			mat.multMatrix(sourceTransformation);
 			mat.multMatrix(scale);
 
-
-
-			UnitCube cubeShader = sceneElements.get(i);
+			ISceneElements cubeShader = sceneElements.get(i);
 
 			//mat.loadIdentity();
 			cubeShader.setModelTransformations(mat);
-			cubeShader.update(gl2);
-			cubeShader.render(gl2);
-
 			i++;
-		}
-
-	}
-
-	/**
-	 * resizes the scene and the gl shader context
-	 * @param gl2
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 */
-	public void resize(GL2 gl2,int x, int y, int width, int height){
-		camera.setWidth(width);
-		camera.setHeight(height);
-		camera.updatePerspectiveMatrix();
-	}
-
-	/**
-	 * releases gl resources
-	 * @param gl2
-	 */
-	public void dispose(GL2 gl2){
-		for(UnitCube c : sceneElements){
-			c.disposeGL(gl2);
 		}
 	}
 }
