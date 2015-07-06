@@ -1,12 +1,12 @@
-package bdv.jogl.test;
+package bdv.jogl.shader;
 
 import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
+
+import bdv.jogl.test.MatrixUtils;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
@@ -39,8 +39,12 @@ public class UnitCube {
 		shaderFiles = Collections.unmodifiableMap(aMap);
 	}
 
-	private Queue<Matrix4> modelTransformations = new LinkedList<Matrix4>();
+	private Matrix4 projection = MatrixUtils.getNewIdentityMatrix();
 
+	private Matrix4 view = MatrixUtils.getNewIdentityMatrix();
+	
+	private Matrix4 modelTransformations = MatrixUtils.getNewIdentityMatrix();
+	
 	private Map<Integer, ShaderCode> shaderCodes = new HashMap<Integer, ShaderCode>();
 	
 	private Map<String, Integer> shaderVariableMapping = new HashMap<String, Integer>();
@@ -49,7 +53,7 @@ public class UnitCube {
 
 	private float[] coordinates = getBufferVertices(); 
 	
-	private Camera camera = new Camera();
+	//private Camera camera = new Camera();
 	
 	private int vertexBufferId = 0;
 	
@@ -191,15 +195,12 @@ public class UnitCube {
 		
 		shaderProgram.useProgram(gl2, true);
 		
-		
 		//memcopy
 		gl2.glUniform4f(shaderVariableMapping.get(shaderVariableColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableProjectionMatrix), 1, false, camera.getProjectionMatix().getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableViewMatrix), 1, false, camera.getViewMatrix().getMatrix(),0);
-		if(!modelTransformations.isEmpty()){
-			gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableModelMatrix), 1, false, modelTransformations.peek().getMatrix(),0);
-		}
-
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableProjectionMatrix), 1, false, projection.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableViewMatrix), 1, false, view.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableModelMatrix), 1, false, modelTransformations.getMatrix(),0);
+		
 		shaderProgram.useProgram(gl2, false);
 	}
 
@@ -267,8 +268,15 @@ public class UnitCube {
 	/**
 	 * @return the modelTransformations
 	 */
-	public Queue<Matrix4> getModelTransformations() {
+	public Matrix4 getModelTransformations() {
 		return modelTransformations;
+	}
+
+	/**
+	 * @param modelTransformations the modelTransformations to set
+	 */
+	public void setModelTransformations(Matrix4 modelTransformations) {
+		this.modelTransformations = modelTransformations;
 	}
 
 	public void render(GL2 gl2){
@@ -289,14 +297,6 @@ public class UnitCube {
 		shaderProgram.useProgram(gl2, false);
 	}
 	
-
-	/**
-	 * set the scene camera
-	 * @param camera
-	 */
-	public void setCamera(Camera camera) {
-		this.camera = camera;
-	}
 
 	/**
 	 * @return the renderWireframe
@@ -324,5 +324,19 @@ public class UnitCube {
 	 */
 	public void setColor(Color color) {
 		this.color = color;
+	}
+	
+	/**
+	 * @param projection the projection to set
+	 */
+	public void setProjection(Matrix4 projection) {
+		this.projection = projection;
+	}
+
+	/**
+	 * @param view the view to set
+	 */
+	public void setView(Matrix4 view) {
+		this.view = view;
 	}
 }

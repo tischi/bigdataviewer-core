@@ -1,5 +1,8 @@
 package bdv.jogl.test;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
@@ -11,6 +14,8 @@ import com.jogamp.opengl.math.VectorUtil;
  */
 public class Camera {
 
+	private List<CameraListener> cameraListeners = new LinkedList<CameraListener>();
+	
 	private Matrix4 projectionMatrix  = new Matrix4();
 
 	private Matrix4 viewMatrix = new Matrix4();
@@ -243,6 +248,11 @@ public class Camera {
 	public void updateViewMatrix(){
 
 		updateLookAt();
+		
+		//notify listeners
+		for(CameraListener l : cameraListeners){
+			l.viewMatrixUpdate(getViewMatrix());
+		}
 	}
 
 	/**
@@ -252,8 +262,35 @@ public class Camera {
 		
 		FloatUtil.makePerspective(projectionMatrix.getMatrix(), 0, true, 
 				alpha,width.floatValue()/height.floatValue(), znear, zfar);
+		
+		//notify listeners
+		for(CameraListener l : cameraListeners){
+			l.projectionMatrixUpdate(getProjectionMatix());
+		}
 	}
 
+	
+	/**
+	 * Adds a new camera listener.
+	 * @param listener
+	 * @return true if add was successful
+	 */
+	public boolean addCameraListener(CameraListener listener){
+		//wrong value
+		if(listener == null){
+			return false;
+		}
+			
+		return cameraListeners.add(listener);
+	}
+
+	/**
+	 * removes all camera listeners if this camera.
+	 */
+	public void clearCameraListeners(){
+		cameraListeners.clear();
+	}
+	
 	/**
 	 * updates viewMatrix like glulookat
 	 */
