@@ -1,6 +1,7 @@
 package bdv.jogl.test;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.imglib2.RandomAccessibleInterval;
@@ -23,6 +24,8 @@ public class VolumeDataScene extends AbstractScene{
 
 	private BigDataViewer bigDataViewer;
 
+	private List<UnitCube> volumeBorders = new ArrayList<UnitCube>();
+	
 	@Override
 	protected void disposeSpecial(GL2 gl2) {}
 	
@@ -50,7 +53,8 @@ public class VolumeDataScene extends AbstractScene{
 		for(int i = 0; i < bigDataViewer.getViewer().getState().getSources().size(); i++){
 
 			UnitCube cubeShader = new UnitCube();
-			sceneElements.add(cubeShader);
+			volumeBorders.add(cubeShader);
+			addSceneElement(cubeShader);
 			cubeShader.init(gl2);
 			cubeShader.setRenderWireframe(true);
 			cubeShader.setColor(new Color(r,g,b,1));
@@ -99,8 +103,8 @@ public class VolumeDataScene extends AbstractScene{
 
 			mat.multMatrix(sourceTransformation);
 			mat.multMatrix(scale);
-
-			ISceneElements cubeShader = sceneElements.get(i);
+			
+			UnitCube cubeShader = volumeBorders.get(i);
 
 			//mat.loadIdentity();
 			cubeShader.setModelTransformations(mat);

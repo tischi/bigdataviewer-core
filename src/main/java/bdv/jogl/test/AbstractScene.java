@@ -19,14 +19,15 @@ public abstract class AbstractScene {
 
 	protected Color backgroundColor = new Color(0.f,0.f,0.f,1.f);
 
-	protected List<ISceneElements> sceneElements = new ArrayList<ISceneElements>();
-
+	private List<ISceneElements> sceneElements = new ArrayList<ISceneElements>();
 
 	/**
-	 * @return the sceneElements
+	 * adds an abstract element to scene
+	 * @param sceneElement
+	 * @return
 	 */
-	public List<ISceneElements> getSceneElements() {
-		return sceneElements;
+	public boolean addSceneElement(ISceneElements sceneElement) {
+		return sceneElements.add(sceneElement);
 	}
 
 
@@ -142,10 +143,10 @@ public abstract class AbstractScene {
 				backgroundColor.getGreen()/255, 
 				backgroundColor.getBlue()/255, 
 				backgroundColor.getAlpha()/255);
-		
+
 		GLErrorHandler.assertGL(gl2);
-		
-		
+
+
 		gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 		//subclass stuff
