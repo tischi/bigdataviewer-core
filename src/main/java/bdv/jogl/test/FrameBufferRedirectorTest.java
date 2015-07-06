@@ -12,14 +12,11 @@ import javax.swing.JFrame;
 import org.junit.Before;
 import org.junit.Test;
 
-import bdv.jogl.shader.UnitCube;
-
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
-import com.jogamp.opengl.math.Matrix4;
 
 /**
  * Test of frame buffer wrapper
@@ -40,16 +37,12 @@ public class FrameBufferRedirectorTest {
 	private final float zfar = 10f;
 
 	private float[][][] result;
+	
+	private AbstractScene testScene = new SimpleScene();  
 
 	private JFrame testwindow = new JFrame();
 
 	private GLCanvas glCanvas = new GLCanvas();
-
-	private Camera camera = new Camera();
-
-	private UnitCube cube = new UnitCube();
-
-	private Color cubeColor = new Color(1.f,1.f,1.f,1.f); 
 
 	private FrameBufferRedirector redirector = new FrameBufferRedirector(); 
 
@@ -67,6 +60,7 @@ public class FrameBufferRedirectorTest {
 			@Override
 			public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 					int height) { 
+				Camera camera = testScene.getCamera();
 				camera.setWidth(width);
 				camera.setHeight(height);
 				camera.update();
@@ -80,6 +74,7 @@ public class FrameBufferRedirectorTest {
 				int height = drawable .getSurfaceHeight();
 
 				//camera init
+				Camera camera = testScene.getCamera();
 				camera.setWidth(width);
 				camera.setHeight(height);
 				camera.setZnear(znear);
@@ -89,15 +84,12 @@ public class FrameBufferRedirectorTest {
 				camera.setLookAtPoint(up);
 				camera.update();
 
+				testScene.setBackgroundColor(Color.GREEN);
 
 				//redirector
 				redirector.setHeight(height);
 				redirector.setWidth(width);;
 				redirector.init(gl2);
-
-				cube.setProjection(camera.getProjectionMatix());
-				cube.setView(camera.getViewMatrix());
-				//cube.update(gl2);
 
 				GLErrorHandler.assertGL(gl2);
 
@@ -109,8 +101,6 @@ public class FrameBufferRedirectorTest {
 				GL2 gl2 = gl.getGL2();
 
 				result = redirector.getFrameBufferContent(gl2);
-				//redirector.disposeGL(gl2);
-				cube.disposeGL(gl2);
 
 				GLErrorHandler.assertGL(gl2);
 				try {
@@ -139,13 +129,8 @@ public class FrameBufferRedirectorTest {
 				}
 			}
 		} ;
-		Matrix4 mat = MatrixUtils.getNewIdentityMatrix();
 
-
-		cube.setColor(cubeColor);
-		cube.setModelTransformations(mat);
-
-		redirector.getRenderElements().add(cube);
+		redirector.setScene(testScene);
 
 		testwindow.setSize(testSize, testSize);
 		glCanvas.addGLEventListener(listener);
@@ -162,25 +147,13 @@ public class FrameBufferRedirectorTest {
 
 		syncQueue.poll(2, TimeUnit.MINUTES);
 
-		boolean notNull = false;
 		for(int y =0; y < redirector.getHeight(); y++){
 			for(int x =0; x < redirector.getWidth(); x++){
 
 				Color currentColor = new Color(result[x][y][0],result[x][y][1],result[x][y][2],result[x][y][3]);
-				if(currentColor.equals(cubeColor)){
-					notNull = true;
-				}
-
-				if(notNull){
-					break;
-				}
-			}
-			if(notNull){
-				break;
+				assertEquals(currentColor, Color.GREEN);
 			}
 		}
-
-		assertTrue("The framebuffer was empty", notNull);;
 	}
 
 }

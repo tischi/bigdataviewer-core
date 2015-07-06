@@ -1,10 +1,6 @@
 package bdv.jogl.test;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import bdv.jogl.shader.UnitCube;
 
 import com.jogamp.opengl.FBObject;
 import com.jogamp.opengl.FBObject.Colorbuffer;
@@ -19,7 +15,7 @@ public class FrameBufferRedirector {
 	
 	private FBObject internalFrameBuffer;
 	
-	private List<UnitCube>renderElements =  new ArrayList<UnitCube>();
+	private AbstractScene scene =  new SimpleScene();
 
 	private int width = 480;
 	
@@ -42,21 +38,28 @@ public class FrameBufferRedirector {
 	}
 	
 	/**
-	 * @return the renderElements
+	 * @return the scene to render
 	 */
-	public List<UnitCube> getRenderElements() {
-		return renderElements;
+	public AbstractScene getScene() {
+		return scene;
 	}
 
+
+	/**
+	 * @param scene the scene to set
+	 */
+	public void setScene(AbstractScene scene) {
+		this.scene = scene;
+	}
+	
+	
 	/**
 	 * init wrapper
 	 * @param gl2
 	 */
 	public void init(GL2 gl2){
 		initFrameBufferObject(gl2);
-		for(UnitCube element : renderElements){
-			element.init(gl2);
-		}
+		scene.init(gl2, width, height);
 	}
 	
 	/**
@@ -65,9 +68,7 @@ public class FrameBufferRedirector {
 	 */
 	public void render(GL2 gl2){
 		internalFrameBuffer.bind(gl2);
-		for(UnitCube element: renderElements){
-			element.render(gl2);
-		}
+		scene.render(gl2);
 		internalFrameBuffer.unbind(gl2);
 	}
 	
@@ -76,9 +77,7 @@ public class FrameBufferRedirector {
 	 * @param gl2
 	 */
 	public void disposeGL(GL2 gl2){
-		for(UnitCube element: renderElements){
-			element.disposeGL(gl2);
-		}
+		scene.dispose(gl2);
 		disposeFrameBufferObject(gl2);
 		buffer.free(gl2);
 	}

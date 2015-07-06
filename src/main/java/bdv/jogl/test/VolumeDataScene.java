@@ -1,7 +1,6 @@
 package bdv.jogl.test;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.imglib2.RandomAccessibleInterval;
@@ -12,7 +11,6 @@ import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
 import static bdv.jogl.test.MatrixUtils.*;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 
@@ -67,7 +65,6 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param gl2
 	 */
 	protected void renderSpecial(GL2 gl2){
-		gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 
 		AffineTransform3D viewerTransform = new AffineTransform3D();
