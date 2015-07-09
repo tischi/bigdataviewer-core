@@ -86,9 +86,9 @@ public class VolumeDataScene extends AbstractScene{
 		int midMapLevel = 0;
 		int i =0;
 		for(SourceState<?> source : sources){
-			Matrix4 mat = copyMatrix(stateTrans);
+	
 
-			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, source.getSpimSource().getNumMipmapLevels()-1);
+			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel/*source.getSpimSource().getNumMipmapLevels()-1*/);
 
 			//block transform
 			AffineTransform3D sourceTransform3D = new AffineTransform3D();
@@ -112,7 +112,9 @@ public class VolumeDataScene extends AbstractScene{
 			scale.loadIdentity();
 			scale.scale(dim[0], dim[1], dim[2]);
 
+			Matrix4 mat = copyMatrix(stateTrans);
 			mat.multMatrix(sourceTransformation);
+	
 			mat.multMatrix(scale);
 
 			UnitCube cubeShader = volumeBorders.get(i);
