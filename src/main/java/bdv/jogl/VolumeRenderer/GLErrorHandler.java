@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.glu.GLU;
@@ -14,7 +14,7 @@ public class GLErrorHandler {
 	 * evaluates the current gl context and throws an exception if there was an error.
 	 * @param gl
 	 */
-	static void assertGL(GL gl){
+	public static void assertGL(GL gl){
 		int latestError = gl.glGetError();
 		
 		//everything is ok
