@@ -49,6 +49,7 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
 
+		sceneElements.clear();
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
 		float colorLinearFactor = 1.f/numberOfSources;
 		float r =0, g=1,b=1 ;
@@ -83,11 +84,11 @@ public class VolumeDataScene extends AbstractScene{
 		Matrix4 stateTrans = convertToJoglTransform(viewerTransform);
 
 		int currentTimepoint = state.getCurrentTimepoint();
-		int midMapLevel = 0;
+		
 		int i =0;
 		for(SourceState<?> source : sources){
 	
-
+			int midMapLevel = source.getSpimSource().getNumMipmapLevels()-1;
 			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel/*source.getSpimSource().getNumMipmapLevels()-1*/);
 
 			//block transform

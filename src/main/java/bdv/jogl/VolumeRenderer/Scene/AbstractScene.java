@@ -23,7 +23,7 @@ public abstract class AbstractScene {
 
 	protected Color backgroundColor = new Color(0.f,0.f,0.f,1.f);
 
-	private List<ISceneElements> sceneElements = new ArrayList<ISceneElements>();
+	protected List<ISceneElements> sceneElements = new ArrayList<ISceneElements>();
 
 	/**
 	 * adds an abstract element to scene
@@ -172,9 +172,10 @@ public abstract class AbstractScene {
 	public void init(GL2 gl2, int width, int height){
 
 		initLocalCamera(camera, width, height);
-
-		sceneElements.clear();
-
+		
+		for(ISceneElements scene:sceneElements){
+			scene.init(gl2);
+		}
 		//sub class stuff
 		initSpecial(gl2, width, height);
 	}
