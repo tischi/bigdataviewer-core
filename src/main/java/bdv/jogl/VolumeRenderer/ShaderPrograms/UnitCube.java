@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
+
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
@@ -26,7 +28,9 @@ public class UnitCube extends AbstractShaderSceneElement{
 		shaderFiles = Collections.unmodifiableMap(aMap);
 	}	
 
-	private float[] coordinates = getBufferVertices(); 
+	private boolean renderWireframe = false;
+	
+	private float[] coordinates = GeometryUtils.getUnitCubeVertices(); 
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
 
@@ -41,44 +45,30 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 
 
-	private float[] getBufferVertices(){
-		float [] array = {
-				0,0,0,
-				1,0,0,
-				1,1,0,
-				0,1,0,
-
-				0,0,0,
-				0,1,0,
-				0,1,1,
-				0,0,1,
-
-				0,0,0,
-				1,0,0,
-				1,0,1,
-				0,0,1,
-
-				1,0,0,
-				1,0,1,
-				1,1,1,
-				1,1,0,
-
-				1,0,1,
-				0,0,1,
-				0,1,1,
-				1,1,1,
-
-				0,1,0,
-				1,1,0,
-				1,1,1,
-				0,1,1,
-		};
-		return array;
+	/**
+	 * @return the renderWireframe
+	 */
+	public boolean isRenderWireframe() {
+		return renderWireframe;
 	}
 
 	
+	/**
+	 * @param renderWireframe the renderWireframe to set
+	 */
+	public void setRenderWireframe(boolean renderWireframe) {
+		this.renderWireframe = renderWireframe;
+	}
+	
+	
 	protected void renderSubClass(GL2 gl2){
+		if(isRenderWireframe()){
+			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
+		}
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+		if(isRenderWireframe()){
+			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_FILL );
+		}
 	}
 
 	

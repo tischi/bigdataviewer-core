@@ -44,22 +44,6 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 	private int vertexArrayId = 0;
 
-	private boolean renderWireframe = false;
-
-	/**
-	 * @return the renderWireframe
-	 */
-	public boolean isRenderWireframe() {
-		return renderWireframe;
-	}
-
-	/**
-	 * @param renderWireframe the renderWireframe to set
-	 */
-	public void setRenderWireframe(boolean renderWireframe) {
-		this.renderWireframe = renderWireframe;
-	}
-
 
 	/**
 	 * @param projection the projection to set
@@ -296,15 +280,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.useProgram(gl2, true);
 
 		gl2.glBindVertexArray(vertexArrayId);
-		if(isRenderWireframe()){
-			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
-		}
+
 
 		renderSubClass(gl2);
 
-		if(isRenderWireframe()){
-			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_FILL );
-		}
+
 		gl2.glBindVertexArray(0);
 
 		shaderProgram.useProgram(gl2, false);
