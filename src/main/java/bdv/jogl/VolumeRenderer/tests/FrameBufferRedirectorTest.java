@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.tests;
 
 import static org.junit.Assert.*;
 
@@ -11,6 +11,12 @@ import javax.swing.JFrame;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.FrameBufferRedirector;
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
+import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
+import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;

@@ -1,6 +1,9 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer;
 
 import java.nio.FloatBuffer;
+
+import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
+import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 
 import com.jogamp.opengl.FBObject;
 import com.jogamp.opengl.FBObject.Colorbuffer;

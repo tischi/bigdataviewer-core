@@ -1,12 +1,11 @@
-package bdv.jogl.shader;
+package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.awt.Color;
+import java.io.File;
 import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import bdv.jogl.test.AbstractShaderSceneElement;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
@@ -22,8 +21,8 @@ public class UnitCube extends AbstractShaderSceneElement{
 	public static final String shaderVariableColor = "inColor";
 	static {
 		Map<Integer, String> aMap = new HashMap<Integer, String>();
-		aMap.put(GL2.GL_VERTEX_SHADER, "UnitCubeVertexShader.glsl");
-		aMap.put(GL2.GL_FRAGMENT_SHADER, "UnitCubeFragmentShader.glsl");
+		aMap.put(GL2.GL_VERTEX_SHADER, "glsl"+File.separator+"UnitCubeVertexShader.glsl");
+		aMap.put(GL2.GL_FRAGMENT_SHADER, "glsl"+File.separator+"UnitCubeFragmentShader.glsl");
 		shaderFiles = Collections.unmodifiableMap(aMap);
 	}	
 

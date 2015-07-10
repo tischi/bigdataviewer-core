@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.tests;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,8 @@ import java.util.concurrent.BlockingQueue;
 import javax.swing.JFrame;
 
 import org.junit.Test;
+
+import bdv.jogl.VolumeRenderer.Camera;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;

@@ -1,8 +1,12 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.Scene;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+
+import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.CameraListener;
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;

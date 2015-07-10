@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.Scene;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;

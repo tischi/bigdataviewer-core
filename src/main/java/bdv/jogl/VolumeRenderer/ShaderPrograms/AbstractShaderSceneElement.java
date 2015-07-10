@@ -1,7 +1,10 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import bdv.jogl.VolumeRenderer.Scene.ISceneElements;
+import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;

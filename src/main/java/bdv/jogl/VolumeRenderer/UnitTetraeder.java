@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer;
 
 import com.jogamp.opengl.GL2;
 

@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.gui;
 
 
 import java.awt.event.WindowEvent;
@@ -6,13 +6,12 @@ import java.awt.event.WindowListener;
 import java.util.LinkedList;
 import java.util.List;
 
-
 import javax.swing.JFrame;
-
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;

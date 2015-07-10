@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.tests;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import bdv.jogl.shader.UnitCube;
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;

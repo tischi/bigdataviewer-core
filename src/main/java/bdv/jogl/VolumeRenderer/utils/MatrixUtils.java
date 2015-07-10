@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.utils;
 
 import net.imglib2.realtransform.AffineTransform3D;
 

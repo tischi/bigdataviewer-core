@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.Scene;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -9,10 +9,10 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.view.Views;
 import bdv.BigDataViewer;
-import bdv.jogl.shader.UnitCube;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
-import static bdv.jogl.test.MatrixUtils.*;
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;

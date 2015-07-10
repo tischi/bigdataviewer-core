@@ -1,10 +1,11 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.tests;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 
 import com.jogamp.opengl.math.Matrix4;
 

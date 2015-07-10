@@ -1,4 +1,4 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.utils;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

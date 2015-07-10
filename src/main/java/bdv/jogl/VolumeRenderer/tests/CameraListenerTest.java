@@ -1,9 +1,12 @@
-package bdv.jogl.test;
+package bdv.jogl.VolumeRenderer.tests;
 
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.CameraListener;
 
 import com.jogamp.opengl.math.Matrix4;
 
