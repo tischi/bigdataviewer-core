@@ -9,7 +9,11 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.view.Views;
 import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.CameraListener;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataUtils;
 import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
@@ -27,6 +31,8 @@ public class VolumeDataScene extends AbstractScene{
 	private BigDataViewer bigDataViewer;
 
 	private List<UnitCube> volumeBorders = new ArrayList<UnitCube>();
+	
+	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
 	@Override
 	protected void disposeSpecial(GL2 gl2) {}
@@ -40,6 +46,44 @@ public class VolumeDataScene extends AbstractScene{
 		bigDataViewer = bdv;
 	}
 
+	/**
+	 * does std gl camera initializations
+	 * @param camera2 camera to init
+	 */
+	private void initLocalCamera(Camera camera2, int width, int height){
+		float[] center = {50,50,50};
+		float[] eye = {50,50,300};
+
+		camera2.addCameraListener(new CameraListener() {
+
+			@Override
+			public void viewMatrixUpdate(Matrix4 matrix) {
+
+				//update all views
+				for(ISceneElements element : sceneElements){
+					element.setView(matrix);
+				}
+			}
+
+			@Override
+			public void projectionMatrixUpdate(Matrix4 matrix) {
+
+				//update all projections
+				for(ISceneElements element : sceneElements){
+					element.setProjection(matrix);
+				}
+			}
+		});
+		camera2.setAlpha(45);
+		camera2.setWidth(width);
+		camera2.setHeight(height);
+		camera2.setZfar(100000);
+		camera2.setZnear(0);
+		camera2.setLookAtPoint(center);
+		camera2.setEyePoint(eye);
+		camera2.update();
+	}
+	
 
 	/**
 	 * initializes the scene once
@@ -49,12 +93,15 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
 
+		initLocalCamera(camera, width, height);
+		
 		sceneElements.clear();
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
 		float colorLinearFactor = 1.f/numberOfSources;
 		float r =0, g=1,b=1 ;
-		for(int i = 0; i < bigDataViewer.getViewer().getState().getSources().size(); i++){
-
+		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
+			
+			//create borders
 			UnitCube cubeShader = new UnitCube();
 			volumeBorders.add(cubeShader);
 			addSceneElement(cubeShader);
@@ -63,9 +110,25 @@ public class VolumeDataScene extends AbstractScene{
 			cubeShader.setColor(new Color(r,g,b,1));
 			r+=colorLinearFactor;
 			b-=colorLinearFactor;
+			
+			//create vRenderer
+			SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
+			volumeRenderes.add(vRenderer);
+			addSceneElement(vRenderer);
+			vRenderer.init(gl2);
+			
+			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1);
+			long[] dim = new long[3];
+			int[] dimI = new int[3];
+			data.dimensions(dim);
+			for(int i = 0; i<dim.length; i++){
+				dimI[i] = (int)dim[i];
+			}
+			vRenderer.setDimension(dimI);
+			vRenderer.setData(VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1)));
+			
 		}
 	}
-
 
 
 	/**
@@ -119,7 +182,8 @@ public class VolumeDataScene extends AbstractScene{
 			mat.multMatrix(scale);
 
 			UnitCube cubeShader = volumeBorders.get(i);
-
+			volumeRenderes.get(i).setModelTransformations(mat);
+			
 			//mat.loadIdentity();
 			cubeShader.setModelTransformations(mat);
 			i++;

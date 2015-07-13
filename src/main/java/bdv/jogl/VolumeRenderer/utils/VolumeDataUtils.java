@@ -26,23 +26,22 @@ public class VolumeDataUtils {
 	 * @param source data to copy from
 	 * @return An array of volume data with the dimensions x,y,z 
 	 */
-	public static short[][][] getDataBlock(RandomAccessibleInterval<?> source){
+	public static float[] getDataBlock(RandomAccessibleInterval<?> source){
 		IterableInterval<?> tmp = Views.flatIterable(source);
 		Long maxX = tmp.dimension(0);
 		Long maxY = tmp.dimension(1);
 		Long maxZ = tmp.dimension(2);
 
-		short[][][] block = new short[maxX.intValue()]
-				[maxY.intValue()]
-						[maxZ.intValue()];
+		float[] block = new float[maxX.intValue()*maxY.intValue()*maxZ.intValue()];
 
 
 		// copy values 
+		int i = 0;
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
 		for(int z = 0; z< maxZ.intValue(); z++){
 			for(int y = 0; y < maxY.intValue(); y++){
 				for(int x = 0; x < maxX.intValue(); x++ ){
-					block[x][y][z] = (short)values.next().get() ;
+					block[i++] = (float)values.next().get() ;
 				}
 			}
 		}
@@ -55,10 +54,10 @@ public class VolumeDataUtils {
 	 * @param data volume data array to write
 	 * @param fileName file to write
 	 */
-	public static void writeParaviewFile(final short [][][] data, final String fileName){
+	public static void writeParaviewFile(final float [] data,final int[] dims, final String fileName){
 		PrintWriter paraWriter = null;
 		List<List<Integer>> cellDefines = new LinkedList<List<Integer>>();
-		List<Short> values = new ArrayList<Short>();
+		List<Float> values = new ArrayList<Float>();
 		try {
 			paraWriter = new PrintWriter(fileName+".vtu","UTF-8");
 		} catch (FileNotFoundException e) {
@@ -68,7 +67,7 @@ public class VolumeDataUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int[] dims = {data.length,data[0].length,data[0][0].length};
+	
 
 		//vti header
 		paraWriter.println("# vtk DataFile Version 3.1");
@@ -81,11 +80,11 @@ public class VolumeDataUtils {
 		final int offsetNextNode = 1;
 		final int offsetNextLine = dims[0];
 		final int offsetNextSlice = dims[0]*dims[1];
-		
+		int i =0;
 		paraWriter.println("POINTS "+ dims[0]*dims[1]*dims[2]+ " FLOAT" );
-		for(int z = 0; z< data[0][0].length;z++){
-			for(int y = 0; y < data[0].length; y++){
-				for (int x = 0; x < data.length; x++){
+		for(int z = 0; z< dims[2];z++){
+			for(int y = 0; y < dims[1]; y++){
+				for (int x = 0; x < dims[0]; x++){
 
 					//not last element in dimension
 					if(x < dims[0]-1&&y < dims[1]-1&&z < dims[2]-1){
@@ -107,7 +106,7 @@ public class VolumeDataUtils {
 					}
 
 					String line = "" +x + " "+y+" "+z;
-					values.add(data[x][y][z]);
+					values.add(data[i++]);
 					paraWriter.println(line);
 
 				}
@@ -129,7 +128,7 @@ public class VolumeDataUtils {
 
 		//cell Type
 		paraWriter.println("CELL_TYPES "+ cellDefines.size());
-		for(int i = 0; i < cellDefines.size(); i++ ){
+		for(i = 0; i < cellDefines.size(); i++ ){
 			paraWriter.println(11);
 		}
 		paraWriter.println();
@@ -139,7 +138,7 @@ public class VolumeDataUtils {
 		paraWriter.println("POINT_DATA "+ values.size() );
 		paraWriter.println("SCALARS intensity FLOAT 1" );
 		paraWriter.println("LOOKUP_TABLE default");
-		for(Short s : values){
+		for(Float s : values){
 			paraWriter.println(s.toString());
 		}
 		//end point data

@@ -59,43 +59,7 @@ public abstract class AbstractScene {
 	}
 
 
-	/**
-	 * does std gl camera initializations
-	 * @param camera2 camera to init
-	 */
-	private void initLocalCamera(Camera camera2, int width, int height){
-		float[] center = {50,50,50};
-		float[] eye = {50,50,300};
-
-		camera2.addCameraListener(new CameraListener() {
-
-			@Override
-			public void viewMatrixUpdate(Matrix4 matrix) {
-
-				//update all views
-				for(ISceneElements element : sceneElements){
-					element.setView(matrix);
-				}
-			}
-
-			@Override
-			public void projectionMatrixUpdate(Matrix4 matrix) {
-
-				//update all projections
-				for(ISceneElements element : sceneElements){
-					element.setProjection(matrix);
-				}
-			}
-		});
-		camera2.setAlpha(45);
-		camera2.setWidth(width);
-		camera2.setHeight(height);
-		camera2.setZfar(100000);
-		camera2.setZnear(0);
-		camera2.setLookAtPoint(center);
-		camera2.setEyePoint(eye);
-		camera2.update();
-	}
+	
 
 
 	/**
@@ -170,8 +134,8 @@ public abstract class AbstractScene {
 	 * @param height
 	 */
 	public void init(GL2 gl2, int width, int height){
-
-		initLocalCamera(camera, width, height);
+		
+		camera.update();
 		
 		for(ISceneElements scene:sceneElements){
 			scene.init(gl2);

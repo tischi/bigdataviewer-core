@@ -90,6 +90,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		//activate context
 		gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureObject);
+		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableVolumeTexture),0);
 		
 		//get Buffer
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(data);
@@ -129,16 +130,17 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glGenTextures(textures.length, textures,0);
 		textureObject = textures[0];
 		
-		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
+		gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureObject);
+
 		
 		//activate texture unit
 		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableVolumeTexture),0);
-		/*gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+		//gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
 		gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 		gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
 		gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
 		gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-		gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);*/
+		gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 	}
 
 	
@@ -151,9 +153,15 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	
 	@Override
 	protected void renderSubClass(GL2 gl2) {
+		//gl2.glEnable(GL2.GL_CULL_FACE);
+		//gl2.glCullFace(GL2.GL_); 
+		gl2.glEnable(GL2.GL_DEPTH_TEST);
+		gl2.glDepthFunc(GL2.GL_LEQUAL);
+		//gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureObject);
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
-		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
-
+		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
+		//gl2.glDisable(GL2.GL_CULL_FACE);
+		gl2.glDisable(GL2.GL_DEPTH_TEST);
 	}
 }
