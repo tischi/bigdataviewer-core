@@ -54,9 +54,9 @@ public class VolumeDataUtils {
 	 * @param data volume data array to write
 	 * @param fileName file to write
 	 */
-	public static void writeParaviewFile(final float [] data,final int[] dims, final String fileName){
+	public static void writeParaviewFile(final float [] data,final long[] dims, final String fileName){
 		PrintWriter paraWriter = null;
-		List<List<Integer>> cellDefines = new LinkedList<List<Integer>>();
+		List<List<Long>> cellDefines = new LinkedList<List<Long>>();
 		List<Float> values = new ArrayList<Float>();
 		try {
 			paraWriter = new PrintWriter(fileName+".vtu","UTF-8");
@@ -78,8 +78,8 @@ public class VolumeDataUtils {
 
 		//write point data
 		final int offsetNextNode = 1;
-		final int offsetNextLine = dims[0];
-		final int offsetNextSlice = dims[0]*dims[1];
+		final long offsetNextLine = dims[0];
+		final long offsetNextSlice = dims[0]*dims[1];
 		int i =0;
 		paraWriter.println("POINTS "+ dims[0]*dims[1]*dims[2]+ " FLOAT" );
 		for(int z = 0; z< dims[2];z++){
@@ -88,11 +88,11 @@ public class VolumeDataUtils {
 
 					//not last element in dimension
 					if(x < dims[0]-1&&y < dims[1]-1&&z < dims[2]-1){
-						int currenVoxelID = values.size();
+						Long currenVoxelID = (long)values.size();
 						
 						
 						//add cell ids
-						List<Integer> cell = new ArrayList<Integer>(8);
+						List<Long> cell = new ArrayList<Long>(8);
 						cell.add(currenVoxelID);
 						cell.add(currenVoxelID+offsetNextNode);
 						cell.add(currenVoxelID+offsetNextLine);
@@ -117,9 +117,9 @@ public class VolumeDataUtils {
 
 		//write cells vti
 		paraWriter.println("CELLS "+cellDefines.size()+" "+cellDefines.size() * 9);
-		for(List<Integer> cellDefine : cellDefines ){
+		for(List<Long> cellDefine : cellDefines ){
 			paraWriter.print(cellDefine.size());
-			for(Integer number: cellDefine){
+			for(Long number: cellDefine){
 				paraWriter.print(" "+number);
 			}
 			paraWriter.println();

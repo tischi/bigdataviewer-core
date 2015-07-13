@@ -170,11 +170,7 @@ public class VolumeDataScene extends AbstractScene{
 			source.getSpimSource().getSourceTransform(currentTimepoint, midMapLevel, sourceTransform3D);
 			Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
 
-			//	short[][][] values = VolumeDataUtils.getDataBlock(ssource);
-		//		VolumeDataUtils.writeParaviewFile(values, "parafile");
-		//	if(1==1)
-		//	throw new NullPointerException();
-
+	
 			//block size
 			long[] min =  new long[3];
 			long[] dim =  new long[3];
@@ -183,6 +179,11 @@ public class VolumeDataScene extends AbstractScene{
 			IterableInterval<?> tmp = Views.flatIterable(ssource);
 			tmp.dimensions(dim);			
 
+			/*float[] values = VolumeDataUtils.getDataBlock(ssource);
+			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
+			if(1==1)
+				throw new NullPointerException();*/
+			
 			Matrix4 scale = new Matrix4();
 			scale.loadIdentity();
 			scale.scale(dim[0], dim[1], dim[2]);
