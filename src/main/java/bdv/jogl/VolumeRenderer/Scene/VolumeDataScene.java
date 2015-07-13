@@ -50,9 +50,15 @@ public class VolumeDataScene extends AbstractScene{
 	 * does std gl camera initializations
 	 * @param camera2 camera to init
 	 */
-	private void initLocalCamera(Camera camera2, int width, int height){
-		float[] center = {50,50,50};
-		float[] eye = {50,50,300};
+	private void initLocalCamera(Camera camera2, int width, int height, int[] dim){
+		
+		 
+		
+		float[] center = {dim[0] ,dim[1],dim[2]};
+		
+		
+		float[] eye = {center[0],center[1],	center[2] + 30f * (dim[2])};
+		
 
 		camera2.addCameraListener(new CameraListener() {
 
@@ -77,8 +83,8 @@ public class VolumeDataScene extends AbstractScene{
 		camera2.setAlpha(45);
 		camera2.setWidth(width);
 		camera2.setHeight(height);
-		camera2.setZfar(100000);
-		camera2.setZnear(0);
+		camera2.setZfar(5000);
+		camera2.setZnear(1);
 		camera2.setLookAtPoint(center);
 		camera2.setEyePoint(eye);
 		camera2.update();
@@ -93,12 +99,14 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
 
-		initLocalCamera(camera, width, height);
+		
 		
 		sceneElements.clear();
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
 		float colorLinearFactor = 1.f/numberOfSources;
 		float r =0, g=1,b=1 ;
+		int[] dimensions = {0,0,0};
+		
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 			
 			//create borders
@@ -123,11 +131,14 @@ public class VolumeDataScene extends AbstractScene{
 			data.dimensions(dim);
 			for(int i = 0; i<dim.length; i++){
 				dimI[i] = (int)dim[i];
+				dimensions[i]  =Math.max(dimensions[i], dimI[i]);
+	
 			}
 			vRenderer.setDimension(dimI);
 			vRenderer.setData(VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1)));
-			
 		}
+		
+		initLocalCamera(camera, width, height, dimensions);
 	}
 
 
@@ -187,6 +198,7 @@ public class VolumeDataScene extends AbstractScene{
 			//mat.loadIdentity();
 			cubeShader.setModelTransformations(mat);
 			i++;
+
 		}
 	}
 }

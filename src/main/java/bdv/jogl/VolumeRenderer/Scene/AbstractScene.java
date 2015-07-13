@@ -111,15 +111,17 @@ public abstract class AbstractScene {
 				backgroundColor.getGreen()/255, 
 				backgroundColor.getBlue()/255, 
 				backgroundColor.getAlpha()/255);
-
-		GLErrorHandler.assertGL(gl2);
-
-
+		
 		gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+
+		gl2.glEnable(GL2.GL_DEPTH_TEST);
+		
+		gl2.glDepthFunc(GL2.GL_LESS);
 
 		//subclass stuff
 		renderSpecial(gl2);
 
+		
 		//render elements
 		for(ISceneElements element: sceneElements){
 			element.render(gl2);
