@@ -19,7 +19,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.TraceGL2;
 import com.jogamp.opengl.awt.GLCanvas;
 
 /**
@@ -123,7 +122,7 @@ public class GLWindow extends JFrame {
 			public void init(GLAutoDrawable drawable) {
 
 				GL gl = drawable.getGL();
-				gl =drawable.setGL(new TraceGL2(drawable.getGL().getGL2(), System.err));
+				//gl =drawable.setGL(new TraceGL2(drawable.getGL().getGL2(), System.err));
 				GL2 gl2 = gl.getGL2();
 				
 				createScene();

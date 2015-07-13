@@ -41,7 +41,7 @@ public class VolumeDataUtils {
 		for(int z = 0; z< maxZ.intValue(); z++){
 			for(int y = 0; y < maxY.intValue(); y++){
 				for(int x = 0; x < maxX.intValue(); x++ ){
-					block[i++] = (float)values.next().get() ;
+					block[i++] = (short)values.next().get() ;
 				}
 			}
 		}

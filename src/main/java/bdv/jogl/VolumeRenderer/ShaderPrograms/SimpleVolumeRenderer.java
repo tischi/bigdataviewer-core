@@ -153,15 +153,16 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	
 	@Override
 	protected void renderSubClass(GL2 gl2) {
-		//gl2.glEnable(GL2.GL_CULL_FACE);
-		//gl2.glCullFace(GL2.GL_); 
+	/*	gl2.glEnable(GL2.GL_CULL_FACE);
+		gl2.glCullFace(GL2.GL_BACK); 
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthFunc(GL2.GL_LEQUAL);
+		gl2.glDepthRangef(0.1f, 1000000);
+		gl2.glDepthFunc(GL2.GL_LEQUAL);*/
 		//gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, textureObject);
-		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+		gl2.glDrawArrays(GL2.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
-		//gl2.glDisable(GL2.GL_CULL_FACE);
-		gl2.glDisable(GL2.GL_DEPTH_TEST);
+		/*gl2.glDisable(GL2.GL_CULL_FACE);
+	    gl2.glDisable(GL2.GL_DEPTH_TEST);*/
 	}
 }

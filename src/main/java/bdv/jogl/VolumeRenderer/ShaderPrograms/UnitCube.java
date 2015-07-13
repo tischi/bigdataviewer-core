@@ -11,6 +11,7 @@ import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 
 /**
@@ -62,12 +63,16 @@ public class UnitCube extends AbstractShaderSceneElement{
 	
 	
 	protected void renderSubClass(GL2 gl2){
+		int[] oldFrontBack={GL2.GL_FILL,GL2.GL_FILL};
+		
 		if(isRenderWireframe()){
+			gl2.glGetIntegerv(GL2.GL_POLYGON_MODE, oldFrontBack,0);
 			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
 		}
-		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+		gl2.glDrawArrays(GL2.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
 		if(isRenderWireframe()){
-			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_FILL );
+			gl2.glPolygonMode(GL2.GL_FRONT, oldFrontBack[0]);
+			gl2.glPolygonMode( GL2.GL_BACK, oldFrontBack[1] );
 		}
 	}
 
