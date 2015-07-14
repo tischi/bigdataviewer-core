@@ -60,7 +60,7 @@ public class VolumeDataScene extends AbstractScene{
 		float[] center = {dim[0] ,dim[1],dim[2]};
 		
 		
-		float[] eye = {center[0],center[1],	center[2] + 30f * (dim[2])};
+		float[] eye = {center[0],center[1],	center[2] - 30f * (dim[2])};
 		
 
 		camera2.addCameraListener(new CameraListener() {
@@ -90,6 +90,7 @@ public class VolumeDataScene extends AbstractScene{
 		camera2.setZnear(1);
 		camera2.setLookAtPoint(center);
 		camera2.setEyePoint(eye);
+		camera2.setUpVector(new float[]{0,-1,0});
 		camera2.update();
 	}
 	
@@ -111,14 +112,14 @@ public class VolumeDataScene extends AbstractScene{
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 			
 			//create borders
-			UnitCube cubeShader = new UnitCube();
+		/*	UnitCube cubeShader = new UnitCube();
 			volumeBorders.add(cubeShader);
 			addSceneElement(cubeShader);
 			cubeShader.init(gl2);
 			cubeShader.setRenderWireframe(true);
 			cubeShader.setColor(new Color(r,g,b,1));
 			r+=colorLinearFactor;
-			b-=colorLinearFactor;
+			b-=colorLinearFactor;*/
 			
 			//create vRenderer
 			SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
@@ -195,18 +196,22 @@ public class VolumeDataScene extends AbstractScene{
 	
 			mat.multMatrix(scale);
 
-			UnitCube cubeShader = volumeBorders.get(i);
+			//UnitCube cubeShader = volumeBorders.get(i);
 			
 			
 			//transform eye to object space
 			float eye[]  = camera.getEyePoint().clone();
 			Matrix4 transMatr=getNewIdentityMatrix();
-			
+
 			transMatr.multMatrix(camera.getProjectionMatix());
 			transMatr.multMatrix(camera.getViewMatrix());
-			transMatr.multMatrix(mat);
+
+	
+			transMatr.multMatrix(stateTrans);
+			transMatr.multMatrix(sourceTransformation);
+			transMatr.multMatrix(scale);		
 			
-			
+
 			
 			transMatr.invert();
 			float eyeTrans4D[]  ={0,0,0,0};
@@ -218,7 +223,7 @@ public class VolumeDataScene extends AbstractScene{
 			volumeRenderes.get(i).setModelTransformations(mat);
 			
 			//mat.loadIdentity();
-			cubeShader.setModelTransformations(mat);
+			//cubeShader.setModelTransformations(mat);
 			i++;
 
 		}

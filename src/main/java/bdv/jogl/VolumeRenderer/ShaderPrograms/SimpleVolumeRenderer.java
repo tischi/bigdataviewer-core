@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
@@ -164,7 +165,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		//activate context
 		gl2.glActiveTexture(GL2.GL_TEXTURE1);
 		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
-		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),0);
+		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),1);
 
 		Color colors[] = {Color.GREEN,Color.red};
 
@@ -178,7 +179,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		}
 		buffer.rewind();
 
-		//uploade data
+		//upload data
 		gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 
 				0, 
 				GL2.GL_RGBA, 
@@ -205,7 +206,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	}
 
-	private static int genTexture(GL2 gl2, int type, int id, int location  ){
+	private static int genTexture(GL2 gl2, int type, int id,int uniformID, int location  ){
 		//activate texture
 		gl2.glActiveTexture(id);
 
@@ -218,7 +219,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 
 		//activate texture unit
-		gl2.glUniform1i(location,0);
+		gl2.glUniform1i(location,uniformID);
 		//gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
 		gl2.glTexParameteri(type, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 		gl2.glTexParameteri(type, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
@@ -249,11 +250,11 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableVolumeTexture);
 		shaderVariableMapping.put(shaderVariableVolumeTexture, location);
-		volumeTextureObject = genTexture(gl2,GL2.GL_TEXTURE_3D ,GL2.GL_TEXTURE0 , location);
+		volumeTextureObject = genTexture(gl2,GL2.GL_TEXTURE_3D ,GL2.GL_TEXTURE0,0 , location);
 
 		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableColorTexture);
 		shaderVariableMapping.put(shaderVariableColorTexture, location);
-		colorTextureObject = genTexture(gl2,GL2.GL_TEXTURE_1D ,GL2.GL_TEXTURE1, location);
+		colorTextureObject = genTexture(gl2,GL2.GL_TEXTURE_1D ,GL2.GL_TEXTURE1,1, location);
 
 	}
 
@@ -273,8 +274,11 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glDepthRangef(0.1f, 1000000);
 		gl2.glDepthFunc(GL2.GL_LEQUAL);*/
 		//gl2.glActiveTexture(GL2.GL_TEXTURE0);
+		
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, volumeTextureObject);
+		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
 		gl2.glDrawArrays(GL2.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
+		gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
 		/*gl2.glDisable(GL2.GL_CULL_FACE);
 	    gl2.glDisable(GL2.GL_DEPTH_TEST);*/
