@@ -22,7 +22,7 @@ void main(void)
 	const float sample_step =1f/128f;
 	 const float brightness = 150.0f;
 	 
-    vec3 ray_dir = normalize( inEyePosition-textureCoord );
+    vec3 ray_dir = normalize(textureCoord- inEyePosition );
     vec3 ray_pos = textureCoord; // the current ray position
     vec3 pos111 = vec3(1.0, 1.0, 1.0);
     vec3 pos000 = vec3(0.0, 0.0, 0.0);
