@@ -282,7 +282,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		gl2.glBindVertexArray(vertexArrayId);
 
 
-		renderSubClass(gl2);
+		renderSubClass(gl2,shaderVariableMapping);
 
 
 		gl2.glBindVertexArray(0);
@@ -294,8 +294,9 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * Function containing the actual render call. program and Vertex buffer are bound in there.
 	 * @param gl2
+	 * @param shaderVariableMapping 
 	 */
-	protected abstract void renderSubClass(GL2 gl2);
+	protected abstract void renderSubClass(GL2 gl2, Map<String, Integer> shaderVariableMapping);
 
 	/**
 	 * @return the modelTransformations

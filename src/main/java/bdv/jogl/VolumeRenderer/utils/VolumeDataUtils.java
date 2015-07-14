@@ -55,9 +55,12 @@ public class VolumeDataUtils {
 		
 		VolumeDataBlock data = new VolumeDataBlock();
 		tmp.dimensions( data.dimensions);
+		tmp.min(data.minPoint);
+		tmp.max(data.maxPoint);
 		data.maxValue = maxValue;
 		data.minValue = minValue;
 		data.data = block;
+		
 		return data;
 	}
 

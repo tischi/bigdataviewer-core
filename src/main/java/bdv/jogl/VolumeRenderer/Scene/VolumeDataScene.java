@@ -62,7 +62,7 @@ public class VolumeDataScene extends AbstractScene{
 		
 		float[] eye = {center[0],center[1],	center[2] - 30f * (dim[2])};
 		
-
+		
 		camera2.addCameraListener(new CameraListener() {
 
 			@Override
@@ -143,6 +143,7 @@ public class VolumeDataScene extends AbstractScene{
 		}
 		
 		initLocalCamera(camera, width, height, dimensions);
+	
 	}
 
 
@@ -192,16 +193,11 @@ public class VolumeDataScene extends AbstractScene{
 			scale.loadIdentity();
 			scale.scale(dim[0], dim[1], dim[2]);
 
-			Matrix4 mat = copyMatrix(stateTrans);
-			mat.multMatrix(sourceTransformation);
-	
-			mat.multMatrix(scale);
 
 			UnitCube cubeShader = volumeBorders.get(i);
 			
 			
 			//transform eye to object space
-			float eye[]  = camera.getEyePoint().clone();
 			Matrix4 modelViewMatrixInverse=getNewIdentityMatrix();
 			
 			//transMatr.multMatrix(camera.getProjectionMatix());
@@ -214,21 +210,20 @@ public class VolumeDataScene extends AbstractScene{
 			modelViewMatrixInverse.multMatrix(modelMatrix);
 			modelViewMatrixInverse.invert();
 						
-
-	
-			float eyeTrans4D[]  ={0,0,0,0};
-			float eye4D[] ={/*eye[0],eye[1],eye[2]*/0,0,0,1};
-			modelViewMatrixInverse.multVec(eye4D, eyeTrans4D);
-			float [] eyeTrans = {eyeTrans4D[0]/eyeTrans4D[3],
+			float [] eyeTrans = {
+					modelViewMatrixInverse.getMatrix()[12],
+					modelViewMatrixInverse.getMatrix()[13],
+					modelViewMatrixInverse.getMatrix()[14]
+					/*eyeTrans4D[0]/eyeTrans4D[3],
 					eyeTrans4D[1]/eyeTrans4D[3],
-					eyeTrans4D[2]/eyeTrans4D[3]};
+					eyeTrans4D[2]/eyeTrans4D[3]*/};
 						
 			volumeRenderes.get(i).setEyePosition(eyeTrans);
 			
-			volumeRenderes.get(i).setModelTransformations(mat);
+			volumeRenderes.get(i).setModelTransformations(modelMatrix);
 			
 			//mat.loadIdentity();
-			cubeShader.setModelTransformations(mat);
+			cubeShader.setModelTransformations(modelMatrix);
 			i++;
 			break;
 		}

@@ -12,6 +12,7 @@ import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
@@ -137,7 +138,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 				GL2.GL_FLOAT, 
 				buffer);
 
-		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
+		//gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
 
 		//min max
 		gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMinVolumeValue), data.minValue);
@@ -179,7 +180,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 			buffer.put(color.getAlpha()/255);
 		}
 		buffer.rewind();
-
 		//upload data
 		gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 
 				0, 
@@ -189,9 +189,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 				GL2.GL_RGBA, 
 				GL2.GL_FLOAT, 
 				buffer);
-
-		gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
-
+		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 		isColorUpdateable = false;
 	}
 
@@ -201,7 +199,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		updateTextureData(gl2, shaderVariableMapping);
 
-		//updateColor(gl2, shaderVariableMapping);
+		updateColor(gl2, shaderVariableMapping);
 
 		updateEye(gl2, shaderVariableMapping);
 
@@ -227,7 +225,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
 		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
 		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-		gl2.glBindTexture(type, 0);
+		//gl2.glBindTexture(type, 0);
 		return textures[0];
 
 	}
@@ -267,7 +265,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void renderSubClass(GL2 gl2) {
+	protected void renderSubClass(GL2 gl2,Map<String, Integer> shaderVariableMapping) {
 		/*	gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glCullFace(GL2.GL_BACK); 
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
@@ -275,11 +273,17 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glDepthFunc(GL2.GL_LEQUAL);*/
 		//gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		
+	/*	gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, volumeTextureObject);
+		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableVolumeTexture),0);
+		
+		gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
+		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),1);
+	*/
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
-		gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
-		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
+		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
+	//	gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
 		/*gl2.glDisable(GL2.GL_CULL_FACE);
 	    gl2.glDisable(GL2.GL_DEPTH_TEST);*/
 	}

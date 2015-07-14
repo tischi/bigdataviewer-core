@@ -62,7 +62,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 	
 	
-	protected void renderSubClass(GL2 gl2){
+	protected void renderSubClass(GL2 gl2,Map<String, Integer> shaderVariableMapping){
 		int[] oldFrontBack={GL2.GL_FILL,GL2.GL_FILL};
 		
 		if(isRenderWireframe()){
