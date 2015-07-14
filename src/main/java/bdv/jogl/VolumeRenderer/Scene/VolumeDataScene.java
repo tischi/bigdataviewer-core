@@ -13,6 +13,8 @@ import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
+import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataUtils;
 import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
@@ -34,6 +36,7 @@ public class VolumeDataScene extends AbstractScene{
 	
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
+	
 	@Override
 	protected void disposeSpecial(GL2 gl2) {}
 
@@ -98,9 +101,7 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param height
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
-
-		
-		
+	
 		sceneElements.clear();
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
 		float colorLinearFactor = 1.f/numberOfSources;
@@ -135,7 +136,8 @@ public class VolumeDataScene extends AbstractScene{
 	
 			}
 			vRenderer.setDimension(dimI);
-			vRenderer.setData(VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1)));
+			VolumeDataBlock vData =VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1));
+			vRenderer.setData(vData);
 		}
 		
 		initLocalCamera(camera, width, height, dimensions);
@@ -194,6 +196,25 @@ public class VolumeDataScene extends AbstractScene{
 			mat.multMatrix(scale);
 
 			UnitCube cubeShader = volumeBorders.get(i);
+			
+			
+			//transform eye to object space
+			float eye[]  = camera.getEyePoint().clone();
+			Matrix4 transMatr=getNewIdentityMatrix();
+			
+			transMatr.multMatrix(camera.getProjectionMatix());
+			transMatr.multMatrix(camera.getViewMatrix());
+			transMatr.multMatrix(mat);
+			
+			
+			
+			transMatr.invert();
+			float eyeTrans4D[]  ={0,0,0,0};
+			float eye4D[] ={eye[0],eye[1],eye[2],1};
+			transMatr.multVec(eye4D, eyeTrans4D);
+			float [] eyeTrans = {eyeTrans4D[0]/eyeTrans4D[3],eyeTrans4D[1]/eyeTrans4D[3],eyeTrans4D[2]/eyeTrans4D[3]};
+			volumeRenderes.get(i).setEyePosition(eyeTrans);
+			
 			volumeRenderes.get(i).setModelTransformations(mat);
 			
 			//mat.loadIdentity();

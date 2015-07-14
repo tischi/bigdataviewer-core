@@ -13,6 +13,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.view.Views;
 
+
 /**
  * Delivers standard volume data interaction methods
  * @author michael
@@ -20,13 +21,14 @@ import net.imglib2.view.Views;
  */
 public class VolumeDataUtils {
 	
+
 	
 	/**
 	 * Gets the volume data from a RandomAccessibleInterval
 	 * @param source data to copy from
 	 * @return An array of volume data with the dimensions x,y,z 
 	 */
-	public static float[] getDataBlock(RandomAccessibleInterval<?> source){
+	public static VolumeDataBlock getDataBlock(RandomAccessibleInterval<?> source){
 		IterableInterval<?> tmp = Views.flatIterable(source);
 		Long maxX = tmp.dimension(0);
 		Long maxY = tmp.dimension(1);
@@ -37,15 +39,26 @@ public class VolumeDataUtils {
 
 		// copy values 
 		int i = 0;
+		float minValue = Float.MAX_VALUE;
+		float maxValue = Float.MIN_VALUE; 
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
 		for(int z = 0; z< maxZ.intValue(); z++){
 			for(int y = 0; y < maxY.intValue(); y++){
 				for(int x = 0; x < maxX.intValue(); x++ ){
-					block[i++] = (short)values.next().get() ;
+					short value = (short)values.next().get();
+					block[i++] = value ;
+					minValue = Math.min(minValue, value);
+					maxValue = Math.max(maxValue, value);
 				}
 			}
 		}
-		return block;
+		
+		VolumeDataBlock data = new VolumeDataBlock();
+		tmp.dimensions( data.dimensions);
+		data.maxValue = maxValue;
+		data.minValue = minValue;
+		data.data = block;
+		return data;
 	}
 
 
@@ -54,7 +67,7 @@ public class VolumeDataUtils {
 	 * @param data volume data array to write
 	 * @param fileName file to write
 	 */
-	public static void writeParaviewFile(final float [] data,final long[] dims, final String fileName){
+	public static void writeParaviewFile(final VolumeDataBlock vData, final String fileName){
 		PrintWriter paraWriter = null;
 		List<List<Long>> cellDefines = new LinkedList<List<Long>>();
 		List<Float> values = new ArrayList<Float>();
@@ -78,16 +91,16 @@ public class VolumeDataUtils {
 
 		//write point data
 		final int offsetNextNode = 1;
-		final long offsetNextLine = dims[0];
-		final long offsetNextSlice = dims[0]*dims[1];
+		final long offsetNextLine = vData.dimensions[0];
+		final long offsetNextSlice = vData.dimensions[0]*vData.dimensions[1];
 		int i =0;
-		paraWriter.println("POINTS "+ dims[0]*dims[1]*dims[2]+ " FLOAT" );
-		for(int z = 0; z< dims[2];z++){
-			for(int y = 0; y < dims[1]; y++){
-				for (int x = 0; x < dims[0]; x++){
+		paraWriter.println("POINTS "+ vData.dimensions[0]*vData.dimensions[1]*vData.dimensions[2]+ " FLOAT" );
+		for(int z = 0; z< vData.dimensions[2];z++){
+			for(int y = 0; y < vData.dimensions[1]; y++){
+				for (int x = 0; x < vData.dimensions[0]; x++){
 
 					//not last element in dimension
-					if(x < dims[0]-1&&y < dims[1]-1&&z < dims[2]-1){
+					if(x < vData.dimensions[0]-1&&y < vData.dimensions[1]-1&&z < vData.dimensions[2]-1){
 						Long currenVoxelID = (long)values.size();
 						
 						
@@ -106,7 +119,7 @@ public class VolumeDataUtils {
 					}
 
 					String line = "" +x + " "+y+" "+z;
-					values.add(data[i++]);
+					values.add(vData.data[i++]);
 					paraWriter.println(line);
 
 				}

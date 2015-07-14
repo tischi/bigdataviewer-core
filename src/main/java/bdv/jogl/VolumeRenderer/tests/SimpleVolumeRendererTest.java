@@ -22,6 +22,8 @@ import bdv.jogl.VolumeRenderer.FrameBufferRedirector;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataUtils;
 
 public class SimpleVolumeRendererTest {
 
@@ -53,8 +55,10 @@ public class SimpleVolumeRendererTest {
 		testwindow.setSize(100, 100);
 		testwindow.getContentPane().add(glCanvas);
 		
+		VolumeDataBlock block = new VolumeDataBlock();
+		block.data = volumeData;
 		objectUnderTest.setDimension(testDims);
-		objectUnderTest.setData(volumeData);
+		objectUnderTest.setData(block);
 		
 		testScene.getCamera().setEyePoint(testEye);
 		testScene.getCamera().setLookAtPoint(testCenter);
