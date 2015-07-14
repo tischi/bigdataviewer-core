@@ -20,14 +20,14 @@ void main(void)
 
 	
 	const float sample_step =1f/128f;
-	 const float brightness = 100.0f;
+	 const float brightness = 150.0f;
 	 
     vec3 ray_dir = normalize( inEyePosition-textureCoord );
     vec3 ray_pos = textureCoord; // the current ray position
     vec3 pos111 = vec3(1.0, 1.0, 1.0);
     vec3 pos000 = vec3(0.0, 0.0, 0.0);
 
-    fragmentColor = vec4(1.0, 1.0, 1.0, 1.0);
+    fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);
     vec4 color;
     float volumeNormalizeFactor = 1.f/ (inMaxVolumeValue-inMinVolumeValue+0.01);
     do
@@ -57,11 +57,11 @@ void main(void)
     while(true);
     //fragmentColor = vec4(ray_dir,1);
     //fragmentColor = vec4(textureCoord,1);
-	if(fragmentColor ==vec4(0.0, 0.0, 0.0, 0.0)){
+	/*if(fragmentColor ==vec4(0.0, 0.0, 0.0, 0.0)){
 	   fragmentColor = vec4(1.0, 0.0, 0.0, 0.0);
 	   discard;
-	}else{
+	}else{*/
 	 fragmentColor = vec4 (fragmentColor.rgb,1);
-	}
+	//}
 	
 }

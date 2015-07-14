@@ -9,7 +9,7 @@ out vec3 textureCoord;
 
 vec3 invertedTexture(vec3 texCoord){
 	vec3 outVector = texCoord;
-	for(int i =0; i<3 ; i++){
+	for(int i =1; i<2 ; i++){
 		if(texCoord[i] < 1){
 			outVector[i]=1;
 		}
