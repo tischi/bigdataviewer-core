@@ -13,6 +13,7 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 /**
  * Volume renderer for single volume
@@ -264,7 +265,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		return coordinates.length * Buffers.SIZEOF_FLOAT;
 	}
-
 
 	@Override
 	protected void renderSubClass(GL2 gl2) {

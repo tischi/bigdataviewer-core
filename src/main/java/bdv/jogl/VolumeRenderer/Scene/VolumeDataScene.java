@@ -139,6 +139,7 @@ public class VolumeDataScene extends AbstractScene{
 			vRenderer.setDimension(dimI);
 			VolumeDataBlock vData =VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1));
 			vRenderer.setData(vData);
+			break;
 		}
 		
 		initLocalCamera(camera, width, height, dimensions);
@@ -201,20 +202,27 @@ public class VolumeDataScene extends AbstractScene{
 			
 			//transform eye to object space
 			float eye[]  = camera.getEyePoint().clone();
-			Matrix4 transMatr=getNewIdentityMatrix();
+			Matrix4 modelViewMatrixInverse=getNewIdentityMatrix();
+			
+			//transMatr.multMatrix(camera.getProjectionMatix());
+			//https://www.opengl.org/archives/resources/faq/technical/viewing.htm
+			Matrix4 modelMatrix = getNewIdentityMatrix();
+			modelMatrix=copyMatrix(stateTrans);
+			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
+			modelMatrix.multMatrix(copyMatrix(scale));	
+			modelViewMatrixInverse.multMatrix(copyMatrix(camera.getViewMatrix()));
+			modelViewMatrixInverse.multMatrix(modelMatrix);
+			modelViewMatrixInverse.invert();
+						
 
-			transMatr.multMatrix(camera.getProjectionMatix());
-			transMatr.multMatrix(camera.getViewMatrix());
-
-			transMatr.multMatrix(stateTrans);
-			transMatr.multMatrix(sourceTransformation);
-			transMatr.multMatrix(scale);		
-						transMatr.invert();
 	
 			float eyeTrans4D[]  ={0,0,0,0};
-			float eye4D[] ={eye[0],eye[1],eye[2],1};
-			transMatr.multVec(eye4D, eyeTrans4D);
-			float [] eyeTrans = {eyeTrans4D[0]/eyeTrans4D[3],eyeTrans4D[1]/eyeTrans4D[3],eyeTrans4D[2]/eyeTrans4D[3]};
+			float eye4D[] ={/*eye[0],eye[1],eye[2]*/0,0,0,1};
+			modelViewMatrixInverse.multVec(eye4D, eyeTrans4D);
+			float [] eyeTrans = {eyeTrans4D[0]/eyeTrans4D[3],
+					eyeTrans4D[1]/eyeTrans4D[3],
+					eyeTrans4D[2]/eyeTrans4D[3]};
+						
 			volumeRenderes.get(i).setEyePosition(eyeTrans);
 			
 			volumeRenderes.get(i).setModelTransformations(mat);
@@ -222,7 +230,7 @@ public class VolumeDataScene extends AbstractScene{
 			//mat.loadIdentity();
 			cubeShader.setModelTransformations(mat);
 			i++;
-
+			break;
 		}
 	}
 }
