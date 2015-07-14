@@ -18,10 +18,10 @@ void main(void)
 	//fragmentColor = vec4(texture(inVolumeTexture,textureCoord ).r/ inMaxVolumeValue,0.1f,0.1f ,1.f);//vec4(textureCoord,1.f);
 	//fragmentColor = vec4(1.f,1.f,1.f,1.f);
 
-	const float sample_step =0.05f;
+	const float sample_step =1f/128f;
 	 const float brightness = 50.0f;
     // NOTE: ray direction goes from frag_position to eye_position, i.e. back to front
-    vec3 ray_dir = normalize(inEyePosition - textureCoord);
+    vec3 ray_dir = normalize( inEyePosition- textureCoord );
     vec3 ray_pos = textureCoord; // the current ray position
     vec3 pos111 = vec3(1.0, 1.0, 1.0);
     vec3 pos000 = vec3(0.0, 0.0, 0.0);
@@ -51,7 +51,7 @@ void main(void)
     }
     while(true);
 	if(fragmentColor ==vec4(0.0, 0.0, 0.0, 0.0)){
-	   fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);
+	   fragmentColor = vec4(1.0, 0.0, 0.0, 0.0);
 	   discard;
 	}
 }

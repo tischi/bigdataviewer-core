@@ -31,7 +31,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 
 	private boolean renderWireframe = false;
 	
-	private float[] coordinates = GeometryUtils.getUnitCubeVertices(); 
+	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
 
@@ -69,7 +69,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 			gl2.glGetIntegerv(GL2.GL_POLYGON_MODE, oldFrontBack,0);
 			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
 		}
-		gl2.glDrawArrays(GL2.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
+		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
 		if(isRenderWireframe()){
 			gl2.glPolygonMode(GL2.GL_FRONT, oldFrontBack[0]);
 			gl2.glPolygonMode( GL2.GL_BACK, oldFrontBack[1] );

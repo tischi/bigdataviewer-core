@@ -112,14 +112,14 @@ public class VolumeDataScene extends AbstractScene{
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 			
 			//create borders
-		/*	UnitCube cubeShader = new UnitCube();
+			UnitCube cubeShader = new UnitCube();
 			volumeBorders.add(cubeShader);
 			addSceneElement(cubeShader);
 			cubeShader.init(gl2);
 			cubeShader.setRenderWireframe(true);
 			cubeShader.setColor(new Color(r,g,b,1));
 			r+=colorLinearFactor;
-			b-=colorLinearFactor;*/
+			b-=colorLinearFactor;
 			
 			//create vRenderer
 			SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
@@ -196,7 +196,7 @@ public class VolumeDataScene extends AbstractScene{
 	
 			mat.multMatrix(scale);
 
-			//UnitCube cubeShader = volumeBorders.get(i);
+			UnitCube cubeShader = volumeBorders.get(i);
 			
 			
 			//transform eye to object space
@@ -206,14 +206,11 @@ public class VolumeDataScene extends AbstractScene{
 			transMatr.multMatrix(camera.getProjectionMatix());
 			transMatr.multMatrix(camera.getViewMatrix());
 
-	
 			transMatr.multMatrix(stateTrans);
 			transMatr.multMatrix(sourceTransformation);
 			transMatr.multMatrix(scale);		
-			
-
-			
-			transMatr.invert();
+						transMatr.invert();
+	
 			float eyeTrans4D[]  ={0,0,0,0};
 			float eye4D[] ={eye[0],eye[1],eye[2],1};
 			transMatr.multVec(eye4D, eyeTrans4D);
@@ -223,7 +220,7 @@ public class VolumeDataScene extends AbstractScene{
 			volumeRenderes.get(i).setModelTransformations(mat);
 			
 			//mat.loadIdentity();
-			//cubeShader.setModelTransformations(mat);
+			cubeShader.setModelTransformations(mat);
 			i++;
 
 		}

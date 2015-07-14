@@ -45,7 +45,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private int volumeTextureObject =-1;
 
-	private float[] coordinates = GeometryUtils.getUnitCubeVertices(); 
+	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
 	private boolean isDataUpdateable = false;
 
@@ -277,7 +277,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, volumeTextureObject);
 		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
-		gl2.glDrawArrays(GL2.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
+		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
 		gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
 		/*gl2.glDisable(GL2.GL_CULL_FACE);
