@@ -8,66 +8,56 @@ uniform float inMaxVolumeValue;
 uniform float inMinVolumeValue;
 uniform vec3 inEyePosition;
 float val_threshold =1;
+const int maxInt = 9999;
 
+int getStepsInVolume(float stepsSize, vec3 position, vec3 direction){
+	//infinite steps ;)
+	int steps = maxInt;
+	
+	vec3 targetPoint = max(sign(direction),vec3(0,0,0));
+	vec3 differenceVector = targetPoint - position;
+	vec3 stepsInDirections = differenceVector / (direction * stepsSize);
+	for(int i =0; i< 3; i++){
+		if(stepsInDirections[i] < steps){
+			steps = int(stepsInDirections[i])+1;
+		}
+	
+	}
+	return steps;
+}
 
 void main(void)
 {	
-	
-
-	//float volume = textureCoord.x; //texture(inVolumeTexture,textureCoord ).x ;
-	//fragmentColor  = vec4(textureCoord,1);
-	//fragmentColor = vec4(texture(inVolumeTexture,textureCoord ).r/ inMaxVolumeValue,0.1f,0.1f ,1.f);//vec4(textureCoord,1.f);
-	//fragmentColor = vec4(1.f,1.f,1.f,1.f);
-
-	
-	const int samples = 128;
+	const int samples = 256;
 	float sample_step =1f/float(samples);
-	 const float brightness = 150.0f;
+	const float brightness = 150.0f;
 	 
     vec3 ray_dir = normalize(textureCoord - inEyePosition );
     vec3 ray_pos = textureCoord; // the current ray position
-    vec3 pos111 = vec3(1.0, 1.0, 1.0);
-    vec3 pos000 = vec3(0.0, 0.0, 0.0);
 
     fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);
     vec4 color;
     float volumeNormalizeFactor = 1.f/ (inMaxVolumeValue-inMinVolumeValue+0.01);
-   	for(int i = 0; i< samples;i++){
+    
+    int steps =  getStepsInVolume(sample_step,ray_pos,ray_dir);
+    if(steps > samples){
+    	steps = samples;
+    }
+   	float density;
+   	for(int i = 0; i< steps; i++){
 
         // note: 
         // - ray_dir * sample_step can be precomputed
         // - we assume the volume has a cube-like shape
-    
-  		ray_pos += ray_dir * sample_step;
-  		
+        
         // break out if ray reached the end of the cube.
-        if (any(greaterThan(ray_pos,pos111)))
-            continue;
-
-        if (any(lessThan(ray_pos,pos000)))
-            continue;
-
-        float density = (texture(inVolumeTexture, ray_pos).r-inMinVolumeValue) *volumeNormalizeFactor;
+        density = (texture(inVolumeTexture, ray_pos).r-inMinVolumeValue) *volumeNormalizeFactor;
 
 
-        color.rgb = /*vec3(1f,0f,0f);*/ texture1D(inColorTexture, density).rgb;
+        color.rgb = texture(inColorTexture, density).rgb;
         color.a   = density * sample_step * val_threshold * brightness;
         fragmentColor.rgb = fragmentColor.rgb * (1.0 - color.a) + color.rgb * color.a;
-        
-        }
-      
-
-    //fragmentColor = vec4(ray_dir,1);
-    //fragmentColor = vec4(textureCoord,1);
-/*	if(fragmentColor ==vec4(0.0, 0.0, 0.0, 0.0)){
-	   fragmentColor = vec4(1.0, 0.0, 0.0, 0.0);
-	   //discard;
-	}else{*/
-	 fragmentColor = vec4 (fragmentColor.rgb,0.1);
-	//}
-	
-	/*fragmentColor=vec4(1-(texture(inVolumeTexture, textureCoord).r-inMinVolumeValue) *volumeNormalizeFactor*7,0,0,1);
-	if(fragmentColor == vec4(0,0,0,1)){
-		fragmentColor == vec4(0,0,1,1);
-	}*/
+		ray_pos += ray_dir * sample_step;  		
+    }
+	fragmentColor = vec4 (fragmentColor.rgb,0.1); 
 }
