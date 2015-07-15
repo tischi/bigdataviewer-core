@@ -63,8 +63,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	/**
 	 * @param eyePosition the eyePosition to set
 	 */
-	public void setEyePosition(float[] eyePosition) {
-		this.eyePosition = eyePosition;
+	public void setEyePosition(final float[] eyePosition) {
+		this.eyePosition = eyePosition.clone();
 
 		isEyeUpdateable = true;
 	}
@@ -155,7 +155,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		}
 
 		//eye position
-		gl2.glUniform3f(shaderVariableMapping.get(shaderVariableEyePosition), eyePosition[0] , eyePosition[1], eyePosition[0]);
+		gl2.glUniform3f(shaderVariableMapping.get(shaderVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
 		isEyeUpdateable = false;
 	}
 

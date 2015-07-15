@@ -9,7 +9,7 @@ out vec3 textureCoord;
 
 vec3 invertedTexture(vec3 texCoord){
 	vec3 outVector = texCoord;
-	for(int i =2; i<2 ; i++){
+	for(int i =1; i<1 ; i++){
 		if(texCoord[i] < 1){
 			outVector[i]=1;
 		}
@@ -21,7 +21,7 @@ vec3 invertedTexture(vec3 texCoord){
 }
 
 void main(){
-	textureCoord = invertedTexture(inPosition);
+	textureCoord = /*invertedTexture(*/inPosition/*)*/;
 	vec4 position4d = vec4(inPosition.xyz,1.f);
 	
 	gl_Position =inProjection *  inView *inModel * position4d;
