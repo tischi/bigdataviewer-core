@@ -13,7 +13,7 @@ import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
-import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
+
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataUtils;
 import bdv.viewer.state.SourceState;

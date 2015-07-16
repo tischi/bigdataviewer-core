@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bdv.jogl.VolumeRenderer.Camera;
-import bdv.jogl.VolumeRenderer.CameraListener;
-import bdv.jogl.VolumeRenderer.GLErrorHandler;
-
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.math.Matrix4;
 
 /**
  * Class defining a standard scene.

@@ -7,14 +7,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 /**
  * Volume renderer for single volume

@@ -23,7 +23,6 @@ import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
-import bdv.jogl.VolumeRenderer.utils.VolumeDataUtils;
 
 public class SimpleVolumeRendererTest {
 
