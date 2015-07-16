@@ -227,7 +227,7 @@ public class UnitCubeTest {
 
 		testWindow.setVisible(true);
 
-		Boolean test = syncQueue.poll(2,TimeUnit.MINUTES);
+		Boolean test = syncQueue.poll(20, TimeUnit.SECONDS);
 		assertEquals("There was an error while running the unit cube shader", test,true);
 
 	}

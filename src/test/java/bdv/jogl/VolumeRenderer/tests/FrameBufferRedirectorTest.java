@@ -146,12 +146,12 @@ public class FrameBufferRedirectorTest {
 	public void readTest() throws InterruptedException {
 		testwindow.setVisible(true);
 
-		syncQueue.poll(2, TimeUnit.MINUTES);
+		syncQueue.poll(20, TimeUnit.SECONDS);
 
 		glCanvas.destroy();
 		testwindow.dispose();
 
-		syncQueue.poll(2, TimeUnit.MINUTES);
+		syncQueue.poll(20, TimeUnit.SECONDS);
 
 		for(int y =0; y < redirector.getHeight(); y++){
 			for(int x =0; x < redirector.getWidth(); x++){

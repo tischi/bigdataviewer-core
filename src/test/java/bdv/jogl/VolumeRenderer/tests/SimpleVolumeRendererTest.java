@@ -129,7 +129,7 @@ public class SimpleVolumeRendererTest {
 	@Test
 	public void SomeThingRenderedTest() {
 		try {
-			sync.poll(2, TimeUnit.MINUTES);
+			sync.poll(20, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -139,7 +139,7 @@ public class SimpleVolumeRendererTest {
 		testwindow.dispose();
 
 		try {
-			sync.poll(2, TimeUnit.MINUTES);
+			sync.poll(20, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
