@@ -53,7 +53,7 @@ public class GLWindow extends JFrame {
 	 */
 	public void setBigDataViewer(BigDataViewer bigDataViewer) {
 		this.bigDataViewer = bigDataViewer;
-		this.bigDataViewer.getViewer().addTransformListener(new TransformListener<AffineTransform3D>() {
+		this.bigDataViewer.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 
 			@Override
 			public void transformChanged(AffineTransform3D transform) {
