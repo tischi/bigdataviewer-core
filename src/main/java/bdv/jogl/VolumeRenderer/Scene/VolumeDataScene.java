@@ -39,6 +39,8 @@ public class VolumeDataScene extends AbstractScene{
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 	
 	private int latestRenderTimePoint = 0;
+	
+	private int currentActiveSource = 0;
 
 	private void cleanUpSceneElements(){
 		volumeBorders.clear();
@@ -124,9 +126,14 @@ public class VolumeDataScene extends AbstractScene{
 		float r =0, g=1,b=1 ;
 		int[] dimensions = {0,0,0};
 
-		
+		int j =-1;
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 
+			j++;
+			if(!source.isCurrent()){
+				continue;
+			}
+			currentActiveSource = j;
 			
 			//create borders
 			UnitCube cubeShader = new UnitCube();
@@ -180,10 +187,16 @@ public class VolumeDataScene extends AbstractScene{
 
 		int currentTimepoint = state.getCurrentTimepoint();
 
-		int i =0;
+		int i =-1;
 		
 		for(SourceState<?> source : sources){
 
+			i++;
+			//no inactive sources
+			if(!source.isCurrent()){
+				continue;
+			}
+			
 			int midMapLevel = getMidmapLevel(source);
 			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
 
@@ -210,24 +223,25 @@ public class VolumeDataScene extends AbstractScene{
 			scale.loadIdentity();
 			scale.scale(dim[0], dim[1], dim[2]);
 
-			UnitCube cubeShader = volumeBorders.get(i);
+			UnitCube cubeShader = volumeBorders.get(0);
 
 			Matrix4 modelMatrix = getNewIdentityMatrix();
 			modelMatrix=copyMatrix(globalModelTransformation);
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
 
-			volumeRenderes.get(i).setModelTransformations(modelMatrix);
+			volumeRenderes.get(0).setModelTransformations(modelMatrix);
 
 			cubeShader.setModelTransformations(modelMatrix);
-			if(latestRenderTimePoint != currentTimepoint){
+			if(latestRenderTimePoint != currentTimepoint|| i != currentActiveSource){
 				
 				latestRenderTimePoint = currentTimepoint;
+				currentActiveSource = i;
 				
-				volumeRenderes.get(i).setData(VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel)));
+				volumeRenderes.get(0).setData(VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel)));
 			}
 			
-			i++;
+
 			break;
 		}
 	}
