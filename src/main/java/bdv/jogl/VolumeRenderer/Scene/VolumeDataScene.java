@@ -193,32 +193,12 @@ public class VolumeDataScene extends AbstractScene{
 			scale.loadIdentity();
 			scale.scale(dim[0], dim[1], dim[2]);
 
-
 			UnitCube cubeShader = volumeBorders.get(i);
 			
-			
-			//transform eye to object space
-			Matrix4 modelViewMatrixInverse=getNewIdentityMatrix();
-			
-			//transMatr.multMatrix(camera.getProjectionMatix());
-			//https://www.opengl.org/archives/resources/faq/technical/viewing.htm
 			Matrix4 modelMatrix = getNewIdentityMatrix();
 			modelMatrix=copyMatrix(stateTrans);
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
-			modelViewMatrixInverse.multMatrix(copyMatrix(camera.getViewMatrix()));
-			modelViewMatrixInverse.multMatrix(modelMatrix);
-			modelViewMatrixInverse.invert();
-						
-			float [] eyeTrans = {
-					modelViewMatrixInverse.getMatrix()[12],
-					modelViewMatrixInverse.getMatrix()[13],
-					modelViewMatrixInverse.getMatrix()[14]
-					/*eyeTrans4D[0]/eyeTrans4D[3],
-					eyeTrans4D[1]/eyeTrans4D[3],
-					eyeTrans4D[2]/eyeTrans4D[3]*/};
-						
-			volumeRenderes.get(i).setEyePosition(eyeTrans);
 			
 			volumeRenderes.get(i).setModelTransformations(modelMatrix);
 			

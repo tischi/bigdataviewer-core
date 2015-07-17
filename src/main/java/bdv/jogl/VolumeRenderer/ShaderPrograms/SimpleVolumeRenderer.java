@@ -1,5 +1,8 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.copyMatrix;
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
+
 import java.awt.Color;
 import java.io.File;
 import java.nio.FloatBuffer;
@@ -12,6 +15,7 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 /**
  * Volume renderer for single volume
@@ -48,8 +52,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private boolean isDataUpdateable = false;
 
-	private float[] eyePosition = {0,0,0};
-
 	private boolean isEyeUpdateable = false;
 
 	private int colorTextureObject;
@@ -57,15 +59,19 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	private boolean isColorUpdateable = true;
 
 
-	/**
-	 * @param eyePosition the eyePosition to set
-	 */
-	public void setEyePosition(final float[] eyePosition) {
-		this.eyePosition = eyePosition.clone();
+	@Override
+	public void setModelTransformations(Matrix4 modelTransformations) {
+		super.setModelTransformations(modelTransformations);
 
 		isEyeUpdateable = true;
 	}
 
+	@Override
+	public void setView(Matrix4 view) {
+		super.setView(view);
+
+		isEyeUpdateable = true;
+	}
 
 	/**
 	 * @return the data
@@ -144,12 +150,36 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		isDataUpdateable = false;
 	}
+	
+	
+	/**
+	 * transform eye to object space
+	 * https://www.opengl.org/archives/resources/faq/technical/viewing.htm
+	 * @return transformed eye
+	 */
+	private float[] calculateEyePosition(){
+		Matrix4 modelViewMatrixInverse=getNewIdentityMatrix();
+
+		modelViewMatrixInverse.multMatrix(getView());
+		modelViewMatrixInverse.multMatrix(getModelTransformations());
+		modelViewMatrixInverse.invert();
+
+		float [] eyeTrans = {
+				modelViewMatrixInverse.getMatrix()[12],
+				modelViewMatrixInverse.getMatrix()[13],
+				modelViewMatrixInverse.getMatrix()[14]
+		};
+		
+		return eyeTrans;
+	}
 
 	private void updateEye(GL2 gl2,
 			Map<String, Integer> shaderVariableMapping){
 		if(!isEyeUpdateable){
 			return;
 		}
+
+		float [] eyePosition = calculateEyePosition();
 
 		//eye position
 		gl2.glUniform3f(shaderVariableMapping.get(shaderVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
@@ -269,18 +299,18 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glDepthRangef(0.1f, 1000000);
 		gl2.glDepthFunc(GL2.GL_LEQUAL);*/
 		//gl2.glActiveTexture(GL2.GL_TEXTURE0);
-		
-	/*	gl2.glActiveTexture(GL2.GL_TEXTURE0);
+
+		/*	gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_3D, volumeTextureObject);
 		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableVolumeTexture),0);
-		
+
 		gl2.glActiveTexture(GL2.GL_TEXTURE0);
 		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
 		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),1);
-	*/
+		 */
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
 		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
-	//	gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
+		//	gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
 		/*gl2.glDisable(GL2.GL_CULL_FACE);
 	    gl2.glDisable(GL2.GL_DEPTH_TEST);*/
 	}
