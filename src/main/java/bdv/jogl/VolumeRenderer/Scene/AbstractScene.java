@@ -54,10 +54,6 @@ public abstract class AbstractScene {
 		return camera;
 	}
 
-
-	
-
-
 	/**
 	 * @param camera the camera to set
 	 */

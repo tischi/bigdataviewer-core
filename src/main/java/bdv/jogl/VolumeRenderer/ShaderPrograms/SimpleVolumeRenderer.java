@@ -43,8 +43,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private VolumeDataBlock data;
 
-	private int[] dimensionOfData;
-
 	private int volumeTextureObject =-1;
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
@@ -87,19 +85,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		isDataUpdateable = true;
 	}
 
-	/**
-	 * @return the dimensionOfData
-	 */
-	public int[] getDimension() {
-		return dimensionOfData;
-	}
-
-	/**
-	 * @param dimensionOfData the dimensionOfData to set
-	 */
-	public void setDimension(int[] dimensionOfData) {
-		this.dimensionOfData = dimensionOfData;
-	}
 
 	@Override
 	protected void updateVertexBufferSubClass(GL2 gl2) {
@@ -132,9 +117,9 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glTexImage3D(GL2.GL_TEXTURE_3D, 
 				0, 
 				GL2.GL_R32F, 
-				dimensionOfData[0], 
-				dimensionOfData[1], 
-				dimensionOfData[2], 
+				(int)data.dimensions[0], 
+				(int)data.dimensions[1], 
+				(int)data.dimensions[2], 
 				0,
 				GL2.GL_RED, 
 				GL2.GL_FLOAT, 

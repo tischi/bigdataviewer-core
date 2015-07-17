@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.SceneGlobalTransformationListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
 import com.jogamp.opengl.GL;

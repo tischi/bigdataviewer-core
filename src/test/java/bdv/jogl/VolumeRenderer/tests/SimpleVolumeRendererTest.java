@@ -56,7 +56,6 @@ public class SimpleVolumeRendererTest {
 		
 		VolumeDataBlock block = new VolumeDataBlock();
 		block.data = volumeData;
-		objectUnderTest.setDimension(testDims);
 		objectUnderTest.setData(block);
 		
 		testScene.getCamera().setEyePoint(testEye);

@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.convertToJoglTransform;
 

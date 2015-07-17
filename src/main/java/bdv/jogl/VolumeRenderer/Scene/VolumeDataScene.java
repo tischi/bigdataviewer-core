@@ -37,6 +37,8 @@ public class VolumeDataScene extends AbstractScene{
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
+	
+	private int latestRenderTimePoint = 0;
 
 	private void cleanUpSceneElements(){
 		volumeBorders.clear();
@@ -102,8 +104,12 @@ public class VolumeDataScene extends AbstractScene{
 		camera2.setUpVector(new float[]{0,-1,0});
 		camera2.update();
 	}
-
-
+	
+	private int getMidmapLevel(final SourceState<?> source){
+		return source.getSpimSource().getNumMipmapLevels()-1;
+	}
+	
+	
 	/**
 	 * initializes the scene once
 	 * @param gl2
@@ -113,12 +119,15 @@ public class VolumeDataScene extends AbstractScene{
 	protected void initSpecial(GL2 gl2, int width, int height){
 
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
+		latestRenderTimePoint = bigDataViewer.getViewer().getState().getCurrentTimepoint();
 		float colorLinearFactor = 1.f/numberOfSources;
 		float r =0, g=1,b=1 ;
 		int[] dimensions = {0,0,0};
 
+		
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 
+			
 			//create borders
 			UnitCube cubeShader = new UnitCube();
 			volumeBorders.add(cubeShader);
@@ -135,7 +144,12 @@ public class VolumeDataScene extends AbstractScene{
 			addSceneElement(vRenderer);
 			vRenderer.init(gl2);
 
-			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1);
+		
+			int midMapLevel = getMidmapLevel(source);
+			VolumeDataBlock vData =VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
+			vRenderer.setData(vData);
+		
+			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel);
 			long[] dim = new long[3];
 			int[] dimI = new int[3];
 			data.dimensions(dim);
@@ -144,9 +158,6 @@ public class VolumeDataScene extends AbstractScene{
 				dimensions[i]  =Math.max(dimensions[i], dimI[i]);
 
 			}
-			vRenderer.setDimension(dimI);
-			VolumeDataBlock vData =VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(0, source.getSpimSource().getNumMipmapLevels()-1));
-			vRenderer.setData(vData);
 			break;
 		}
 
@@ -170,10 +181,11 @@ public class VolumeDataScene extends AbstractScene{
 		int currentTimepoint = state.getCurrentTimepoint();
 
 		int i =0;
+		
 		for(SourceState<?> source : sources){
 
-			int midMapLevel = source.getSpimSource().getNumMipmapLevels()-1;
-			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel/*source.getSpimSource().getNumMipmapLevels()-1*/);
+			int midMapLevel = getMidmapLevel(source);
+			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
 
 			//block transform
 			AffineTransform3D sourceTransform3D = new AffineTransform3D();
@@ -207,8 +219,14 @@ public class VolumeDataScene extends AbstractScene{
 
 			volumeRenderes.get(i).setModelTransformations(modelMatrix);
 
-			//mat.loadIdentity();
 			cubeShader.setModelTransformations(modelMatrix);
+			if(latestRenderTimePoint != currentTimepoint){
+				
+				latestRenderTimePoint = currentTimepoint;
+				
+				volumeRenderes.get(i).setData(VolumeDataUtils.getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel)));
+			}
+			
 			i++;
 			break;
 		}
