@@ -42,8 +42,11 @@ public class GLWindow extends JFrame {
 	}
 
 	private void createScene(){
+		VolumeDataScene scene =  new VolumeDataScene(bigDataViewer);
+		
 		scenes.clear();
-		scenes.add(new VolumeDataScene(bigDataViewer));
+		scenes.add(scene);
+		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(scene));
 	}
 	/**
 	 * @param bigDataViewer the bigDataViewer to set

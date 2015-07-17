@@ -1,6 +1,5 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
-import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.copyMatrix;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
 import java.awt.Color;

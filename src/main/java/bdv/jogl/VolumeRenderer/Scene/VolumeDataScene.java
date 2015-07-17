@@ -36,6 +36,7 @@ public class VolumeDataScene extends AbstractScene{
 	
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
+	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 	
 	@Override
 	protected void disposeSpecial(GL2 gl2) {}
@@ -153,14 +154,11 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void renderSpecial(GL2 gl2){
 
-		AffineTransform3D viewerTransform = new AffineTransform3D();
-		bigDataViewer.getViewer().getState().getViewerTransform(viewerTransform);
+	
 
 		ViewerState state = bigDataViewer.getViewer().getState();
 
-		state.getViewerTransform(viewerTransform);
 		List<SourceState<?>> sources = state.getSources();
-		Matrix4 stateTrans = convertToJoglTransform(viewerTransform);
 
 		int currentTimepoint = state.getCurrentTimepoint();
 		
@@ -196,7 +194,7 @@ public class VolumeDataScene extends AbstractScene{
 			UnitCube cubeShader = volumeBorders.get(i);
 			
 			Matrix4 modelMatrix = getNewIdentityMatrix();
-			modelMatrix=copyMatrix(stateTrans);
+			modelMatrix=copyMatrix(globalModelTransformation);
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
 			
@@ -207,5 +205,13 @@ public class VolumeDataScene extends AbstractScene{
 			i++;
 			break;
 		}
+	}
+
+
+	/**
+	 * @param globalModelTransformation the globalModelTransformation to set
+	 */
+	public void setGlobalModelTransformation(Matrix4 globalModelTransformation) {
+		this.globalModelTransformation = globalModelTransformation;
 	}
 }
