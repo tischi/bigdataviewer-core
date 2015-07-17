@@ -112,6 +112,8 @@ public class VolumeDataScene extends AbstractScene{
 		
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 			
+			
+			
 			//create borders
 			UnitCube cubeShader = new UnitCube();
 			volumeBorders.add(cubeShader);
