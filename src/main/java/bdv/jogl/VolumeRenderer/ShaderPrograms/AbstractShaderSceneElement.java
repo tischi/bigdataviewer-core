@@ -51,6 +51,13 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	public void setProjection(final Matrix4 projection) {
 		this.projection = MatrixUtils.copyMatrix(projection);
 	}
+	
+	/**
+	 * @return the view
+	 */
+	public Matrix4 getView() {
+		return MatrixUtils.copyMatrix(view);
+	}
 
 	/**
 	 * @param view the view to set
