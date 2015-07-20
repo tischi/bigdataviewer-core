@@ -699,7 +699,7 @@ public class BigDataViewer
 		{
 			System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 			BigDataViewer bdv = open( fn, new File( fn ).getName(), new ProgressWriterConsole() );
-			GLWindow.createAndConnect3DView(bdv);
+			GLWindow.addVolumeRendererMenuActions(bdv);
 		}
 		catch ( final Exception e )
 		{

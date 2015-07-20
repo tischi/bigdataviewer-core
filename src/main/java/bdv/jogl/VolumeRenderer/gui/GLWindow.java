@@ -1,12 +1,18 @@
 package bdv.jogl.VolumeRenderer.gui;
 
 
+
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.Action;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+
+import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.*;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
@@ -22,6 +28,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 
+
 /**
  * Main gl supporting widget
  * @author michael
@@ -35,6 +42,11 @@ public class GLWindow extends JFrame {
 	
 	private List<VolumeDataScene> scenes = new LinkedList<VolumeDataScene>();
 
+	private final static String preferedMenuName = "Tools";
+	
+	private final static String actionName = "3D Volume";
+
+	
 	/**
 	 * @return the bigDataViewer
 	 */
@@ -49,11 +61,39 @@ public class GLWindow extends JFrame {
 		scenes.add(scene);
 		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(scene));
 	}
+	
+	public static void addVolumeRendererMenuActions(final BigDataViewer bdv){
+		JMenuBar menuBar = bdv.getViewerFrame().getJMenuBar();
+		
+		
+		JMenu preferedMenu = null;
+		
+		//find Tools menu
+		for(int i = 0; i < menuBar.getMenuCount(); i++){
+			JMenu currentMenu = menuBar.getMenu(i);
+			if(currentMenu.getText().equals(preferedMenuName)){
+				preferedMenu = currentMenu;
+			}
+		}
+		
+		//create if not exists
+		if(preferedMenu == null){
+			preferedMenu = new JMenu(preferedMenuName);
+		}
+		
+		//add open action for 3D view
+		Action open3DViewAction = new OpenVolumeRendererAction(actionName, bdv);
+		preferedMenu.add(open3DViewAction);
+		preferedMenu.updateUI();
+	}
+	
 	/**
 	 * @param bigDataViewer the bigDataViewer to set
 	 */
 	public void setBigDataViewer(BigDataViewer bigDataViewer) {
+		
 		this.bigDataViewer = bigDataViewer;
+
 		this.bigDataViewer.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 
 			@Override
@@ -167,6 +207,7 @@ public class GLWindow extends JFrame {
 		initWindowElements();
 	}
 
+	
 	/**
 	 * creates a GLWidget and connects it to the viewer 
 	 * @param parent The BigDataViewer to connect to
