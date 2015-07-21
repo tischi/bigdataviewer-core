@@ -78,6 +78,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	public void setColorMapData(final TreeMap<Integer, Color> newData){
 		colorMap.clear();
 		colorMap.putAll(newData);
+		isColorUpdateable = true;
 	}
 	
 	@Override
