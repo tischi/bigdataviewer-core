@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -52,12 +54,79 @@ public class TransferFunctionPanel1D extends JPanel {
 		points.put(maxPoint.x, maxPoint.y);
 	}
 
+	private void addControls(){
+		addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				//insert new point
+				if(e.getClickCount() ==2){
+					Point position = getPositionInTransferFunctionSpace(e.getPoint());
+					e.consume();
+					if(points.containsKey(position.x)){
+						return;
+					}
+					points.put(position.x, position.y);
+					
+					
+					fireEventAll();
+					repaint();
+				}
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
+	private void fireEventAll(){
+		
+		for(TransferFunctionListener listener:transferFunctionListeners){
+			fireEvent(listener);
+		}
+	}
+	
+	private Point getPositionInTransferFunctionSpace(final Point pointInImageSpace){
+		float[] convertFactors = {(float)(maxPoint.x-minPoint.x)/(float)(getWidth()), 
+				(float)(maxPoint.y-minPoint.y) /(float)(getHeight())};
+		
+		return new Point(Math.round(convertFactors[0]* (float)pointInImageSpace.x+(float)minPoint.x),
+				Math.round(convertFactors[1]* (float)(getHeight()-pointInImageSpace.y)+(float)minPoint.y));
+		
+	}
+	
 	/**
 	 * constructor
 	 */
 	public TransferFunctionPanel1D(){
 
 		initStdHistValues();
+		
+		addControls();
 	}
 
 	void paintSkala(Graphics g){
@@ -162,9 +231,10 @@ public class TransferFunctionPanel1D extends JPanel {
 		colorMap.get(previousIndex).getColorComponents(colorPrev);
 		colorMap.get(nextIndex).getColorComponents(colorNext);
 	
-		VectorUtil.addVec3(result, colorPrev, 
-				VectorUtil.scaleVec3(null,
-						VectorUtil.subVec3(null, colorNext, colorPrev),colorOffset/colorDiff));
+		float []tmpColor= {0,0,0};
+		VectorUtil.subVec3(tmpColor, colorNext, colorPrev);
+		VectorUtil.scaleVec3(tmpColor,tmpColor,colorOffset/colorDiff);
+		VectorUtil.addVec3(result, colorPrev,tmpColor );
 		
 		return new Color(result[0],result[1],result[2],0);
 	}
