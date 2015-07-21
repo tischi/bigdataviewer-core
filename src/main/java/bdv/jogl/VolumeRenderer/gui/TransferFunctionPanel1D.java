@@ -20,6 +20,7 @@ public class TransferFunctionPanel1D extends JPanel {
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 	
 	private TreeMap<Integer,Color> colorMap = new TreeMap<Integer, Color>();
+	private TreeMap<Integer, Integer> points = new TreeMap<Integer, Integer>();
 	
 	private final int minX = 0;
 	
@@ -48,40 +49,51 @@ public class TransferFunctionPanel1D extends JPanel {
 		initStdHistValues();
 	}
 	
+	void paintSkala(Graphics g){
+		//paint gradient image
+				//error check
+				if(colorMap.size() < 2){
+					return;
+				}
+				
+				//get painter
+				Graphics2D painter = (Graphics2D) g;
+
+				
+				Integer latestX = 0;
+				float xFactor = 1f/100f;
+				for(Integer x: colorMap.keySet()){
+					//skip first iteration
+					if(x.equals( latestX)){
+						continue;
+					}
+					
+					Float flx = latestX.floatValue()*xFactor*(float)getWidth();
+					Float fx = x.floatValue()*xFactor*(float)getWidth();
+					//gradient
+					GradientPaint gradient = new GradientPaint(flx, 0, colorMap.get(latestX),
+							fx,0/* getHeight()*/, colorMap.get(x));
+					
+					
+					//draw gradient
+					painter.setPaint(gradient);
+					painter.fillRect(flx.intValue(), 0, 
+							fx.intValue(), getHeight());
+					latestX = x;
+				}
+	}
+	
+	private void paintPoints(Graphics g){
+		
+	}
+	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		
-		//error check
-		if(colorMap.size() < 2){
-			return;
-		}
+		paintSkala(g);
 		
-		//get painter
-		Graphics2D painter = (Graphics2D) g;
-
-		
-		Integer latestX = 0;
-		float xFactor = 1f/100f;
-		for(Integer x: colorMap.keySet()){
-			//skip first iteration
-			if(x.equals( latestX)){
-				continue;
-			}
-			
-			Float flx = latestX.floatValue()*xFactor*(float)getWidth();
-			Float fx = x.floatValue()*xFactor*(float)getWidth();
-			//gradient
-			GradientPaint gradient = new GradientPaint(flx, 0, colorMap.get(latestX),
-					fx,0/* getHeight()*/, colorMap.get(x));
-			
-			
-			//draw gradient
-			painter.setPaint(gradient);
-			painter.fillRect(flx.intValue(), 0, 
-					fx.intValue(), getHeight());
-			latestX = x;
-		}
+		paintPoints(g);
 	}
 	
 	/**
