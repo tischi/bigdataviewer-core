@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -22,9 +23,9 @@ public class TransferFunctionPanel1D extends JPanel {
 	private TreeMap<Integer,Color> colorMap = new TreeMap<Integer, Color>();
 	private TreeMap<Integer, Integer> points = new TreeMap<Integer, Integer>();
 	
-	private final int minX = 0;
+	private final Point minPoint = new Point(0, 0);
 	
-	private final int maxX = 100;
+	private final Point maxPoint = new Point(100,100);
 	
 	/**
 	 * Calls all event methods on listener using the current data state
@@ -36,9 +37,13 @@ public class TransferFunctionPanel1D extends JPanel {
 	}
 	
 	private void initStdHistValues(){
-		colorMap.put(minX, Color.BLUE);
-		colorMap.put((maxX-minX)/2+minX, Color.WHITE);
-		colorMap.put(maxX,Color.RED);
+		colorMap.put(minPoint.x, Color.BLUE);
+		colorMap.put((maxPoint.x-minPoint.x)/2+minPoint.x, Color.WHITE);
+		colorMap.put(maxPoint.x,Color.RED);
+		
+		//line
+		points.put(minPoint.x, minPoint.y);
+		points.put(maxPoint.x, maxPoint.y);
 	}
 	
 	/**
@@ -84,7 +89,28 @@ public class TransferFunctionPanel1D extends JPanel {
 	}
 	
 	private void paintPoints(Graphics g){
+		if(points.size() < 2){
+			return;
+		}
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setColor(Color.black);
 		
+		Point dimFactors = new Point();
+		dimFactors.setLocation(getWidth()* (maxPoint.getX()-minPoint.getX()),
+				getHeight()* (maxPoint.getX()-minPoint.getX()));
+		
+		Integer latestIndex = points.firstKey();
+		for( Integer mapIndex: points.keySet()){
+			if(mapIndex == points.firstKey() ){
+				continue;
+			}
+			
+			//print line
+			g2d.drawLine((int)Math.round(latestIndex.doubleValue()*dimFactors.getX()), 
+					(int)Math.round(getHeight()- points.get(latestIndex).doubleValue()*dimFactors.getY()),
+					(int)Math.round(mapIndex.doubleValue()*dimFactors.getX()), 
+					(int)Math.round(getHeight()-points.get(mapIndex).doubleValue()*dimFactors.getY()));
+		}
 	}
 	
 	@Override
