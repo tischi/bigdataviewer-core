@@ -28,8 +28,8 @@ int getStepsInVolume(float stepsSize, vec3 position, vec3 direction){
 
 void main(void)
 {	
-	const int samples = 256;
-	float sample_step =1f/float(samples);
+	const int samples = 512;//256;
+	float sample_step =sqrt(3f)/float(samples);
 	const float brightness = 150.0f;
 	 
     vec3 ray_dir = normalize(textureCoord - inEyePosition );
