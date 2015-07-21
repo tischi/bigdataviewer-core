@@ -234,7 +234,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 				
 				//add to buffer and increment
 				for(int dim = 0; dim < colorGradient.length; dim++){
-					buffer.put(currentColor[dim]);
+					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
 					currentColor[dim] += colorGradient[dim];
 				}
 			}		
