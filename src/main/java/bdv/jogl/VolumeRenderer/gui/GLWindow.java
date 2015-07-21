@@ -2,8 +2,13 @@ package bdv.jogl.VolumeRenderer.gui;
 
 
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,14 +44,14 @@ public class GLWindow extends JFrame {
 	private final GLCanvas glCanvas;
 
 	private BigDataViewer bigDataViewer;
-	
+
 	private List<VolumeDataScene> scenes = new LinkedList<VolumeDataScene>();
 
 	private final static String preferedMenuName = "Tools";
-	
+
 	private final static String actionName = "3D Volume";
 
-	
+
 	/**
 	 * @return the bigDataViewer
 	 */
@@ -56,18 +61,18 @@ public class GLWindow extends JFrame {
 
 	private void createScene(){
 		VolumeDataScene scene =  new VolumeDataScene(bigDataViewer);
-		
+
 		scenes.clear();
 		scenes.add(scene);
 		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(scene));
 	}
-	
+
 	public static void addVolumeRendererMenuActions(final BigDataViewer bdv){
 		JMenuBar menuBar = bdv.getViewerFrame().getJMenuBar();
-		
-		
+
+
 		JMenu preferedMenu = null;
-		
+
 		//find Tools menu
 		for(int i = 0; i < menuBar.getMenuCount(); i++){
 			JMenu currentMenu = menuBar.getMenu(i);
@@ -75,23 +80,23 @@ public class GLWindow extends JFrame {
 				preferedMenu = currentMenu;
 			}
 		}
-		
+
 		//create if not exists
 		if(preferedMenu == null){
 			preferedMenu = new JMenu(preferedMenuName);
 		}
-		
+
 		//add open action for 3D view
 		Action open3DViewAction = new OpenVolumeRendererAction(actionName, bdv);
 		preferedMenu.add(open3DViewAction);
 		preferedMenu.updateUI();
 	}
-	
+
 	/**
 	 * @param bigDataViewer the bigDataViewer to set
 	 */
 	public void setBigDataViewer(BigDataViewer bigDataViewer) {
-		
+
 		this.bigDataViewer = bigDataViewer;
 
 		this.bigDataViewer.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
@@ -131,7 +136,7 @@ public class GLWindow extends JFrame {
 			@Override
 			public void windowActivated(WindowEvent e) { }
 		});
-		
+
 	}
 
 
@@ -143,7 +148,7 @@ public class GLWindow extends JFrame {
 		GLProfile glprofile = GLProfile.getDefault();
 		GLCapabilities glcapabilities = new GLCapabilities( glprofile );
 
-		
+
 		glCanvas = new GLCanvas(glcapabilities );
 		glCanvas.addGLEventListener(new GLEventListener() {
 
@@ -152,7 +157,7 @@ public class GLWindow extends JFrame {
 					int height) {
 				GL gl = drawable.getGL();
 				GL2 gl2 = gl.getGL2();
-				
+
 				//resizes all available scenes
 				for(VolumeDataScene scene: scenes){
 					scene.resize(gl2, x, y, width, height);;
@@ -168,9 +173,9 @@ public class GLWindow extends JFrame {
 				GL gl = drawable.getGL();
 				//gl =drawable.setGL(new TraceGL2(drawable.getGL().getGL2(), System.err));
 				GL2 gl2 = gl.getGL2();
-				
+
 				createScene();
-				
+
 				//init all available scenes
 				for(VolumeDataScene scene: scenes){
 					scene.init(gl2, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
@@ -181,9 +186,9 @@ public class GLWindow extends JFrame {
 			public void dispose(GLAutoDrawable drawable) {
 				GL gl = drawable.getGL();
 				GL2 gl2 = gl.getGL2();
-				
+
 				//disposes all available scenes
-			
+
 				for(VolumeDataScene scene: scenes){
 					scene.dispose(gl2);
 				}
@@ -194,10 +199,10 @@ public class GLWindow extends JFrame {
 
 			@Override
 			public void display(GLAutoDrawable drawable) {		
-			
+
 				GL gl = drawable.getGL();
 				GL2 gl2 = gl.getGL2();
-				
+
 				//renders all available scenes
 				for(VolumeDataScene scene: scenes){
 					scene.render(gl2);
@@ -207,7 +212,7 @@ public class GLWindow extends JFrame {
 		initWindowElements();
 	}
 
-	
+
 	/**
 	 * creates a GLWidget and connects it to the viewer 
 	 * @param parent The BigDataViewer to connect to
@@ -226,9 +231,13 @@ public class GLWindow extends JFrame {
 	private void initWindowElements(){
 		setTitle("Open GL Window");
 
-		getContentPane().add(glCanvas);
 
 		//sample size
-		setSize(640,480);
+		setSize(640,580);
+
+		getContentPane().add(glCanvas);
+
+
+
 	}
 }

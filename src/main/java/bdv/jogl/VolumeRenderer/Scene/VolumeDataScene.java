@@ -3,6 +3,9 @@ package bdv.jogl.VolumeRenderer.Scene;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
+
+import javax.swing.JFrame;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -13,7 +16,8 @@ import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
-
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataUtils;
 import bdv.viewer.state.SourceState;
@@ -42,6 +46,45 @@ public class VolumeDataScene extends AbstractScene{
 	
 	private int currentActiveSource = 0;
 
+	//TODO move out
+	private TransferFunctionPanel1D tfpanel = null;
+	
+	private JFrame tfWindow = null;
+	
+	private void createTFWindow(){
+		tfpanel = new TransferFunctionPanel1D();
+		tfpanel.addTransferFunctionListener(new TransferFunctionListener() {
+			
+			@Override
+			public void opacityChanged(final TreeMap<Integer, Float> xToOpacityMap) {
+
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void colorChanged(final TreeMap<Integer, Color> xToColorMap) {
+				// TODO Auto-generated method stub
+				for(SimpleVolumeRenderer renderer: volumeRenderes){
+					renderer.setColorMapData(xToColorMap);
+				}
+			}
+		});
+		
+		tfWindow = new JFrame();
+		tfWindow.setTitle("Transfer function configurations");
+		tfWindow.setSize(640, 100);
+		tfWindow.getContentPane().add(tfpanel);
+		tfWindow.setVisible(true);
+	}
+	
+	private void destroyTFWindow() {
+		tfWindow.dispose();
+		tfWindow = null;
+		tfpanel = null;
+	}
+	//TODO 
+	
+	
 	private void cleanUpSceneElements(){
 		volumeBorders.clear();
 		volumeRenderes.clear();
@@ -50,7 +93,9 @@ public class VolumeDataScene extends AbstractScene{
 	
 	@Override
 	protected void disposeSpecial(GL2 gl2) {
+		destroyTFWindow();
 		cleanUpSceneElements();
+		
 	}
 
 
@@ -60,6 +105,7 @@ public class VolumeDataScene extends AbstractScene{
 
 	public VolumeDataScene(BigDataViewer bdv){
 		bigDataViewer = bdv;
+
 	}
 
 	/**
@@ -68,13 +114,9 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	private void initLocalCamera(Camera camera2, int width, int height, int[] dim){
 
-
-
 		float[] center = {dim[0] ,dim[1],dim[2]};
 
-
 		float[] eye = {center[0],center[1],	center[2] - 30f * (dim[2])};
-
 
 		camera2.addCameraListener(new CameraListener() {
 
@@ -169,7 +211,8 @@ public class VolumeDataScene extends AbstractScene{
 		}
 
 		initLocalCamera(camera, width, height, dimensions);
-
+		
+		createTFWindow();
 	}
 
 
@@ -178,8 +221,6 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param gl2
 	 */
 	protected void renderSpecial(GL2 gl2){
-
-
 
 		ViewerState state = bigDataViewer.getViewer().getState();
 

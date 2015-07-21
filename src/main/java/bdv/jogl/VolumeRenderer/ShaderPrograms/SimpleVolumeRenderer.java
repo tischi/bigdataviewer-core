@@ -8,6 +8,7 @@ import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
@@ -15,6 +16,7 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 /**
  * Volume renderer for single volume
@@ -40,7 +42,9 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	public static final String shaderVariableMaxVolumeValue = "inMaxVolumeValue";
 
+	private final TreeMap<Integer, Color> colorMap = new TreeMap<Integer, Color>();
 
+	
 	private VolumeDataBlock data;
 
 	private int volumeTextureObject =-1;
@@ -54,8 +58,28 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	private int colorTextureObject;
 
 	private boolean isColorUpdateable = true;
+	
+	private void initColorDefaults(){
+		colorMap.put(100,Color.green);
+		colorMap.put(0,Color.red);
+	}
+	
+	/**
+	 * constructor 
+	 */
+	public SimpleVolumeRenderer(){
+		initColorDefaults();
+	}
 
-
+	/**
+	 * Updates color data
+	 * @param newData
+	 */
+	public void setColorMapData(final TreeMap<Integer, Color> newData){
+		colorMap.clear();
+		colorMap.putAll(newData);
+	}
+	
 	@Override
 	public void setModelTransformations(Matrix4 modelTransformations) {
 		super.setModelTransformations(modelTransformations);
@@ -170,6 +194,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		isEyeUpdateable = false;
 	}
 
+	
 	private void updateColor(GL2 gl2,
 			Map<String, Integer> shaderVariableMapping){
 		if(!isColorUpdateable){
@@ -180,16 +205,48 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
 		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),1);
 
-		Color colors[] = {Color.GREEN,Color.red};
-
-		//get Buffer
-		FloatBuffer buffer = Buffers.newDirectFloatBuffer(8);
-		for( Color color : colors){
-			buffer.put(color.getRed()/255);
-			buffer.put(color.getGreen()/255);
-			buffer.put(color.getBlue()/255);
-			buffer.put(color.getAlpha()/255);
+		
+		//get Buffer last key is the highest number 
+		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
+		
+		
+		//make samples
+		Integer latestMapIndex = colorMap.firstKey();
+		//iterate candidates
+		for(Integer currentMapIndex: colorMap.keySet()){
+			if(currentMapIndex == colorMap.firstKey()){
+				continue;
+			}
+			
+			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
+			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
+			float[] colorGradient = {0,0,0,0};
+			colorMap.get(latestMapIndex).getColorComponents(currentColor);
+			colorMap.get(currentMapIndex).getColorComponents(finalColor);
+			
+			//forward difference
+			for(int dim = 0; dim < colorGradient.length; dim++){
+				colorGradient[dim] = finalColor[dim]-currentColor[dim];
+			}
+			
+			//sample linear
+			for(Integer step = latestMapIndex; step < currentMapIndex; step++ ){
+				
+				//add to buffer and increment
+				for(int dim = 0; dim < colorGradient.length; dim++){
+					buffer.put(currentColor[dim]);
+					currentColor[dim] += colorGradient[dim];
+				}
+			}		
+			//add latest color
+			if(currentMapIndex == colorMap.lastKey()){
+				for(int dim = 0; dim < finalColor.length; dim++){
+					buffer.put(finalColor[dim]);
+				}
+			}
+			latestMapIndex = currentMapIndex;
 		}
+		
 		buffer.rewind();
 		//upload data
 		gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 
