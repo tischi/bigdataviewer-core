@@ -15,10 +15,4 @@ public interface TransferFunctionListener {
 	 * @param xToColorMap Colors per ordinate.
 	 */
 	public void colorChanged(final TreeMap<Integer, Color> xToColorMap);
-
-	/**
-	 * Triggered by opacity changes
-	 * @param xToOpacityMap Opacity per ordinate
-	 */
-	public void opacityChanged(final TreeMap<Integer,Float> xToOpacityMap);
 }

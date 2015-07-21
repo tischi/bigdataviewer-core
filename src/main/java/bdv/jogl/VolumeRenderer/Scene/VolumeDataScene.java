@@ -33,7 +33,7 @@ import com.jogamp.opengl.math.Matrix4;
  *
  */
 public class VolumeDataScene extends AbstractScene{
-
+	
 	private BigDataViewer bigDataViewer;
 
 	private List<UnitCube> volumeBorders = new ArrayList<UnitCube>();
@@ -55,11 +55,6 @@ public class VolumeDataScene extends AbstractScene{
 		tfpanel = new TransferFunctionPanel1D();
 		tfpanel.addTransferFunctionListener(new TransferFunctionListener() {
 			
-			@Override
-			public void opacityChanged(final TreeMap<Integer, Float> xToOpacityMap) {
-
-				// TODO Auto-generated method stub
-			}
 			
 			@Override
 			public void colorChanged(final TreeMap<Integer, Color> xToColorMap) {
