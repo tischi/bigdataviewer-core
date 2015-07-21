@@ -7,21 +7,8 @@ uniform mat4x4 inModel;
 out vec3 textureCoord;
 
 
-vec3 invertedTexture(vec3 texCoord){
-	vec3 outVector = texCoord;
-	for(int i =1; i<1 ; i++){
-		if(texCoord[i] < 1){
-			outVector[i]=1;
-		}
-		else{
-			outVector[i] =0;
-		}
-	}
-	return outVector;
-}
-
 void main(){
-	textureCoord = /*invertedTexture(*/inPosition/*)*/;
+	textureCoord = inPosition;
 	vec4 position4d = vec4(inPosition.xyz,1.f);
 	
 	gl_Position =inProjection *  inView *inModel * position4d;

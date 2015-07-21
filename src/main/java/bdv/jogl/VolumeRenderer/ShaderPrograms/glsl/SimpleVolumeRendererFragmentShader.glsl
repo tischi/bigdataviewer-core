@@ -3,7 +3,7 @@
 uniform sampler3D inVolumeTexture;
 uniform sampler1D inColorTexture;
 out vec4 fragmentColor;
-smooth in vec3 textureCoord;
+in vec3 textureCoord;
 uniform float inMaxVolumeValue;
 uniform float inMinVolumeValue;
 uniform vec3 inEyePosition;
