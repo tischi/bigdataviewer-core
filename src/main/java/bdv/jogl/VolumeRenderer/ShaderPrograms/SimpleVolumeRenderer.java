@@ -226,7 +226,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 			
 			//forward difference
 			for(int dim = 0; dim < colorGradient.length; dim++){
-				colorGradient[dim] = finalColor[dim]-currentColor[dim];
+				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
 			}
 			
 			//sample linear
@@ -234,7 +234,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 				
 				//add to buffer and increment
 				for(int dim = 0; dim < colorGradient.length; dim++){
-					buffer.put(currentColor[dim]);
+					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
 					currentColor[dim] += colorGradient[dim];
 				}
 			}		

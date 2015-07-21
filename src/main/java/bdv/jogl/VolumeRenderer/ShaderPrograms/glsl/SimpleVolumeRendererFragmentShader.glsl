@@ -55,7 +55,7 @@ void main(void)
 
 
         color.rgb = texture(inColorTexture, density).rgb;
-        color.a   = density * sample_step * val_threshold * brightness;
+        color.a   = texture(inColorTexture, density).a /*density*/ * sample_step * val_threshold * brightness;
         fragmentColor.rgb = fragmentColor.rgb * (1.0 - color.a) + color.rgb * color.a;
 		ray_pos += ray_dir * sample_step;  		
     }
