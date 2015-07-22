@@ -7,21 +7,17 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JColorChooser;
-import javax.swing.JFrame;
+
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
+
 
 import com.jogamp.opengl.math.VectorUtil;
 
@@ -32,7 +28,7 @@ import com.jogamp.opengl.math.VectorUtil;
  */
 public class TransferFunctionPanel1D extends JPanel {
 	
-	private JPopupMenu contextMenue = new JPopupMenu();
+	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
 	
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
@@ -48,7 +44,6 @@ public class TransferFunctionPanel1D extends JPanel {
 	
 	private int dragIndex = -1;
 	
-	private Point colorPickPoint = new Point();
 	/**
 	 * Calls all event methods on listener using the current data state
 	 * @param listener
@@ -59,70 +54,33 @@ public class TransferFunctionPanel1D extends JPanel {
 	}
 
 	
-	private void initLine(){
+	public void resetLine(){
+		points.clear();
 		points.put(minPoint.x, minPoint.y);
 		points.put(maxPoint.x, maxPoint.y);
+		
+		repaint();
+		fireEventAll();
 	}
 	
-	private void initStdHistValues(){
+	public void resetColors(){
+		colorMap.clear();
 		colorMap.put(minPoint.x, Color.BLUE);
 		colorMap.put((maxPoint.x-minPoint.x)/2+minPoint.x, Color.WHITE);
 		colorMap.put(maxPoint.x,Color.RED);
+		
+		repaint();
+		fireEventAll();
 	}
 
-	private void createMenu(){
-		final TransferFunctionPanel1D me=this;
-		contextMenue.add(new AbstractAction("Insert color") {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Color color = JColorChooser.showDialog(new JFrame(), "color dialog", Color.black);
-				
-				//nothing choosen
-				if(color == null){
-					return;
-				}
-		
-				Point position = getPositionInTransferFunctionSpace(colorPickPoint);
-				colorMap.put(position.x, color);
-				me.repaint();
-				me.fireEventAll();
-			}
-		});
-		contextMenue.add(new AbstractAction("Reset Points") {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				points.clear();
-				initLine();
-	
-				me.repaint();
-				me.fireEventAll();
-			}
-		});
-		
-		contextMenue.add(new AbstractAction("Reset colors") {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				colorMap.clear();
-				initStdHistValues();
-	
-				me.repaint();
-				me.fireEventAll();
-			}
-		});
-	}
-	
+
 	private void addControls(){
-		final TransferFunctionPanel1D me  =  this;
+		addMouseListener(contextMenue);
+		
 		addMouseMotionListener(new MouseMotionListener() {
 			
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void mouseMoved(MouseEvent e) {}
 			
 			@Override
 			public void mouseDragged(MouseEvent e) {
@@ -163,27 +121,17 @@ public class TransferFunctionPanel1D extends JPanel {
 					if(ceil == position.x){
 						return;
 					}
-					int low= points.lowerKey(position.x);
-					
-				
+					int low= points.lowerKey(position.x);			
 					
 					dragIndex = (position.x -low < ceil - position.x)?low:ceil;
 				}
-				
-
 			}
 			
 			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void mouseExited(MouseEvent e) {}
 			
 			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void mouseEntered(MouseEvent e) {}
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -201,14 +149,6 @@ public class TransferFunctionPanel1D extends JPanel {
 					fireEventAll();
 					repaint();
 				}
-				
-				//context menu
-				if(e.getButton() == MouseEvent.BUTTON3){
-					colorPickPoint = new Point(e.getPoint());
-					contextMenue.show(me, e.getX(), e.getY());
-				}
-				
-				
 			}
 		});
 	}
@@ -233,17 +173,28 @@ public class TransferFunctionPanel1D extends JPanel {
 	 * constructor
 	 */
 	public TransferFunctionPanel1D(){
-
-		initStdHistValues();
 		
-		initLine();
+		resetColors();
 		
-		createMenu();
+		resetLine();
 		
 		addControls();
 	}
 
-	void paintSkala(Graphics g){
+	/**
+	 * Sets the color of a certain point in the panel.
+	 * @param point Position on the panel area.
+	 * @param color Color to be set.
+	 */
+	public void setColor(final Point point, final Color color){
+		Point position = getPositionInTransferFunctionSpace(point);
+		colorMap.put(position.x, color);
+		
+		repaint();
+		fireEventAll();
+	}
+	
+	private void paintSkala(Graphics g){
 		//paint gradient image
 		//error check
 		if(colorMap.size() < 2){
