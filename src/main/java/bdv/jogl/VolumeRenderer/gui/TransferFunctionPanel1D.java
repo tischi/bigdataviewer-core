@@ -58,14 +58,16 @@ public class TransferFunctionPanel1D extends JPanel {
 		listener.colorChanged(getTexturColor());
 	}
 
+	
+	private void initLine(){
+		points.put(minPoint.x, minPoint.y);
+		points.put(maxPoint.x, maxPoint.y);
+	}
+	
 	private void initStdHistValues(){
 		colorMap.put(minPoint.x, Color.BLUE);
 		colorMap.put((maxPoint.x-minPoint.x)/2+minPoint.x, Color.WHITE);
 		colorMap.put(maxPoint.x,Color.RED);
-
-		//line
-		points.put(minPoint.x, minPoint.y);
-		points.put(maxPoint.x, maxPoint.y);
 	}
 
 	private void createMenu(){
@@ -83,6 +85,29 @@ public class TransferFunctionPanel1D extends JPanel {
 		
 				Point position = getPositionInTransferFunctionSpace(colorPickPoint);
 				colorMap.put(position.x, color);
+				me.repaint();
+				me.fireEventAll();
+			}
+		});
+		contextMenue.add(new AbstractAction("Reset Points") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				points.clear();
+				initLine();
+	
+				me.repaint();
+				me.fireEventAll();
+			}
+		});
+		
+		contextMenue.add(new AbstractAction("Reset colors") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				colorMap.clear();
+				initStdHistValues();
+	
 				me.repaint();
 				me.fireEventAll();
 			}
@@ -210,6 +235,8 @@ public class TransferFunctionPanel1D extends JPanel {
 	public TransferFunctionPanel1D(){
 
 		initStdHistValues();
+		
+		initLine();
 		
 		createMenu();
 		
