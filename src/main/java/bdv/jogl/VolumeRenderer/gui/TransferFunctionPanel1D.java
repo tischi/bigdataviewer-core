@@ -8,9 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -27,9 +24,11 @@ import com.jogamp.opengl.math.VectorUtil;
  *
  */
 public class TransferFunctionPanel1D extends JPanel {
-	
+
 	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
 	
+	private final TransferFunctionPointInteractor pointInteractor = new TransferFunctionPointInteractor(this);
+
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
 	private TreeMap<Integer,Color> colorMap = new TreeMap<Integer, Color>();
@@ -41,9 +40,7 @@ public class TransferFunctionPanel1D extends JPanel {
 	private final Point maxPoint = new Point(100,100);
 
 	private final int pointRadius = 10;
-	
-	private int dragIndex = -1;
-	
+
 	/**
 	 * Calls all event methods on listener using the current data state
 	 * @param listener
@@ -53,22 +50,22 @@ public class TransferFunctionPanel1D extends JPanel {
 		listener.colorChanged(getTexturColor());
 	}
 
-	
+
 	public void resetLine(){
 		points.clear();
 		points.put(minPoint.x, minPoint.y);
 		points.put(maxPoint.x, maxPoint.y);
-		
+
 		repaint();
 		fireEventAll();
 	}
-	
+
 	public void resetColors(){
 		colorMap.clear();
 		colorMap.put(minPoint.x, Color.BLUE);
 		colorMap.put((maxPoint.x-minPoint.x)/2+minPoint.x, Color.WHITE);
 		colorMap.put(maxPoint.x,Color.RED);
-		
+
 		repaint();
 		fireEventAll();
 	}
@@ -76,108 +73,37 @@ public class TransferFunctionPanel1D extends JPanel {
 
 	private void addControls(){
 		addMouseListener(contextMenue);
+
+		addMouseMotionListener(pointInteractor);
 		
-		addMouseMotionListener(new MouseMotionListener() {
-			
-			@Override
-			public void mouseMoved(MouseEvent e) {}
-			
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				if(dragIndex<0 && e.getButton() != MouseEvent.BUTTON1){
-					return;
-				}
-				Point position = getPositionInTransferFunctionSpace(e.getPoint());
-				e.consume();
-				
-				points.put(dragIndex, Math.min(Math.max(position.y,minPoint.y),maxPoint.y));
-				
-				fireEventAll();
-				repaint();
-				
-			}
-		});
-		addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(e.getButton() != MouseEvent.BUTTON1){
-					return;
-				}
-				dragIndex = -1;
-				e.consume();
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				//drag point
-				if(e.getClickCount() == 1&&e.getButton() == MouseEvent.BUTTON1){
-					Point position = getPositionInTransferFunctionSpace(e.getPoint());
-					e.consume();
-					
-					dragIndex = position.x;
-					
-					int ceil= points.ceilingKey(position.x);
-					if(ceil == position.x){
-						return;
-					}
-					int low= points.lowerKey(position.x);			
-					
-					dragIndex = (position.x -low < ceil - position.x)?low:ceil;
-				}
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {}
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				
-				//insert new point
-				if(e.getClickCount() ==2 && e.getButton() == MouseEvent.BUTTON1){
-					Point position = getPositionInTransferFunctionSpace(e.getPoint());
-					e.consume();
-					if(points.containsKey(position.x)){
-						return;
-					}
-					points.put(position.x, position.y);
-					
-					
-					fireEventAll();
-					repaint();
-				}
-			}
-		});
+		addMouseListener(pointInteractor);
 	}
-	
+
 	private void fireEventAll(){
-		
+
 		for(TransferFunctionListener listener:transferFunctionListeners){
 			fireEvent(listener);
 		}
 	}
-	
+
 	private Point getPositionInTransferFunctionSpace(final Point pointInImageSpace){
 		float[] convertFactors = {(float)(maxPoint.x-minPoint.x)/(float)(getWidth()), 
 				(float)(maxPoint.y-minPoint.y) /(float)(getHeight())};
-		
+
 		return new Point(Math.round(convertFactors[0]* (float)pointInImageSpace.x+(float)minPoint.x),
 				Math.round(convertFactors[1]* (float)(getHeight()-pointInImageSpace.y)+(float)minPoint.y));
-		
+
 	}
-	
+
 	/**
 	 * constructor
 	 */
 	public TransferFunctionPanel1D(){
-		
+
 		resetColors();
-		
+
 		resetLine();
-		
+
 		addControls();
 	}
 
@@ -189,11 +115,11 @@ public class TransferFunctionPanel1D extends JPanel {
 	public void setColor(final Point point, final Color color){
 		Point position = getPositionInTransferFunctionSpace(point);
 		colorMap.put(position.x, color);
-		
+
 		repaint();
 		fireEventAll();
 	}
-	
+
 	private void paintSkala(Graphics g){
 		//paint gradient image
 		//error check
@@ -280,7 +206,7 @@ public class TransferFunctionPanel1D extends JPanel {
 
 	private Color getColorComponent(int index){
 		float [] result = {0,0,0};
-		
+
 		//get RGB
 		int nextIndex = colorMap.ceilingKey(index);
 		if(nextIndex == index){
@@ -289,21 +215,21 @@ public class TransferFunctionPanel1D extends JPanel {
 		int previousIndex = colorMap.lowerKey(index);
 		float colorDiff = nextIndex-previousIndex;
 		float colorOffset = index - previousIndex;
-	
+
 		float[] colorPrev ={0,0,0};
 		float[] colorNext ={0,0,0};
-		
+
 		colorMap.get(previousIndex).getColorComponents(colorPrev);
 		colorMap.get(nextIndex).getColorComponents(colorNext);
-	
+
 		float []tmpColor= {0,0,0};
 		VectorUtil.subVec3(tmpColor, colorNext, colorPrev);
 		VectorUtil.scaleVec3(tmpColor,tmpColor,colorOffset/colorDiff);
 		VectorUtil.addVec3(result, colorPrev,tmpColor );
-		
+
 		return new Color(result[0],result[1],result[2],0);
 	}
-	
+
 	private float getAlpha (int index){
 		//get RGB
 		int nextIndex = points.ceilingKey(index);
@@ -314,26 +240,26 @@ public class TransferFunctionPanel1D extends JPanel {
 		int previousIndex = points.lowerKey(index);
 		float colorDiff = nextIndex-previousIndex;
 		float colorOffset = index - previousIndex;
-		
+
 		float m = (points.get(nextIndex).floatValue()- points.get(previousIndex).floatValue()-(float)minPoint.getY())/colorDiff* normFactor;
 		return m*colorOffset+(points.get(previousIndex).floatValue()-(float)minPoint.getY()) * normFactor;
-		
+
 	} 
-	
+
 	private Color getColorForXOrdinateInObjectTransferSpace(int index){
-		
+
 		float [] result = {0,0,0,0};
-		
+
 		getColorComponent(index).getColorComponents(result);
-		
+
 		result[3] = getAlpha(index); 
 		Color resultColor = null ;
 		try {
-			 resultColor = new Color(result[0],result[1],result[2],result[3]);
+			resultColor = new Color(result[0],result[1],result[2],result[3]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return resultColor;
 	}
 
@@ -352,12 +278,12 @@ public class TransferFunctionPanel1D extends JPanel {
 			if(colors.containsKey(index)){
 				continue;
 			}
-			
+
 			currentColor = getColorForXOrdinateInObjectTransferSpace(index);
 			if(currentColor == null){
 				continue;
 			}
-			
+
 			colors.put(index, currentColor);
 		}
 
@@ -386,5 +312,44 @@ public class TransferFunctionPanel1D extends JPanel {
 		transferFunctionListeners.add(listener);
 
 		fireEvent(listener);
+	}
+
+	/**
+	 * Function to add points to the transfer Function
+	 * @param point Point to be added on the panel area
+	 */
+	public void addFunctionPoint(final Point point) {
+		Point position = getPositionInTransferFunctionSpace(point);
+		if(points.containsKey(position.x)){
+			return;
+		}
+		points.put(position.x, position.y);
+
+		fireEventAll();
+		repaint();
+	}
+
+	/**
+	 * Updates points in the transfer function panel. 
+	 * @param oldPoint Old point in the panel
+	 * @param newPoint New position of the old point instance
+	 */
+	public void updateFunctionPoint(Point oldPoint, Point newPoint) {
+
+		Point oldPosition = getPositionInTransferFunctionSpace(oldPoint);
+		Point newPosition = getPositionInTransferFunctionSpace(newPoint);
+		
+		int dragIndex = oldPosition.x;
+
+		int ceil= points.ceilingKey(oldPosition.x);
+		if(ceil != oldPosition.x){
+			int low= points.lowerKey(oldPosition.x);			
+			dragIndex = (oldPosition.x -low < ceil - oldPosition.x)?low:ceil;
+		}
+
+		points.put(dragIndex, Math.min(Math.max(newPosition.y,minPoint.y),maxPoint.y));
+
+		fireEventAll();
+		repaint();
 	}
 }
