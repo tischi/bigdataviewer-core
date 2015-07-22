@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.gui;
 
 import java.awt.Color;
+import java.util.EventListener;
 import java.util.TreeMap;
 
 /**
@@ -8,7 +9,7 @@ import java.util.TreeMap;
  * @author michael
  *
  */
-public interface TransferFunctionListener {
+public interface TransferFunctionListener extends EventListener {
 
 	/**
 	 * Triggered by color changes. 

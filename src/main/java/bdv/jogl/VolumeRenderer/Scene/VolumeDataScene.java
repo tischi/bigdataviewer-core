@@ -16,6 +16,7 @@ import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
+import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
@@ -58,9 +59,13 @@ public class VolumeDataScene extends AbstractScene{
 			
 			@Override
 			public void colorChanged(final TreeMap<Integer, Color> xToColorMap) {
-				// TODO Auto-generated method stub
 				for(SimpleVolumeRenderer renderer: volumeRenderes){
 					renderer.setColorMapData(xToColorMap);
+				}
+				
+				//trigger scene update
+				for(SceneEventListener listener: sceneListeners){
+					listener.needsUpdate();
 				}
 			}
 		});

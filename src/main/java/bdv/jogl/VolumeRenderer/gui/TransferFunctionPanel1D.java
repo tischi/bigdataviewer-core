@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -35,6 +36,8 @@ public class TransferFunctionPanel1D extends JPanel {
 	private final Point maxPoint = new Point(100,100);
 
 	private final int pointRadius = 10;
+	
+	private int dragIndex = -1;
 	/**
 	 * Calls all event methods on listener using the current data state
 	 * @param listener
@@ -55,18 +58,58 @@ public class TransferFunctionPanel1D extends JPanel {
 	}
 
 	private void addControls(){
-		addMouseListener(new MouseListener() {
+		addMouseMotionListener(new MouseMotionListener() {
 			
 			@Override
-			public void mouseReleased(MouseEvent e) {
+			public void mouseMoved(MouseEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
+			public void mouseDragged(MouseEvent e) {
+				if(dragIndex<0){
+					return;
+				}
+				Point position = getPositionInTransferFunctionSpace(e.getPoint());
+				e.consume();
 				
+				points.put(dragIndex, Math.min(Math.max(position.y,minPoint.y),maxPoint.y));
+				
+				fireEventAll();
+				repaint();
+				
+			}
+		});
+		addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				dragIndex = -1;
+				e.consume();
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//drag point
+				if(e.getClickCount() == 1){
+					Point position = getPositionInTransferFunctionSpace(e.getPoint());
+					e.consume();
+					
+					dragIndex = position.x;
+					
+					int ceil= points.ceilingKey(position.x);
+					if(ceil == position.x){
+						return;
+					}
+					int low= points.lowerKey(position.x);
+					
+				
+					
+					dragIndex = (position.x -low < ceil - position.x)?low:ceil;
+				}
+				
+
 			}
 			
 			@Override
@@ -97,6 +140,8 @@ public class TransferFunctionPanel1D extends JPanel {
 					fireEventAll();
 					repaint();
 				}
+				
+	
 				// TODO Auto-generated method stub
 				
 			}
@@ -261,9 +306,15 @@ public class TransferFunctionPanel1D extends JPanel {
 		
 		getColorComponent(index).getColorComponents(result);
 		
-		result[3] = getAlpha(index);
+		result[3] = getAlpha(index); 
+		Color resultColor = null ;
+		try {
+			 resultColor = new Color(result[0],result[1],result[2],result[3]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-		return new Color(result[0],result[1],result[2],result[3]);
+		return resultColor;
 	}
 
 

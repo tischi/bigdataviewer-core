@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
@@ -20,6 +22,8 @@ public abstract class AbstractScene {
 	protected Color backgroundColor = new Color(0.f,0.f,0.f,1.f);
 
 	protected List<ISceneElements> sceneElements = new ArrayList<ISceneElements>();
+	
+	protected List<SceneEventListener> sceneListeners = new ArrayList<SceneEventListener>();
 
 	/**
 	 * adds an abstract element to scene
@@ -139,6 +143,14 @@ public abstract class AbstractScene {
 		initSpecial(gl2, width, height);
 	}
 
+	/**
+	 * Adds a new listener
+	 * @param listener
+	 */
+	public void addSceneEventListener(final SceneEventListener listener){
+		sceneListeners.add(listener);
+	}
+	
 
 	/**
 	 * specialized init for subclasses
