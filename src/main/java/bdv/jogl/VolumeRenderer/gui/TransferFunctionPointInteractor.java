@@ -16,7 +16,14 @@ public class TransferFunctionPointInteractor implements MouseListener, MouseMoti
 	
 	private Point selectedPoint = null;
 	
-	
+	/**
+	 * @return the selectedPoint
+	 */
+	public Point getSelectedPoint() {
+		return selectedPoint;
+	}
+
+
 	public TransferFunctionPointInteractor(final TransferFunctionPanel1D parent){
 		this.parent = parent;
 	}

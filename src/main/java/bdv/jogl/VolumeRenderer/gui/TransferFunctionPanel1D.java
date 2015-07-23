@@ -7,7 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -27,17 +28,15 @@ public class TransferFunctionPanel1D extends JPanel {
 
 	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
 	
+	private final TransferFunctionWindowResizeHandler resizeHandler;
+
 	private final TransferFunctionPointInteractor pointInteractor = new TransferFunctionPointInteractor(this);
 
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
 	private TreeMap<Integer,Color> colorMap = new TreeMap<Integer, Color>();
 
-	private TreeMap<Integer, Integer> points = new TreeMap<Integer, Integer>();
-
-	private final Point minPoint = new Point(0, 0);
-
-	private final Point maxPoint = new Point(100,100);
+	private TreeMap<Integer, Integer> functionPoints = new TreeMap<Integer, Integer>();
 
 	private final int pointRadius = 10;
 
@@ -52,9 +51,9 @@ public class TransferFunctionPanel1D extends JPanel {
 
 
 	public void resetLine(){
-		points.clear();
-		points.put(minPoint.x, minPoint.y);
-		points.put(maxPoint.x, maxPoint.y);
+		functionPoints.clear();
+		functionPoints.put(getWidth()-1,0);
+		functionPoints.put(0,getHeight());
 
 		repaint();
 		fireEventAll();
@@ -62,9 +61,9 @@ public class TransferFunctionPanel1D extends JPanel {
 
 	public void resetColors(){
 		colorMap.clear();
-		colorMap.put(minPoint.x, Color.BLUE);
-		colorMap.put((maxPoint.x-minPoint.x)/2+minPoint.x, Color.WHITE);
-		colorMap.put(maxPoint.x,Color.RED);
+		colorMap.put(0, Color.BLUE);
+		colorMap.put(getWidth()/2, Color.WHITE);
+		colorMap.put(getWidth()-1,Color.RED);
 
 		repaint();
 		fireEventAll();
@@ -75,8 +74,10 @@ public class TransferFunctionPanel1D extends JPanel {
 		addMouseListener(contextMenue);
 
 		addMouseMotionListener(pointInteractor);
-		
+
 		addMouseListener(pointInteractor);
+		
+		addComponentListener(resizeHandler);
 	}
 
 	private void fireEventAll(){
@@ -86,20 +87,15 @@ public class TransferFunctionPanel1D extends JPanel {
 		}
 	}
 
-	private Point getPositionInTransferFunctionSpace(final Point pointInImageSpace){
-		float[] convertFactors = {(float)(maxPoint.x-minPoint.x)/(float)(getWidth()), 
-				(float)(maxPoint.y-minPoint.y) /(float)(getHeight())};
-
-		return new Point(Math.round(convertFactors[0]* (float)pointInImageSpace.x+(float)minPoint.x),
-				Math.round(convertFactors[1]* (float)(getHeight()-pointInImageSpace.y)+(float)minPoint.y));
-
-	}
-
 	/**
 	 * constructor
 	 */
 	public TransferFunctionPanel1D(){
 
+		initWindow();
+		
+		resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),colorMap,functionPoints);
+		
 		resetColors();
 
 		resetLine();
@@ -107,14 +103,22 @@ public class TransferFunctionPanel1D extends JPanel {
 		addControls();
 	}
 
+	private void initWindow() {
+		setSize(200, 100);
+		setPreferredSize(getSize());
+		setMinimumSize(getSize());
+		setMaximumSize(getSize());
+		
+	}
+
+
 	/**
 	 * Sets the color of a certain point in the panel.
 	 * @param point Position on the panel area.
 	 * @param color Color to be set.
 	 */
 	public void setColor(final Point point, final Color color){
-		Point position = getPositionInTransferFunctionSpace(point);
-		colorMap.put(position.x, color);
+		colorMap.put(point.x, color);
 
 		repaint();
 		fireEventAll();
@@ -132,24 +136,21 @@ public class TransferFunctionPanel1D extends JPanel {
 
 
 		Integer latestX = 0;
-		float xFactor = 1f/100f;
 		for(Integer x: colorMap.keySet()){
 			//skip first iteration
 			if(x.equals( latestX)){
 				continue;
 			}
 
-			Float flx = latestX.floatValue()*xFactor*(float)getWidth();
-			Float fx = x.floatValue()*xFactor*(float)getWidth();
 			//gradient
-			GradientPaint gradient = new GradientPaint(flx, 0, colorMap.get(latestX),
-					fx,0/* getHeight()*/, colorMap.get(x));
+			GradientPaint gradient = new GradientPaint(latestX, 0, colorMap.get(latestX),
+					x,0/* getHeight()*/, colorMap.get(x));
 
 
 			//draw gradient
 			painter.setPaint(gradient);
-			painter.fillRect(flx.intValue(), 0, 
-					fx.intValue(), getHeight());
+			painter.fillRect(latestX.intValue(), 0, 
+					x.intValue(), getHeight());
 			latestX = x;
 		}
 	}
@@ -162,7 +163,7 @@ public class TransferFunctionPanel1D extends JPanel {
 	}
 
 	private void paintLines(Graphics g){
-		if(points.size() < 2){
+		if(functionPoints.size() < 2){
 			return;
 		}
 		Graphics2D g2d = (Graphics2D) g;
@@ -170,16 +171,13 @@ public class TransferFunctionPanel1D extends JPanel {
 
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		float [] dimFactors = {(float)(getWidth()/ (maxPoint.getX()-minPoint.getX())),
-				(float)(getHeight()/ (maxPoint.getY()-minPoint.getY()))};
 
 		//draw line and points
 		Point latestRenderedPoint = null;
-		for( Integer mapIndex: points.keySet()){
-			Point currentPoint = new Point((int)Math.round(mapIndex.doubleValue()*dimFactors[0]),
-					(int)Math.round(getHeight()- points.get(mapIndex).doubleValue()*dimFactors[1]));
+		for( Integer mapIndex: functionPoints.keySet()){
+			Point currentPoint = new Point(mapIndex,functionPoints.get(mapIndex));
 
-			if(mapIndex != points.firstKey() ){
+			if(mapIndex != functionPoints.firstKey() ){
 
 				//print line
 				g2d.setStroke(new BasicStroke(5));
@@ -189,10 +187,23 @@ public class TransferFunctionPanel1D extends JPanel {
 						currentPoint.y);
 			}
 			latestRenderedPoint = currentPoint;
-
-			//print points
-			drawPointIcon(g2d, currentPoint);
 		}
+	}
+
+	private void paintPoints(Graphics g){
+		//print points	
+		Graphics2D g2d = (Graphics2D) g;	
+		
+		for( Integer mapIndex: functionPoints.keySet()){
+			Point currentPoint = new Point(mapIndex,functionPoints.get(mapIndex));
+			
+			//TODO
+			if(currentPoint.equals(pointInteractor.getSelectedPoint())){
+				g2d.setColor(Color.gray);
+			}
+			drawPointIcon(g2d, currentPoint);
+			g2d.setColor(Color.black);
+		}	
 	}
 
 	@Override
@@ -202,13 +213,20 @@ public class TransferFunctionPanel1D extends JPanel {
 		paintSkala(g);
 
 		paintLines(g);
+		
+		paintPoints(g);
 	} 
 
 	private Color getColorComponent(int index){
 		float [] result = {0,0,0};
 
+		
 		//get RGB
-		int nextIndex = colorMap.ceilingKey(index);
+		Integer nextIndex = colorMap.ceilingKey(index);
+		if(nextIndex == null){
+			return colorMap.lastEntry().getValue();
+		}
+		
 		if(nextIndex == index){
 			return colorMap.get(index);
 		}
@@ -230,19 +248,32 @@ public class TransferFunctionPanel1D extends JPanel {
 		return new Color(result[0],result[1],result[2],0);
 	}
 
+
+	private float getNormalizedAlphaValue(int unNormalizedValue){
+		float normFactor = 1f/ (float)getHeight();
+		
+		float calculatedValue = (float)(getHeight()- unNormalizedValue)*normFactor;
+		
+		return Math.min(1, Math.max(calculatedValue, 0));
+		
+	}
+	
 	private float getAlpha (int index){
-		//get RGB
-		int nextIndex = points.ceilingKey(index);
-		float normFactor = 1f/ (float)maxPoint.getY()-(float)minPoint.getY();
+		//get alpha
+		int nextIndex = functionPoints.ceilingKey(index);
+		float nextAlpha = getNormalizedAlphaValue(functionPoints.get(nextIndex));
+		
 		if(nextIndex == index){
-			return (points.get(index).floatValue()-(float)minPoint.getY()) * normFactor;
+			return nextAlpha;
 		}
-		int previousIndex = points.lowerKey(index);
+		int previousIndex = functionPoints.lowerKey(index);
+		float prevAlpha = getNormalizedAlphaValue(functionPoints.get(previousIndex));
+		
 		float colorDiff = nextIndex-previousIndex;
 		float colorOffset = index - previousIndex;
-
-		float m = (points.get(nextIndex).floatValue()- points.get(previousIndex).floatValue()-(float)minPoint.getY())/colorDiff* normFactor;
-		return m*colorOffset+(points.get(previousIndex).floatValue()-(float)minPoint.getY()) * normFactor;
+		
+		float m = (nextAlpha - prevAlpha)/colorDiff;
+		return m* colorOffset + prevAlpha;
 
 	} 
 
@@ -288,7 +319,7 @@ public class TransferFunctionPanel1D extends JPanel {
 		}
 
 		//get colors from line
-		for(Integer index : points.keySet()){
+		for(Integer index : functionPoints.keySet()){
 
 			if(colors.containsKey(index)){
 				continue;
@@ -319,11 +350,10 @@ public class TransferFunctionPanel1D extends JPanel {
 	 * @param point Point to be added on the panel area
 	 */
 	public void addFunctionPoint(final Point point) {
-		Point position = getPositionInTransferFunctionSpace(point);
-		if(points.containsKey(position.x)){
+		if(functionPoints.containsKey(point.x)){
 			return;
 		}
-		points.put(position.x, position.y);
+		functionPoints.put(point.x, point.y);
 
 		fireEventAll();
 		repaint();
@@ -336,18 +366,16 @@ public class TransferFunctionPanel1D extends JPanel {
 	 */
 	public void updateFunctionPoint(Point oldPoint, Point newPoint) {
 
-		Point oldPosition = getPositionInTransferFunctionSpace(oldPoint);
-		Point newPosition = getPositionInTransferFunctionSpace(newPoint);
-		
-		int dragIndex = oldPosition.x;
 
-		int ceil= points.ceilingKey(oldPosition.x);
-		if(ceil != oldPosition.x){
-			int low= points.lowerKey(oldPosition.x);			
-			dragIndex = (oldPosition.x -low < ceil - oldPosition.x)?low:ceil;
+		int dragIndex = oldPoint.x;
+
+		int ceil= functionPoints.ceilingKey(oldPoint.x);
+		if(ceil != oldPoint.x){
+			int low= functionPoints.lowerKey(oldPoint.x);			
+			dragIndex = (oldPoint.x -low < ceil - oldPoint.x)?low:ceil;
 		}
 
-		points.put(dragIndex, Math.min(Math.max(newPosition.y,minPoint.y),maxPoint.y));
+		functionPoints.put(dragIndex, Math.min(Math.max(newPoint.y,0),getHeight()));
 
 		fireEventAll();
 		repaint();
