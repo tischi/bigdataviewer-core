@@ -308,7 +308,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * @return the modelTransformations
 	 */
-	public Matrix4 getModelTransformations() {
+	public Matrix4 getModelTransformation() {
 		return MatrixUtils.copyMatrix(modelTransformations);
 	}
 
@@ -316,7 +316,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * @param modelTransformations the modelTransformations to set
 	 */
-	public void setModelTransformations(final Matrix4 modelTransformations) {
+	public void setModelTransformation(final Matrix4 modelTransformations) {
 		this.modelTransformations = MatrixUtils.copyMatrix(modelTransformations);
 	}
 }

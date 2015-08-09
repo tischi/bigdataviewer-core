@@ -82,8 +82,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 	
 	@Override
-	public void setModelTransformations(Matrix4 modelTransformations) {
-		super.setModelTransformations(modelTransformations);
+	public void setModelTransformation(Matrix4 modelTransformations) {
+		super.setModelTransformation(modelTransformations);
 
 		isEyeUpdateable = true;
 	}
@@ -170,7 +170,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		Matrix4 modelViewMatrixInverse=getNewIdentityMatrix();
 
 		modelViewMatrixInverse.multMatrix(getView());
-		modelViewMatrixInverse.multMatrix(getModelTransformations());
+		modelViewMatrixInverse.multMatrix(getModelTransformation());
 		modelViewMatrixInverse.invert();
 
 		float [] eyeTrans = {

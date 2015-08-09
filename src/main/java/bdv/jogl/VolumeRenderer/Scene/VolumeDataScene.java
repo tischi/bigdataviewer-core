@@ -271,9 +271,9 @@ public class VolumeDataScene extends AbstractScene{
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
 
-			volumeRenderes.get(0).setModelTransformations(modelMatrix);
+			volumeRenderes.get(0).setModelTransformation(modelMatrix);
 
-			cubeShader.setModelTransformations(modelMatrix);
+			cubeShader.setModelTransformation(modelMatrix);
 			if(latestRenderTimePoint != currentTimepoint|| i != currentActiveSource){
 				
 				latestRenderTimePoint = currentTimepoint;

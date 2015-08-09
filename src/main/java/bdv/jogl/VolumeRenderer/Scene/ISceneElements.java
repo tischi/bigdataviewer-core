@@ -32,7 +32,7 @@ public interface ISceneElements {
 	 * set the model transformation matrix of the current element
 	 * @param modelTransformations the modelTransformations to set
 	 */
-	public void setModelTransformations(Matrix4 modelTransformations);
+	public void setModelTransformation(Matrix4 modelTransformations);
 	
 	/**
 	 * set the projection transformation matrix of the current element
