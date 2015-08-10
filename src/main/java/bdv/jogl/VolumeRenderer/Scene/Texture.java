@@ -1,9 +1,7 @@
 package bdv.jogl.VolumeRenderer.Scene;
 
 import java.nio.Buffer;
-import java.nio.FloatBuffer;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.jogamp.opengl.GL2;
@@ -47,7 +45,10 @@ public class Texture {
 		this.pixelDataType = pixelDataType;
 	}
 
-	
+	/**
+	 * Generates the texture binding for the glsl shaders
+	 * @param gl2
+	 */
 	public void genTexture(GL2 gl2){
 		int testUnit = GL2.GL_TEXTURE0; 
 		
@@ -74,22 +75,21 @@ public class Texture {
 
 		//activate texture unit
 		gl2.glUniform1i(variableLocation,textureUnit-GL2.GL_TEXTURE0);
-		//gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
-		/*gl2.glTexParameteri(type, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);*/
-		//gl2.glBindTexture(type, 0);
 
 	}
 	
+	/**
+	 * Updates the data for the texture
+	 * @param gl2
+	 * @param midmapLevel
+	 * @param data
+	 * @param dimensions
+	 */
 	public void update(GL2 gl2,int midmapLevel, Buffer data, int[] dimensions){
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		gl2.glBindTexture(textureType, textureObject);
 		gl2.glUniform1i(variableLocation ,textureUnit-GL2.GL_TEXTURE0);
-		
 		switch (dimensions.length) {
 		case 1:
 
@@ -127,11 +127,16 @@ public class Texture {
 		default:
 			break;
 		}
-		
 	}
 	
-	public void setTexParameteri(GL2 gl2, int flag, int value){
-		gl2.glTexParameteri(textureType, flag, value);
+	/**
+	 * Sets texture parameters with glTexParameteri
+	 * @param gl2
+	 * @param parameter 
+	 * @param value
+	 */
+	public void setTexParameteri(GL2 gl2, int parameter, int value){
+		gl2.glTexParameteri(textureType, parameter, value);
 	}
 	
 }
