@@ -126,8 +126,9 @@ public class SimpleVolumeRendererTest {
 
 	@Test
 	public void SomeThingRenderedTest() {
+		Boolean syncValue =null;
 		try {
-			sync.poll(20, TimeUnit.SECONDS);
+			syncValue=sync.poll(20, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -135,14 +136,15 @@ public class SimpleVolumeRendererTest {
 
 		glCanvas.destroy();
 		testwindow.dispose();
-
+		assertEquals(true, syncValue);
 		try {
 			sync.poll(20, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		assertEquals(true, syncValue);
+		
 		Boolean isSomethingDrawn = false;
 		for(int x = 0; x< result.length; x++){
 			for(int y = 0; y < result[x].length; y++){
