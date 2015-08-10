@@ -22,8 +22,6 @@ public class Texture {
 	private final int textureType;
 	
 	private final int variableLocation;
-	
-	private final int variableOffset=0;
 
 	private final int internalFormat;
 
@@ -70,12 +68,17 @@ public class Texture {
 		gl2.glGenTextures(textures.length, textures,0);
 		textureObject = textures[0];
 
+		rebindTexture(gl2);
+
+	}
+	
+	private void rebindTexture(GL2 gl2){
 		gl2.glBindTexture(textureType, textureObject);
 
+		int logicalTextureUnit = textureUnit-GL2.GL_TEXTURE0;
 
 		//activate texture unit
-		gl2.glUniform1i(variableLocation,textureUnit-GL2.GL_TEXTURE0);
-
+		gl2.glUniform1i(variableLocation,logicalTextureUnit);
 	}
 	
 	/**
@@ -88,8 +91,7 @@ public class Texture {
 	public void update(GL2 gl2,int midmapLevel, Buffer data, int[] dimensions){
 		//activate context
 		gl2.glActiveTexture(textureUnit);
-		gl2.glBindTexture(textureType, textureObject);
-		gl2.glUniform1i(variableLocation ,textureUnit-GL2.GL_TEXTURE0);
+		rebindTexture(gl2);
 		switch (dimensions.length) {
 		case 1:
 
