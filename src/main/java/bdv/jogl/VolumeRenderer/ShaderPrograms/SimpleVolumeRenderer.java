@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
@@ -43,26 +44,26 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private final TreeMap<Integer, Color> colorMap = new TreeMap<Integer, Color>();
 
-	
+
 	private VolumeDataBlock data;
 
-	private int volumeTextureObject =-1;
-
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
+
+	private Texture volumeTexture;
+
+	private Texture colorTexture;
 
 	private boolean isDataUpdateable = false;
 
 	private boolean isEyeUpdateable = false;
 
-	private int colorTextureObject;
-
 	private boolean isColorUpdateable = true;
-	
+
 	private void initColorDefaults(){
 		colorMap.put(100,Color.green);
 		colorMap.put(0,Color.red);
 	}
-	
+
 	/**
 	 * constructor 
 	 */
@@ -79,7 +80,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		colorMap.putAll(newData);
 		isColorUpdateable = true;
 	}
-	
+
 	@Override
 	public void setModelTransformation(Matrix4 modelTransformations) {
 		super.setModelTransformation(modelTransformations);
@@ -128,26 +129,16 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 			return;
 		}
 
-		//activate context
-		gl2.glActiveTexture(GL2.GL_TEXTURE0);
-		gl2.glBindTexture(GL2.GL_TEXTURE_3D, volumeTextureObject);
-		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableVolumeTexture),0);
 
 		//get Buffer
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(data.data);
 		buffer.rewind();
 
 		//uploade data
-		gl2.glTexImage3D(GL2.GL_TEXTURE_3D, 
-				0, 
-				GL2.GL_R32F, 
-				(int)data.dimensions[0], 
-				(int)data.dimensions[1], 
-				(int)data.dimensions[2], 
-				0,
-				GL2.GL_RED, 
-				GL2.GL_FLOAT, 
-				buffer);
+		volumeTexture.update(gl2, 0, buffer, 
+				new int[]{(int)data.dimensions[0], 
+						(int)data.dimensions[1], 
+						(int)data.dimensions[2]});
 
 		//gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
 
@@ -158,8 +149,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		isDataUpdateable = false;
 	}
-	
-	
+
+
 	/**
 	 * transform eye to object space
 	 * https://www.opengl.org/archives/resources/faq/technical/viewing.htm
@@ -177,7 +168,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 				modelViewMatrixInverse.getMatrix()[13],
 				modelViewMatrixInverse.getMatrix()[14]
 		};
-		
+
 		return eyeTrans;
 	}
 
@@ -194,22 +185,17 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		isEyeUpdateable = false;
 	}
 
-	
+
 	private void updateColor(GL2 gl2,
 			Map<String, Integer> shaderVariableMapping){
 		if(!isColorUpdateable){
 			return;
 		}
-		//activate context
-		gl2.glActiveTexture(GL2.GL_TEXTURE1);
-		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
-		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),1);
 
-		
 		//get Buffer last key is the highest number 
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
-		
-		
+
+
 		//make samples
 		Integer latestMapIndex = colorMap.firstKey();
 		//iterate candidates
@@ -217,21 +203,21 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 			if(currentMapIndex == colorMap.firstKey()){
 				continue;
 			}
-			
+
 			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
 			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
 			float[] colorGradient = {0,0,0,0};
 			colorMap.get(latestMapIndex).getColorComponents(currentColor);
 			colorMap.get(currentMapIndex).getColorComponents(finalColor);
-			
+
 			//forward difference
 			for(int dim = 0; dim < colorGradient.length; dim++){
 				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
 			}
-			
+
 			//sample linear
 			for(Integer step = latestMapIndex; step < currentMapIndex; step++ ){
-				
+
 				//add to buffer and increment
 				for(int dim = 0; dim < colorGradient.length; dim++){
 					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
@@ -246,17 +232,10 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 			}
 			latestMapIndex = currentMapIndex;
 		}
-		
+
 		buffer.rewind();
 		//upload data
-		gl2.glTexImage1D(GL2.GL_TEXTURE_1D, 
-				0, 
-				GL2.GL_RGBA, 
-				buffer.capacity()/4, 
-				0,
-				GL2.GL_RGBA, 
-				GL2.GL_FLOAT, 
-				buffer);
+		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});
 		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 		isColorUpdateable = false;
 	}
@@ -270,31 +249,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		updateColor(gl2, shaderVariableMapping);
 
 		updateEye(gl2, shaderVariableMapping);
-
-	}
-
-	private static int genTexture(GL2 gl2, int type, int id,int uniformID, int location  ){
-		//activate texture
-		gl2.glActiveTexture(id);
-
-		//generate texture object
-		int[] textures = new int[1];
-		gl2.glGenTextures(textures.length, textures,0);
-
-
-		gl2.glBindTexture(type, textures[0]);
-
-
-		//activate texture unit
-		gl2.glUniform1i(location,uniformID);
-		//gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-		gl2.glTexParameteri(type, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-		//gl2.glBindTexture(type, 0);
-		return textures[0];
 
 	}
 
@@ -317,11 +271,24 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableVolumeTexture);
 		shaderVariableMapping.put(shaderVariableVolumeTexture, location);
-		volumeTextureObject = genTexture(gl2,GL2.GL_TEXTURE_3D ,GL2.GL_TEXTURE0,0 , location);
+
+		volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
+		volumeTexture.genTexture(gl2);
+		volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 
 		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableColorTexture);
 		shaderVariableMapping.put(shaderVariableColorTexture, location);
-		colorTextureObject = genTexture(gl2,GL2.GL_TEXTURE_1D ,GL2.GL_TEXTURE1,1, location);
+		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
+		colorTexture.genTexture(gl2);
+		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
+		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 
 	}
 
