@@ -53,8 +53,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private Texture colorTexture;
 
-	private boolean isDataUpdateable = false;
-
 	private boolean isEyeUpdateable = false;
 
 	private boolean isColorUpdateable = true;
@@ -107,7 +105,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	 */
 	public void setData(VolumeDataBlock data) {
 		this.data = data;
-		isDataUpdateable = true;
 	}
 
 
@@ -125,7 +122,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private void updateTextureData(GL2 gl2,
 			final Map<String, Integer> shaderVariableMapping){
-		if(!isDataUpdateable){
+		if(!data.needsUpdate()){
 			return;
 		}
 
@@ -147,7 +144,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMaxVolumeValue), data.maxValue);
 
 
-		isDataUpdateable = false;
+		data.setNeedsUpdate(false);
 	}
 
 

@@ -134,29 +134,6 @@ public class MultiVolumeRendererTest {
 		assertNotEquals(null, classUnderTest.getVolumeDataMap().get(1));
 		
 	}
-	
-	@Test
-	public void LocalTransformationTest(){
-		Map<Integer,Matrix4> transformations = classUnderTest.getLocalTransformations();
-		
-		assertNotEquals(null, transformations);
-		transformations.put(0,new Matrix4());
-		assertEquals(1, classUnderTest.getLocalTransformations().size());
-
-		transformations.put(1,new Matrix4());
-		assertEquals(2, classUnderTest.getLocalTransformations().size());
-		
-
-		transformations.remove(0);
-		assertEquals(1, classUnderTest.getLocalTransformations().size());
-		assertEquals(null,classUnderTest.getLocalTransformations().get(0));
-		assertNotEquals(null, classUnderTest.getLocalTransformations().get(1));
-		
-		transformations.put(0,new Matrix4());
-		assertEquals(2, classUnderTest.getLocalTransformations().size());
-		assertNotEquals(null, classUnderTest.getLocalTransformations().get(0));
-		assertNotEquals(null, classUnderTest.getLocalTransformations().get(1));
-	}
 
 	private void initTestWindow(){
 		
@@ -178,26 +155,25 @@ public class MultiVolumeRendererTest {
 	
 	
 	
-/*	@Test
+	@Test
 	public void renderSomethingTest(){
 		initTestWindow();
 		VolumeDataBlock[] blocks = {new VolumeDataBlock(),new VolumeDataBlock()};
+
+		Matrix4 loc1 = new Matrix4();
+		loc1.rotate(45, 0, 0, 1);
+		Matrix4 loc2 = new Matrix4();
+		loc2.rotate(-45, 0, 0, 1);
 		blocks[0].data = volumeDataArrays[0];
+		blocks[0].localTransformation  = loc1;
 		blocks[1].data = volumeDataArrays[1];
-		
+		blocks[1].localTransformation = loc2;
+	
 		Map<Integer,VolumeDataBlock> dataBlocks = classUnderTest.getVolumeDataMap();
 		
 		dataBlocks.put(0, blocks[0]);
 		dataBlocks.put(1, blocks[1]);
-		
-		Matrix4 loc1 = new Matrix4();
-		loc1.rotate(45, 0, 0, 1);
-		classUnderTest.getLocalTransformations().put(0, loc1);
-		
-		Matrix4 loc2 = new Matrix4();
-		loc2.rotate(-45, 0, 0, 1);
-		classUnderTest.getLocalTransformations().put(1, loc2);
-		
+			
 		testWindow.setVisible(true);
 		
 		Boolean syncValue = null;
@@ -233,6 +209,6 @@ public class MultiVolumeRendererTest {
 		assertTrue(isSomethingDrawn);
 
 		
-	}*/
+	}
 
 }
