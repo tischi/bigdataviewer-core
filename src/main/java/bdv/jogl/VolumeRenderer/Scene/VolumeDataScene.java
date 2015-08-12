@@ -35,7 +35,7 @@ import com.jogamp.opengl.math.Matrix4;
  *
  */
 public class VolumeDataScene extends AbstractScene{
-	
+
 	private BigDataViewer bigDataViewer;
 
 	private List<UnitCube> volumeBorders = new ArrayList<UnitCube>();
@@ -43,31 +43,31 @@ public class VolumeDataScene extends AbstractScene{
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
 	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer();
-	
+
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
-	
-	private int latestRenderTimePoint = 0;
-	
+
+	private int latestRenderTimePoint = -1;
+
 	private int currentActiveSource = -1;
 
 	//TODO move out
 	private TransferFunctionPanel1D tfpanel = null;
-	
+
 	private JFrame tfWindow = null;
 
 	private final boolean single = false;
-	
+
 	private void createTFWindow(){
 		tfpanel = new TransferFunctionPanel1D();
 		tfpanel.addTransferFunctionListener(new TransferFunctionListener() {
-			
-			
+
+
 			@Override
 			public void colorChanged(final TreeMap<Integer, Color> xToColorMap) {
 				if(single){
-				for(SimpleVolumeRenderer renderer: volumeRenderes){
-					renderer.setColorMapData(xToColorMap);
-				}}
+					for(SimpleVolumeRenderer renderer: volumeRenderes){
+						renderer.setColorMapData(xToColorMap);
+					}}
 				else{
 					multiVolumeRenderer.setColorMapData(xToColorMap);
 				}
@@ -77,33 +77,33 @@ public class VolumeDataScene extends AbstractScene{
 				}
 			}
 		});
-		
+
 		tfWindow = new JFrame();
 		tfWindow.setTitle("Transfer function configurations");
 		tfWindow.setSize(640, 100);
 		tfWindow.getContentPane().add(tfpanel);
 		tfWindow.setVisible(true);
 	}
-	
+
 	private void destroyTFWindow() {
 		tfWindow.dispose();
 		tfWindow = null;
 		tfpanel = null;
 	}
 	//TODO 
-	
-	
+
+
 	private void cleanUpSceneElements(){
 		volumeBorders.clear();
 		volumeRenderes.clear();
 	}
-	
-	
+
+
 	@Override
 	protected void disposeSpecial(GL2 gl2) {
 		destroyTFWindow();
 		cleanUpSceneElements();
-		
+
 	}
 
 
@@ -156,12 +156,12 @@ public class VolumeDataScene extends AbstractScene{
 		camera2.setUpVector(new float[]{0,-1,0});
 		camera2.update();
 	}
-	
+
 	private int getMidmapLevel(final SourceState<?> source){
 		return source.getSpimSource().getNumMipmapLevels()-1;
 	}
-	
-	
+
+
 	/**
 	 * initializes the scene once
 	 * @param gl2
@@ -171,16 +171,16 @@ public class VolumeDataScene extends AbstractScene{
 	protected void initSpecial(GL2 gl2, int width, int height){
 
 		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
-		latestRenderTimePoint = bigDataViewer.getViewer().getState().getCurrentTimepoint();
+		int currentRenderTimePoint = bigDataViewer.getViewer().getState().getCurrentTimepoint();
 		float colorLinearFactor = 1.f/numberOfSources;
 		float r =0, g=1,b=1 ;
 		int[] dimensions = {0,0,0};
 
 		int j =-1;
-	
+
 		if(!single){
-		addSceneElement(multiVolumeRenderer);
-		multiVolumeRenderer.init(gl2);
+			addSceneElement(multiVolumeRenderer);
+			multiVolumeRenderer.init(gl2);
 		}
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 
@@ -189,7 +189,7 @@ public class VolumeDataScene extends AbstractScene{
 				continue;
 			}
 			currentActiveSource = j;
-			
+
 			//create borders
 			UnitCube cubeShader = new UnitCube();
 			volumeBorders.add(cubeShader);
@@ -202,15 +202,15 @@ public class VolumeDataScene extends AbstractScene{
 
 			//create vRenderer
 			if(single ){
-			SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
-			volumeRenderes.add(vRenderer);
-			addSceneElement(vRenderer);
-			vRenderer.init(gl2);
+				SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
+				volumeRenderes.add(vRenderer);
+				addSceneElement(vRenderer);
+				vRenderer.init(gl2);
 			}
-	
+
 			int midMapLevel = getMidmapLevel(source);
-		
-			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel);
+
+			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(currentRenderTimePoint, midMapLevel);
 			long[] dim = new long[3];
 			int[] dimI = new int[3];
 			data.dimensions(dim);
@@ -223,7 +223,7 @@ public class VolumeDataScene extends AbstractScene{
 		}
 
 		initLocalCamera(camera, width, height, dimensions);
-		
+
 		createTFWindow();
 	}
 
@@ -241,19 +241,21 @@ public class VolumeDataScene extends AbstractScene{
 		int currentTimepoint = state.getCurrentTimepoint();
 
 		int i =-1;
-		
+
 		if(!single){
 			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
 		}
-		
+		if(latestRenderTimePoint != currentTimepoint){
 		for(SourceState<?> source : sources){
 
 			i++;
 			//no inactive sources
+			if(single){
 			if(!source.isCurrent()){
 				continue;
 			}
-			
+			}
+
 			int midMapLevel = getMidmapLevel(source);
 			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
 
@@ -275,10 +277,12 @@ public class VolumeDataScene extends AbstractScene{
 			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
 			if(1==1)
 				throw new NullPointerException();*/
-
+			latestRenderTimePoint = currentTimepoint;
+			currentActiveSource = i;
+			VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
 			Matrix4 scale = new Matrix4();
 			scale.loadIdentity();
-			scale.scale(dim[0], dim[1], dim[2]);
+			scale.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 
 			UnitCube cubeShader = volumeBorders.get(0);
 
@@ -286,27 +290,21 @@ public class VolumeDataScene extends AbstractScene{
 			modelMatrix=copyMatrix(globalModelTransformation);
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
-
-			if(single){
-				volumeRenderes.get(0).setModelTransformation(modelMatrix);
-			}
 			cubeShader.setModelTransformation(modelMatrix);
-			if(latestRenderTimePoint != currentTimepoint|| i != currentActiveSource){
+			
+
+
 				
-				latestRenderTimePoint = currentTimepoint;
-				currentActiveSource = i;
-				VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
 				data.localTransformation =sourceTransformation;
 				if(single){
-				
-					volumeRenderes.get(0).setData(data);
+					volumeRenderes.get(0).setModelTransformation(modelMatrix);
+					if( i != currentActiveSource){
+						volumeRenderes.get(0).setData(data);
+					}
 				}else{
 					multiVolumeRenderer.getVolumeDataMap().put(i, data);		
 				}
 			}
-			
-
-			break;
 		}
 	}
 

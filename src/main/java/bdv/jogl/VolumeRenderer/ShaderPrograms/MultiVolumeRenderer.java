@@ -108,8 +108,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float [] eyePositions = calculateEyePositions();
 
 		//eye position
-		
-			gl2.glUniform3fv(getLocation(shaderVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
+		gl2.glUniform3fv(getLocation(shaderVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
 		
 		isEyeUpdateable = false;
 	}
