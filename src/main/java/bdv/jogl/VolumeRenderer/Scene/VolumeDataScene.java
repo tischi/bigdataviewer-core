@@ -55,7 +55,7 @@ public class VolumeDataScene extends AbstractScene{
 	
 	private JFrame tfWindow = null;
 
-	private final boolean single = true;
+	private final boolean single = false;
 	
 	private void createTFWindow(){
 		tfpanel = new TransferFunctionPanel1D();

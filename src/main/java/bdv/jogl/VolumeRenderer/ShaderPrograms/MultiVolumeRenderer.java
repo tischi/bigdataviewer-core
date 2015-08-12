@@ -21,6 +21,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 
 
+
 /**
  * Renderer for multiple volume data
  * @author michael
@@ -38,7 +39,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	//Vertex shader uniforms
 	public static final String shaderVariableGlobalScale ="inScaleGlobal";
 
-	public static final String shaderVariableLocalTransformation ="inLocalTransformation";
+	public static final String shaderVariableLocalTransformation ="inLocalTransformationInverse";
 
 	//Fragment shader uniforms 
 	public static final String shaderVariableActiveVolumes = "inActiveVolume";
@@ -55,7 +56,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
-	private final int maxNumberOfDataBlocks = 6;
+	private final int maxNumberOfDataBlocks = 2;
 
 	private final Map<Integer,VolumeDataBlock> dataValues = new HashMap<Integer, VolumeDataBlock>();
 
@@ -70,8 +71,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isEyeUpdateable = true;
 
 	private Matrix4 globalScale = getNewIdentityMatrix();
-
-
+	
+	
 	private float[] calculateEyePositions(){
 		float eyePositionsObjectSpace[] = new float[3*maxNumberOfDataBlocks];
 
@@ -84,16 +85,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			if(!getVolumeDataMap().containsKey(i)){
 				break;
 			}
-
+			VolumeDataBlock data = getVolumeDataMap().get(i);
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
 
-			modelViewMatrixInverse.multMatrix(getVolumeDataMap().get(i).localTransformation);
-			modelViewMatrixInverse.multMatrix(globalScale);
+			modelViewMatrixInverse.multMatrix(copyMatrix(data.localTransformation));
+			modelViewMatrixInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 			modelViewMatrixInverse.invert();
 
 			eyePositionsObjectSpace[fieldOffset] = modelViewMatrixInverse.getMatrix()[12];
-			eyePositionsObjectSpace[fieldOffset] = modelViewMatrixInverse.getMatrix()[13];
-			eyePositionsObjectSpace[fieldOffset] = modelViewMatrixInverse.getMatrix()[14];
+			eyePositionsObjectSpace[fieldOffset+1] = modelViewMatrixInverse.getMatrix()[13];
+			eyePositionsObjectSpace[fieldOffset+2] = modelViewMatrixInverse.getMatrix()[14];
 
 		}
 		return eyePositionsObjectSpace;
@@ -107,7 +108,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float [] eyePositions = calculateEyePositions();
 
 		//eye position
-		gl2.glUniform3fv(getLocation(shaderVariableEyePosition),maxNumberOfDataBlocks, eyePositions,0);
+		
+			gl2.glUniform3fv(getLocation(shaderVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
+		
 		isEyeUpdateable = false;
 	}
 
@@ -116,11 +119,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		
 		updateActiveVolumes(gl2);
 
-		updateLocalTransformation(gl2);
+		updateLocalTransformationInverse(gl2);
 
 		boolean update = updateTextureData(gl2);
-
-		updateGlobalScale(gl2, update);
+		if(update){
+			updateGlobalScale(gl2);
+		}
 
 		updateColor(gl2);
 
@@ -146,22 +150,23 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				activeBuffers.capacity(),activeBuffers);
 	}
 
-	private void updateLocalTransformation(GL2 gl2) {
+	private void updateLocalTransformationInverse(GL2 gl2) {
 		for(Integer index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
 			if(!data.needsUpdate()){
 				continue;
 			}
 			
+			Matrix4 localInverse = copyMatrix(data.localTransformation);
+			localInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			localInverse.invert();
 			gl2.glUniformMatrix4fv(getLocation(shaderVariableLocalTransformation)+index,
-					1,false,data.localTransformation.getMatrix(),0);
+					1,false,localInverse.getMatrix(),0);
 		}
 	}
 
-	private void updateGlobalScale(GL2 gl2, boolean globalScaleNeedsUpdate) {
-		if(! globalScaleNeedsUpdate ){
-			return;
-		}
+	private void updateGlobalScale(GL2 gl2) {
+
 		
 		globalScale = getNewIdentityMatrix();
 		
@@ -170,7 +175,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float lowPoint[] = {Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE};
 		for(int index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
-			float maxPoint[] = {1,1,1,1};//data.dimensions[0],data.dimensions[1],data.dimensions[2],1};
+			float maxPoint[] = {data.dimensions[0],data.dimensions[1],data.dimensions[2],1};
 			float minPoint[] = {0,0,0,1};
 			
 			//transform
@@ -185,7 +190,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 		globalScale.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
 		gl2.glUniformMatrix4fv(getLocation(shaderVariableGlobalScale),1,false,globalScale.getMatrix(),0);
-		isEyeUpdateable = true;
 	}
 
 	private boolean updateTextureData(GL2 gl2){
@@ -231,6 +235,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	@Override
 	protected void generateIdMappingSubClass(GL2 gl2) {
 
+		
 		mapUniforms(gl2, new String[]{
 				shaderVariableGlobalScale,
 				shaderVariableLocalTransformation,
@@ -279,6 +284,20 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		position.setAttributeValues(gl2, bufferData);	
 	}
 
+	@Override
+	public void setModelTransformation(Matrix4 modelTransformations) {
+		super.setModelTransformation(modelTransformations);
+
+		isEyeUpdateable = true;
+	}
+
+	@Override
+	public void setView(Matrix4 view) {
+		super.setView(view);
+
+		isEyeUpdateable = true;
+	}
+	
 	private void updateColor(GL2 gl2){
 		if(!isColorUpdateable){
 			return;

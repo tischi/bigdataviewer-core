@@ -1,5 +1,5 @@
 #version 130
-const int maxNumberOfData = 6;
+const int maxNumberOfData = 2;
 const int maxInt = 9999;
 const float val_threshold =1;
 
