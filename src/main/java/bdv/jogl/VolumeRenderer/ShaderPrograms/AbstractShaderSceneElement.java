@@ -146,7 +146,21 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 			shaderVariableMapping.put(uniform, location);
 		}
 	}
-
+	
+	/**
+	 * Creates a name location mapping for attribute variables
+	 * @param gl2 gl context
+	 * @param uniforms List of uniform names to map 
+	 */
+	protected void mapAvertexAttributs(GL2 gl2, final String[] attributes){
+		int location = -1;
+		for(String attribute:attributes){
+			location = gl2.glGetAttribLocation(shaderProgram.program(), attribute);
+			shaderVariableMapping.put(attribute, location);
+		}
+	}
+	
+	
 	/**
 	 * Returns the location of a certain variable 
 	 * @param variableName Name of the shader variable
@@ -198,17 +212,12 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.useProgram(gl2, true);
 
 		//get ids
-		int projectID = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableProjectionMatrix);
-		shaderVariableMapping.put(shaderVariableProjectionMatrix, projectID);
+		mapUniforms(gl2, new String[]{
+			shaderVariableProjectionMatrix,
+			shaderVariableViewMatrix,
+			shaderVariableModelMatrix});
 
-		int viewID = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableViewMatrix);
-		shaderVariableMapping.put(shaderVariableViewMatrix, viewID);
-
-		int modelID = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableModelMatrix);
-		shaderVariableMapping.put(shaderVariableModelMatrix, modelID);
-
-		int positionID =gl2.glGetAttribLocation(shaderProgram.program(), shaderVariablePosition);
-		shaderVariableMapping.put(shaderVariablePosition, positionID);
+		mapAvertexAttributs(gl2, new String[]{shaderVariablePosition});
 
 		generateIdMappingSubClass(gl2);
 
@@ -310,9 +319,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		gl2.glBindVertexArray(vertexArrayId);
 
-
 		renderSubClass(gl2,shaderVariableMapping);
-
 
 		gl2.glBindVertexArray(0);
 
