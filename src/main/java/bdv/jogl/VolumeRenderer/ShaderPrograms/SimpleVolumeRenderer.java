@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
+import bdv.jogl.VolumeRenderer.Scene.VertexAttribute;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
@@ -110,15 +111,11 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 
 	@Override
-	protected void updateVertexBufferSubClass(GL2 gl2) {
+	protected void updateVertexBufferSubClass(GL2 gl2, VertexAttribute position) {
 		FloatBuffer bufferData = Buffers.newDirectFloatBuffer(coordinates);
 		bufferData.rewind();
 
-		gl2.glBufferSubData(
-				GL2.GL_ARRAY_BUFFER,
-				0, 
-				bufferData.capacity() * Buffers.SIZEOF_FLOAT, 
-				bufferData);	
+		position.setAttributeValues(gl2, bufferData);
 	}
 
 	private void updateTextureData(GL2 gl2){
