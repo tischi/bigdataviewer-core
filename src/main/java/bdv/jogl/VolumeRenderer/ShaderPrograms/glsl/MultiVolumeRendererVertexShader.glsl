@@ -9,6 +9,7 @@ uniform mat4x4 inScaleGlobal;
 uniform mat4x4 inLocalTransformation[maxNumberOfData];
 
 in vec3 inPosition;
+in vec3 inTextureCoord[maxNumberOfData];
 out vec3 textureCoord[maxNumberOfData];
 
 void main(){
@@ -17,8 +18,9 @@ void main(){
 	
 	//calculate transformed texture coordinates
 	for(int i =0; i<maxNumberOfData; i++ ){
-		textureCoord[i] = (inLocalTransformation[i] * position4d).xyz;
+		vec4 transformed = inLocalTransformation[i] * position4d;
+		textureCoord[i] = transformed.xyz/transformed.w;
 	}
 	
-	gl_Position =inProjection * inView * inModel * inScaleGlobal*position4d;	
+	gl_Position =inProjection * inView * inModel * inScaleGlobal * position4d;	
 }

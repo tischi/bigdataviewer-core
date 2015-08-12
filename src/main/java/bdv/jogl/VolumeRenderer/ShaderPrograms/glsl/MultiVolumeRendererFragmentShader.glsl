@@ -31,7 +31,7 @@ int getStepsInVolume(float stepsSize, vec3 position, vec3 direction){
 
 void main(void)
 {	
-	const int samples = 512;//256;
+	const int samples = 256;
 	const float sample_step =sqrt(3f)/float(samples);
 	const float brightness = 150.0f;
 	
