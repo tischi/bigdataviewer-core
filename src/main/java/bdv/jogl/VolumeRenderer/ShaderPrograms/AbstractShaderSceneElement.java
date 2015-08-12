@@ -6,6 +6,7 @@ import java.util.Map;
 import bdv.jogl.VolumeRenderer.Scene.ISceneElements;
 import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderCode;
@@ -40,9 +41,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 	private ShaderProgram shaderProgram= new ShaderProgram();
 
-	private int vertexBufferId = 0;
-
-	private int vertexArrayId = 0;
+	private VertexAttribute position;
 
 
 	/**
@@ -51,7 +50,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	public void setProjection(final Matrix4 projection) {
 		this.projection = MatrixUtils.copyMatrix(projection);
 	}
-	
+
 	/**
 	 * @return the view
 	 */
@@ -71,11 +70,8 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param gl2
 	 */
 	public void disposeGL(GL2 gl2){
-		int[] buffers = {vertexBufferId};
-		gl2.glDeleteBuffers(1, buffers,0);
-
-		int[] arrays = {vertexArrayId};
-		gl2.glDeleteVertexArrays(1, arrays, 0);
+		
+		position.delete(gl2);
 
 		shaderProgram.destroy(gl2);
 	}
@@ -109,9 +105,9 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Sub class implemented vertex upload.
 	 * @param gl2
 	 */
-	protected abstract void updateVertexBufferSubClass(GL2 gl2);
+	protected abstract void updateVertexBufferSubClass(GL2 gl2, VertexAttribute position);
 
-	
+
 	/**
 	 * Activates vertex buffer and uploads data by calling updateVertexBufferSubClass.
 	 * @param gl2
@@ -120,16 +116,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		shaderProgram.useProgram(gl2, true);
 
-		gl2.glBindVertexArray(vertexArrayId);
-
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER,vertexBufferId);
-
-		updateVertexBufferSubClass(gl2);
-
-		//clear state after unbind
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER,0);
-
-		gl2.glBindVertexArray(0);
+		updateVertexBufferSubClass(gl2,position);
 
 		shaderProgram.useProgram(gl2, false);
 	}
@@ -146,7 +133,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 			shaderVariableMapping.put(uniform, location);
 		}
 	}
-	
+
 	/**
 	 * Creates a name location mapping for attribute variables
 	 * @param gl2 gl context
@@ -159,8 +146,8 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 			shaderVariableMapping.put(attribute, location);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Returns the location of a certain variable 
 	 * @param variableName Name of the shader variable
@@ -169,15 +156,15 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	protected int getLocation(final String variableName){
 		return shaderVariableMapping.get(variableName);
 	}
-	
-	
+
+
 	/**
 	 * Sub class uniform upload
 	 * @param gl2
 	 */
 	protected abstract void  updateShaderAttributesSubClass(GL2 gl2);
 
-	
+
 	/**
 	 * uploads uniform shader variables to the graphic device 
 	 * @param gl2
@@ -195,14 +182,14 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.useProgram(gl2, false);
 	}
 
-	
+
 	/**
 	 * Sub class id mapping for special ids.
 	 * @param gl2
 	 */
 	protected abstract void generateIdMappingSubClass(GL2 gl2);
 
-	
+
 	/**
 	 * Mapps all Shader variables to the shaderVariableMapping, also does for sub classes
 	 * @param gl2
@@ -212,9 +199,9 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		//get ids
 		mapUniforms(gl2, new String[]{
-			shaderVariableProjectionMatrix,
-			shaderVariableViewMatrix,
-			shaderVariableModelMatrix});
+				shaderVariableProjectionMatrix,
+				shaderVariableViewMatrix,
+				shaderVariableModelMatrix});
 
 		mapAvertexAttributs(gl2, new String[]{shaderVariablePosition});
 
@@ -269,41 +256,12 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 */
 	private void generateVertexBuffer(GL2 gl2){
 
-		//gen vertex array
-		int[] vertexArrays  = new int[1];
-		gl2.glGenVertexArrays(1, vertexArrays, 0);
-		vertexArrayId = vertexArrays[0];
-
-		//bind
-		gl2.glBindVertexArray(vertexArrayId);
-
-		//vertex buffer
-		int[] vertexBufferObject = new int[1];
-		gl2.glGenBuffers(1,vertexBufferObject,0 );
-		vertexBufferId =  vertexBufferObject[0];
-
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, vertexBufferId);
-
-		gl2.glBufferData(GL2.GL_ARRAY_BUFFER, 
-				getVertexBufferSize(),
-				null, 
-				GL2.GL_STATIC_DRAW);
-
-		gl2.glEnableVertexAttribArray(shaderVariableMapping.get(shaderVariablePosition));
-
-		gl2.glVertexAttribPointer(
-				shaderVariableMapping.get(shaderVariablePosition), 
-				3, 
-				GL2.GL_FLOAT, 
-				false, 
-				0,//Buffers.SIZEOF_FLOAT*3, 
-				0);
-
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
-
-		//release array
-		gl2.glBindVertexArray(0);
-
+		position = new VertexAttribute(
+				gl2, 
+				getLocation(shaderVariablePosition), 
+				GL2.GL_FLOAT, 3, Buffers.SIZEOF_FLOAT);
+		
+		position.allocateAttributes(gl2, getVertexBufferSize());
 	}
 
 
@@ -316,11 +274,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		shaderProgram.useProgram(gl2, true);
 
-		gl2.glBindVertexArray(vertexArrayId);
-
+		position.bind(gl2);
+		
 		renderSubClass(gl2);
 
-		gl2.glBindVertexArray(0);
+		position.unbind(gl2);
 
 		shaderProgram.useProgram(gl2, false);
 	}

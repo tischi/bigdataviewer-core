@@ -74,15 +74,11 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 
 	
-	protected void updateVertexBufferSubClass(GL2 gl2){
+	protected void updateVertexBufferSubClass(GL2 gl2, VertexAttribute position){
 		FloatBuffer bufferData = Buffers.newDirectFloatBuffer(coordinates);
 		bufferData.rewind();
 
-		gl2.glBufferSubData(
-				GL2.GL_ARRAY_BUFFER,
-				0, 
-				bufferData.capacity() * Buffers.SIZEOF_FLOAT, 
-				bufferData);		
+		position.setAttributeValues(gl2, bufferData);
 	}
 
 
