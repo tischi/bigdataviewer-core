@@ -135,6 +135,28 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	}
 
 	/**
+	 * Creates a name location mapping for uniform variables
+	 * @param gl2 gl context
+	 * @param uniforms List of uniform names to map 
+	 */
+	protected void mapUniforms(GL2 gl2, final String[] uniforms){
+		int location = -1;
+		for(String uniform:uniforms){
+			location = gl2.glGetUniformLocation(shaderProgram.program(), uniform);
+			shaderVariableMapping.put(uniform, location);
+		}
+	}
+
+	/**
+	 * Returns the location of a certain variable 
+	 * @param variableName Name of the shader variable
+	 * @return
+	 */
+	protected int getLocation(final String variableName){
+		return shaderVariableMapping.get(variableName);
+	}
+	
+	/**
 	 * Sub class uniform upload
 	 * @param gl2
 	 * @param shaderVariableMapping
@@ -165,7 +187,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param shaderVariableMapping
 	 * @param shaderProgram
 	 */
-	protected abstract void generateIdMappingSubClass(GL2 gl2,Map<String, Integer> shaderVariableMapping,final ShaderProgram shaderProgram);
+	protected abstract void generateIdMappingSubClass(GL2 gl2);
 
 	
 	/**
@@ -188,7 +210,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		int positionID =gl2.glGetAttribLocation(shaderProgram.program(), shaderVariablePosition);
 		shaderVariableMapping.put(shaderVariablePosition, positionID);
 
-		generateIdMappingSubClass(gl2,shaderVariableMapping,shaderProgram);
+		generateIdMappingSubClass(gl2);
 
 		shaderProgram.useProgram(gl2, false);
 	}

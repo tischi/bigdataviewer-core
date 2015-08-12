@@ -20,7 +20,6 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
 
 
 /**
@@ -71,9 +70,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private boolean isEyeUpdateable = true;
 
-	private boolean globalScaleNeedsUpdate = true;
-
-	private Matrix4 globalScaleMatrix = getNewIdentityMatrix();
+	private Matrix4 globalScale = getNewIdentityMatrix();
 
 
 	private float[] calculateEyePositions(){
@@ -92,8 +89,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
 
 			modelViewMatrixInverse.multMatrix(getVolumeDataMap().get(i).localTransformation);
-			//TODO maybe global scale....
-			//modelViewMatrixInverse.multMatrix(getModelTransformation());
+			modelViewMatrixInverse.multMatrix(globalScale);
 			modelViewMatrixInverse.invert();
 
 			eyePositionsObjectSpace[fieldOffset] = modelViewMatrixInverse.getMatrix()[12];
@@ -120,19 +116,19 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2,
 			Map<String, Integer> shaderVariableMapping) {
-
+		GLErrorHandler.assertGL(gl2);
 		updateActiveVolumes(gl2,shaderVariableMapping);
-		
+		GLErrorHandler.assertGL(gl2);
 		updateLocalTransformation(gl2,shaderVariableMapping);
-		
-		updateTextureData(gl2, shaderVariableMapping);
-		
-		updateGlobalScale(gl2, shaderVariableMapping);
-	
+		GLErrorHandler.assertGL(gl2);
+		boolean update = updateTextureData(gl2, shaderVariableMapping);
+		GLErrorHandler.assertGL(gl2);
+		updateGlobalScale(gl2, shaderVariableMapping,update);
+		GLErrorHandler.assertGL(gl2);
 		updateColor(gl2, shaderVariableMapping);
-
+		GLErrorHandler.assertGL(gl2);
 		updateEyes(gl2, shaderVariableMapping);
-
+GLErrorHandler.assertGL(gl2);
 	}
 
 
@@ -166,23 +162,42 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 	}
 
-	private void updateGlobalScale(GL2 gl2, Map<String, Integer> shaderVariableMapping) {
+	private void updateGlobalScale(GL2 gl2, Map<String, Integer> shaderVariableMapping, boolean globalScaleNeedsUpdate) {
 		if(! globalScaleNeedsUpdate ){
 			return;
 		}
 		
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableGlobalScale),1,false,globalScaleMatrix.getMatrix(),0);
+		globalScale = getNewIdentityMatrix();
 		
-		globalScaleNeedsUpdate = true;
-		
+		//iterate data for get bounding volume
+		float highPoint[] = {Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE};
+		float lowPoint[] = {Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE};
+		for(int index: getVolumeDataMap().keySet()){
+			VolumeDataBlock data = getVolumeDataMap().get(index);
+			float maxPoint[] = {1,1,1,1};//data.dimensions[0],data.dimensions[1],data.dimensions[2],1};
+			float minPoint[] = {0,0,0,1};
+			
+			//transform
+			data.localTransformation.multVec(maxPoint, maxPoint);
+			data.localTransformation.multVec(minPoint, minPoint);
+
+			//build box
+			for(int i = 0; i < 3 ; i++){
+				highPoint[i] = Math.max(highPoint[i], maxPoint[i]/ maxPoint[3]);
+				lowPoint[i] = Math.min(lowPoint[i], minPoint[i]/ minPoint[3]);
+			} 
+		}
+		globalScale.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableGlobalScale),1,false,globalScale.getMatrix(),0);
+		isEyeUpdateable = true;
 	}
 
-	private void updateTextureData(GL2 gl2,
+	private boolean updateTextureData(GL2 gl2,
 			final Map<String, Integer> shaderVariableMapping){
 
 		float min = Float.MAX_VALUE;
 		float max = Float.MIN_VALUE;
-		boolean minMaxNeedsUpdate = false;
+		boolean somethingUpdated = false;
 		
 		for(Integer i : getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(i);
@@ -191,10 +206,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			max = Math.max(max, data.maxValue);
 
 			if(!data.needsUpdate()){
-				return;
+				continue;
 			}
 
-			minMaxNeedsUpdate= true;
+			somethingUpdated= true;
 
 			//get Buffer
 			FloatBuffer buffer = Buffers.newDirectFloatBuffer(data.data);
@@ -210,40 +225,28 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 		//update values
-		if(minMaxNeedsUpdate){
+		if(somethingUpdated){
 			//min max
 			gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMinVolumeValue), min);
 			gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMaxVolumeValue), max);
 		}
+		return somethingUpdated;
 	}
 
 	@Override
-	protected void generateIdMappingSubClass(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping,
-			ShaderProgram shaderProgram) {
+	protected void generateIdMappingSubClass(GL2 gl2) {
 
-		int location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableGlobalScale);
-		shaderVariableMapping.put(shaderVariableGlobalScale, location);
+		mapUniforms(gl2, new String[]{
+				shaderVariableGlobalScale,
+				shaderVariableLocalTransformation,
+				shaderVariableActiveVolumes,
+				shaderVariableEyePosition,
+				shaderVariableMinVolumeValue,
+				shaderVariableMaxVolumeValue,
+				shaderVariableVolumeTexture,
+				shaderVariableColorTexture});
 
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableLocalTransformation);
-		shaderVariableMapping.put(shaderVariableLocalTransformation, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableActiveVolumes);
-		shaderVariableMapping.put(shaderVariableActiveVolumes, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableEyePosition);
-		shaderVariableMapping.put(shaderVariableEyePosition, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableMinVolumeValue);
-		shaderVariableMapping.put(shaderVariableMinVolumeValue, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableMaxVolumeValue);
-		shaderVariableMapping.put(shaderVariableMaxVolumeValue, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableVolumeTexture);
-		shaderVariableMapping.put(shaderVariableVolumeTexture, location);
-
-		
+		int location = getLocation(shaderVariableVolumeTexture);
 		for(int i =0; i< maxNumberOfDataBlocks; i++){
 			Texture volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location+i,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 			volumeTexture.genTexture(gl2);
@@ -254,8 +257,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 			volumeTextureMap.put(i, volumeTexture);
 		}
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableColorTexture);
-		shaderVariableMapping.put(shaderVariableColorTexture, location);
+		location = getLocation(shaderVariableColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
 		colorTexture.genTexture(gl2);
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
@@ -265,7 +267,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 		
 	}
-
+	
 	/**
 	 * Return the map of volume data with a user specific index.
 	 * @return
@@ -350,6 +352,15 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	@Override
 	protected void renderSubClass(GL2 gl2, Map<String, Integer> shaderVariableMapping) {
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+	}
 
+	/**
+	 * Updates color data
+	 * @param newData
+	 */
+	public void setColorMapData(final TreeMap<Integer, Color> newData){
+		colorMap.clear();
+		colorMap.putAll(newData);
+		isColorUpdateable = true;
 	}
 }

@@ -17,7 +17,8 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
+
+
 /**
  * Volume renderer for single volume
  * @author michael
@@ -250,25 +251,18 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void generateIdMappingSubClass(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping,
-			ShaderProgram shaderProgram) {
+	protected void generateIdMappingSubClass(GL2 gl2) {
 
 		//get location
+		mapUniforms(gl2, new String[]{
+				shaderVariableEyePosition,
+				shaderVariableMinVolumeValue,
+				shaderVariableMaxVolumeValue,
+				shaderVariableVolumeTexture,
+				shaderVariableColorTexture
+		});
 
-
-		int location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableEyePosition);
-		shaderVariableMapping.put(shaderVariableEyePosition, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableMinVolumeValue);
-		shaderVariableMapping.put(shaderVariableMinVolumeValue, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableMaxVolumeValue);
-		shaderVariableMapping.put(shaderVariableMaxVolumeValue, location);
-
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableVolumeTexture);
-		shaderVariableMapping.put(shaderVariableVolumeTexture, location);
-
+		int location = getLocation(shaderVariableVolumeTexture);
 		volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 		volumeTexture.genTexture(gl2);
 		volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
@@ -277,8 +271,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
 		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 
-		location = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableColorTexture);
-		shaderVariableMapping.put(shaderVariableColorTexture, location);
+		location = getLocation(shaderVariableColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
 		colorTexture.genTexture(gl2);
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);

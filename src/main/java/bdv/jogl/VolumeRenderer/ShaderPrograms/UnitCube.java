@@ -39,9 +39,8 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 
 	
-	protected void generateIdMappingSubClass(GL2 gl2,Map<String, Integer> shaderVariableMapping,final ShaderProgram shaderProgram){
-		int colorID = gl2.glGetUniformLocation(shaderProgram.program(), shaderVariableColor);
-		shaderVariableMapping.put(shaderVariableColor, colorID);
+	protected void generateIdMappingSubClass(GL2 gl2){
+		mapUniforms(gl2, new String[]{shaderVariableColor});
 	}
 
 
