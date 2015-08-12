@@ -1,8 +1,8 @@
-package bdv.jogl.VolumeRenderer.Scene;
+package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.nio.Buffer;
 
-import com.jogamp.common.nio.Buffers;
+
 import com.jogamp.opengl.GL2;
 
 /**

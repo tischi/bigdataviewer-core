@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.Scene;
+package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.nio.Buffer;
 
