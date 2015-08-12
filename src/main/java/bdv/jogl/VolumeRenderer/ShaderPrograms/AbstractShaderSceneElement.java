@@ -170,12 +170,12 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		return shaderVariableMapping.get(variableName);
 	}
 	
+	
 	/**
 	 * Sub class uniform upload
 	 * @param gl2
-	 * @param shaderVariableMapping
 	 */
-	protected abstract void  updateShaderAttributesSubClass(GL2 gl2,final Map<String, Integer> shaderVariableMapping);
+	protected abstract void  updateShaderAttributesSubClass(GL2 gl2);
 
 	
 	/**
@@ -190,16 +190,15 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableProjectionMatrix), 1, false, projection.getMatrix(),0);
 		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableViewMatrix), 1, false, view.getMatrix(),0);
 		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableModelMatrix), 1, false, modelTransformations.getMatrix(),0);
-		updateShaderAttributesSubClass(gl2, shaderVariableMapping);
+		updateShaderAttributesSubClass(gl2);
 
 		shaderProgram.useProgram(gl2, false);
 	}
 
+	
 	/**
 	 * Sub class id mapping for special ids.
 	 * @param gl2
-	 * @param shaderVariableMapping
-	 * @param shaderProgram
 	 */
 	protected abstract void generateIdMappingSubClass(GL2 gl2);
 
@@ -319,7 +318,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		gl2.glBindVertexArray(vertexArrayId);
 
-		renderSubClass(gl2,shaderVariableMapping);
+		renderSubClass(gl2);
 
 		gl2.glBindVertexArray(0);
 
@@ -330,9 +329,8 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * Function containing the actual render call. program and Vertex buffer are bound in there.
 	 * @param gl2
-	 * @param shaderVariableMapping 
 	 */
-	protected abstract void renderSubClass(GL2 gl2, Map<String, Integer> shaderVariableMapping);
+	protected abstract void renderSubClass(GL2 gl2);
 
 	/**
 	 * @return the modelTransformations

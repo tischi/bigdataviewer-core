@@ -34,8 +34,8 @@ public class UnitCube extends AbstractShaderSceneElement{
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
 
-	protected void updateShaderAttributesSubClass(GL2 gl2,final Map<String, Integer> shaderVariableMapping){
-		gl2.glUniform4f(shaderVariableMapping.get(shaderVariableColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
+	protected void updateShaderAttributesSubClass(GL2 gl2){
+		gl2.glUniform4f(getLocation(shaderVariableColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
 	}
 
 	
@@ -60,7 +60,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 	
 	
-	protected void renderSubClass(GL2 gl2,Map<String, Integer> shaderVariableMapping){
+	protected void renderSubClass(GL2 gl2){
 		int[] oldFrontBack={GL2.GL_FILL,GL2.GL_FILL};
 		
 		if(isRenderWireframe()){

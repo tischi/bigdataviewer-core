@@ -100,8 +100,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		return eyePositionsObjectSpace;
 	}
 
-	private void updateEyes(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping){
+	private void updateEyes(GL2 gl2){
 		if(!isEyeUpdateable ){
 			return;
 		}
@@ -109,30 +108,29 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float [] eyePositions = calculateEyePositions();
 
 		//eye position
-		gl2.glUniform3fv(shaderVariableMapping.get(shaderVariableEyePosition),maxNumberOfDataBlocks, eyePositions,0);
+		gl2.glUniform3fv(getLocation(shaderVariableEyePosition),maxNumberOfDataBlocks, eyePositions,0);
 		isEyeUpdateable = false;
 	}
 
 	@Override
-	protected void updateShaderAttributesSubClass(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping) {
+	protected void updateShaderAttributesSubClass(GL2 gl2) {
 		GLErrorHandler.assertGL(gl2);
-		updateActiveVolumes(gl2,shaderVariableMapping);
+		updateActiveVolumes(gl2);
 		GLErrorHandler.assertGL(gl2);
-		updateLocalTransformation(gl2,shaderVariableMapping);
+		updateLocalTransformation(gl2);
 		GLErrorHandler.assertGL(gl2);
-		boolean update = updateTextureData(gl2, shaderVariableMapping);
+		boolean update = updateTextureData(gl2);
 		GLErrorHandler.assertGL(gl2);
-		updateGlobalScale(gl2, shaderVariableMapping,update);
+		updateGlobalScale(gl2, update);
 		GLErrorHandler.assertGL(gl2);
-		updateColor(gl2, shaderVariableMapping);
+		updateColor(gl2);
 		GLErrorHandler.assertGL(gl2);
-		updateEyes(gl2, shaderVariableMapping);
+		updateEyes(gl2);
 GLErrorHandler.assertGL(gl2);
 	}
 
 
-	private void updateActiveVolumes(GL2 gl2, Map<String, Integer> shaderVariableMapping) {
+	private void updateActiveVolumes(GL2 gl2) {
 		IntBuffer activeBuffers = Buffers.newDirectIntBuffer(maxNumberOfDataBlocks);
 		activeBuffers.rewind();
 		for(int i = 0; i<maxNumberOfDataBlocks;i++){
@@ -146,23 +144,23 @@ GLErrorHandler.assertGL(gl2);
 			
 		}
 		activeBuffers.rewind();
-		gl2.glUniform1iv(shaderVariableMapping.get(shaderVariableActiveVolumes),
+		gl2.glUniform1iv(getLocation(shaderVariableActiveVolumes),
 				activeBuffers.capacity(),activeBuffers);
 	}
 
-	private void updateLocalTransformation(GL2 gl2, Map<String, Integer> shaderVariableMapping) {
+	private void updateLocalTransformation(GL2 gl2) {
 		for(Integer index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
 			if(!data.needsUpdate()){
 				continue;
 			}
 			
-			gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableLocalTransformation)+index,
+			gl2.glUniformMatrix4fv(getLocation(shaderVariableLocalTransformation)+index,
 					1,false,data.localTransformation.getMatrix(),0);
 		}
 	}
 
-	private void updateGlobalScale(GL2 gl2, Map<String, Integer> shaderVariableMapping, boolean globalScaleNeedsUpdate) {
+	private void updateGlobalScale(GL2 gl2, boolean globalScaleNeedsUpdate) {
 		if(! globalScaleNeedsUpdate ){
 			return;
 		}
@@ -188,12 +186,11 @@ GLErrorHandler.assertGL(gl2);
 			} 
 		}
 		globalScale.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableGlobalScale),1,false,globalScale.getMatrix(),0);
+		gl2.glUniformMatrix4fv(getLocation(shaderVariableGlobalScale),1,false,globalScale.getMatrix(),0);
 		isEyeUpdateable = true;
 	}
 
-	private boolean updateTextureData(GL2 gl2,
-			final Map<String, Integer> shaderVariableMapping){
+	private boolean updateTextureData(GL2 gl2){
 
 		float min = Float.MAX_VALUE;
 		float max = Float.MIN_VALUE;
@@ -227,8 +224,8 @@ GLErrorHandler.assertGL(gl2);
 		//update values
 		if(somethingUpdated){
 			//min max
-			gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMinVolumeValue), min);
-			gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMaxVolumeValue), max);
+			gl2.glUniform1f(getLocation(shaderVariableMinVolumeValue), min);
+			gl2.glUniform1f(getLocation(shaderVariableMaxVolumeValue), max);
 		}
 		return somethingUpdated;
 	}
@@ -288,8 +285,7 @@ GLErrorHandler.assertGL(gl2);
 				bufferData);	
 	}
 
-	private void updateColor(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping){
+	private void updateColor(GL2 gl2){
 		if(!isColorUpdateable){
 			return;
 		}
@@ -350,7 +346,7 @@ GLErrorHandler.assertGL(gl2);
 	}
 
 	@Override
-	protected void renderSubClass(GL2 gl2, Map<String, Integer> shaderVariableMapping) {
+	protected void renderSubClass(GL2 gl2) {
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
 	}
 

@@ -121,8 +121,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 				bufferData);	
 	}
 
-	private void updateTextureData(GL2 gl2,
-			final Map<String, Integer> shaderVariableMapping){
+	private void updateTextureData(GL2 gl2){
 		if(!data.needsUpdate()){
 			return;
 		}
@@ -141,8 +140,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		//gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
 
 		//min max
-		gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMinVolumeValue), data.minValue);
-		gl2.glUniform1f(shaderVariableMapping.get(shaderVariableMaxVolumeValue), data.maxValue);
+		gl2.glUniform1f(getLocation(shaderVariableMinVolumeValue), data.minValue);
+		gl2.glUniform1f(getLocation(shaderVariableMaxVolumeValue), data.maxValue);
 
 
 		data.setNeedsUpdate(false);
@@ -170,8 +169,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		return eyeTrans;
 	}
 
-	private void updateEye(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping){
+	private void updateEye(GL2 gl2){
 		if(!isEyeUpdateable){
 			return;
 		}
@@ -179,13 +177,12 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		float [] eyePosition = calculateEyePosition();
 
 		//eye position
-		gl2.glUniform3f(shaderVariableMapping.get(shaderVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
+		gl2.glUniform3f(getLocation(shaderVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
 		isEyeUpdateable = false;
 	}
 
 
-	private void updateColor(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping){
+	private void updateColor(GL2 gl2){
 		if(!isColorUpdateable){
 			return;
 		}
@@ -239,14 +236,13 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void updateShaderAttributesSubClass(GL2 gl2,
-			Map<String, Integer> shaderVariableMapping) {
+	protected void updateShaderAttributesSubClass(GL2 gl2) {
 
-		updateTextureData(gl2, shaderVariableMapping);
+		updateTextureData(gl2);
 
-		updateColor(gl2, shaderVariableMapping);
+		updateColor(gl2);
 
-		updateEye(gl2, shaderVariableMapping);
+		updateEye(gl2);
 
 	}
 
@@ -290,7 +286,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void renderSubClass(GL2 gl2,Map<String, Integer> shaderVariableMapping) {
+	protected void renderSubClass(GL2 gl2) {
 		/*	gl2.glEnable(GL2.GL_CULL_FACE);
 		gl2.glCullFace(GL2.GL_BACK); 
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
