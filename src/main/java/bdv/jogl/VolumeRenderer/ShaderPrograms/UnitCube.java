@@ -11,7 +11,6 @@ import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.util.glsl.ShaderProgram;
 
 /**
  * class to render a cube in gl
