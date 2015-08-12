@@ -60,7 +60,6 @@ public class VolumeDataUtils {
 		data.maxValue = maxValue;
 		data.minValue = minValue;
 		data.data = block;
-		
 		return data;
 	}
 

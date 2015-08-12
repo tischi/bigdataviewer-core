@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
-import bdv.jogl.VolumeRenderer.Scene.VertexAttribute;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 

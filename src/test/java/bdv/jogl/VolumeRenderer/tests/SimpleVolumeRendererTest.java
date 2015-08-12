@@ -26,8 +26,6 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 public class SimpleVolumeRendererTest {
 
-	private int[] testDims = {3,2,1};
-	
 	private float[] testEye = {0,0,3};
 	
 	private float[] testCenter = {0,0,0};
