@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
@@ -114,19 +113,18 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
-		GLErrorHandler.assertGL(gl2);
+		
 		updateActiveVolumes(gl2);
-		GLErrorHandler.assertGL(gl2);
+
 		updateLocalTransformation(gl2);
-		GLErrorHandler.assertGL(gl2);
+
 		boolean update = updateTextureData(gl2);
-		GLErrorHandler.assertGL(gl2);
+
 		updateGlobalScale(gl2, update);
-		GLErrorHandler.assertGL(gl2);
+
 		updateColor(gl2);
-		GLErrorHandler.assertGL(gl2);
+
 		updateEyes(gl2);
-GLErrorHandler.assertGL(gl2);
 	}
 
 
