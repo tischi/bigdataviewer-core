@@ -30,6 +30,8 @@ public class MultiVolumeRendererTest {
 	
 	private FrameBufferRedirector redirector = new FrameBufferRedirector(); 
 	
+	private long[] testdim = {3,2,1};
+	
 	private float[] testEye = {0,0,3};
 	
 	private float[] testCenter = {0,0,0};
@@ -165,7 +167,10 @@ public class MultiVolumeRendererTest {
 		loc2.rotate(-45, 0, 0, 1);
 		blocks[0].data = volumeDataArrays[0];
 		blocks[0].localTransformation  = loc1;
+		blocks[0].dimensions = testdim.clone();
+	
 		blocks[1].data = volumeDataArrays[1];
+		blocks[1].dimensions = testdim.clone();
 		blocks[1].localTransformation = loc2;
 	
 		Map<Integer,VolumeDataBlock> dataBlocks = classUnderTest.getVolumeDataMap();
@@ -205,7 +210,7 @@ public class MultiVolumeRendererTest {
 			}
 
 		}
-		//assertTrue(isSomethingDrawn);
+		assertTrue(isSomethingDrawn);
 
 		
 	}
