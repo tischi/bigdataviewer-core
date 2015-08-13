@@ -95,7 +95,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * update all shader variables 
 	 */
-	private void update(GL2 gl){
+	public void update(GL2 gl){
 		updateShaderAttributes(gl);
 
 		updateVertexBuffer(gl);
