@@ -21,7 +21,6 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 
 
-
 /**
  * Renderer for multiple volume data
  * @author michael
@@ -37,9 +36,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}	
 
 	//Vertex shader uniforms
-	public static final String shaderVariableGlobalScale ="inScaleGlobal";
+	public static final String shaderVariableDrawCubeTransformation ="inDrawCubeTransformation";
 
-	public static final String shaderVariableLocalTransformation ="inLocalTransformationInverse";
+	public static final String shaderVariableLocalTransformation ="inTextureTransformationInverse";
 
 	//Fragment shader uniforms 
 	public static final String shaderVariableActiveVolumes = "inActiveVolume";
@@ -70,7 +69,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private boolean isEyeUpdateable = true;
 
-	private Matrix4 globalScale = getNewIdentityMatrix();
+	private Matrix4 drawCubeTransformation = getNewIdentityMatrix();
 	
 	
 	private float[] calculateEyePositions(){
@@ -167,28 +166,45 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private void updateGlobalScale(GL2 gl2) {
 
 		
-		globalScale = getNewIdentityMatrix();
+		drawCubeTransformation = getNewIdentityMatrix();
 		
 		//iterate data for get bounding volume
 		float highPoint[] = {Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE};
 		float lowPoint[] = {Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE};
+		
 		for(int index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
-			float maxPoint[] = {data.dimensions[0],data.dimensions[1],data.dimensions[2],1};
-			float minPoint[] = {0,0,0,1};
+			float repesentantsToCheck[][] = {
+					{0,0,0,1},
+					{0,0,1,1},
+					{0,1,0,1},
+					{0,1,1,1},
+					{1,0,0,1},
+					{1,0,1,1},
+					{1,1,0,1},
+					{1,1,1,1},
+					};
 			
-			//transform
-			data.localTransformation.multVec(maxPoint, maxPoint);
-			data.localTransformation.multVec(minPoint, minPoint);
+			
+			Matrix4 transformation = copyMatrix(data.localTransformation);
+			transformation.scale(data.dimensions[0],data.dimensions[1],data.dimensions[2]);
+			for(float [] representant: repesentantsToCheck){
+				//transform
+				transformation.multVec(representant, representant);
+			
 
 			//build box
 			for(int i = 0; i < 3 ; i++){
-				highPoint[i] = Math.max(highPoint[i], maxPoint[i]/ maxPoint[3]);
-				lowPoint[i] = Math.min(lowPoint[i], minPoint[i]/ minPoint[3]);
+				representant[i] = representant[i]/ representant[3];
+				highPoint[i] = Math.max(highPoint[i], representant[i]);
+				lowPoint[i] = Math.min(lowPoint[i], representant[i]);
 			} 
+			}
 		}
-		globalScale.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
-		gl2.glUniformMatrix4fv(getLocation(shaderVariableGlobalScale),1,false,globalScale.getMatrix(),0);
+		//correct origo
+		drawCubeTransformation.translate(lowPoint[0], lowPoint[1], lowPoint[2]);
+		drawCubeTransformation.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
+		gl2.glUniformMatrix4fv(getLocation(shaderVariableDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
 	}
 
 	private boolean updateTextureData(GL2 gl2){
@@ -236,7 +252,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		
 		mapUniforms(gl2, new String[]{
-				shaderVariableGlobalScale,
+				shaderVariableDrawCubeTransformation,
 				shaderVariableLocalTransformation,
 				shaderVariableActiveVolumes,
 				shaderVariableEyePosition,
