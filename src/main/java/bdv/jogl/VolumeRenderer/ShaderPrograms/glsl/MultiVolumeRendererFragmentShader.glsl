@@ -9,6 +9,7 @@ uniform float inMinVolumeValue;
 uniform vec3 inEyePosition[maxNumberOfData];
 uniform sampler3D inVolumeTexture[maxNumberOfData];
 uniform sampler1D inColorTexture;
+uniform float inMaxDiagonalLength ;
 
 in vec3 textureCoord[maxNumberOfData];
 out vec4 fragmentColor;
@@ -29,10 +30,11 @@ int getStepsInVolume(float stepsSize, vec3 position, vec3 direction){
 	return steps;
 }
 
+
 void main(void)
 {	
 	const int samples = 256;
-	const float sample_step =sqrt(3f)/float(samples);
+	float sample_step =inMaxDiagonalLength/float(samples);
 	const float brightness = 150.0f;
 	
 	fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);
@@ -48,9 +50,12 @@ void main(void)
     	int steps =  getStepsInVolume(sample_step,ray_pos,ray_dir);
     	if(steps > samples){
     		steps = samples;
-    	}
+   	}    
+  
    		float density;
    		for(int i = 0; i< steps; i++){
+        				
+
 
         	// note: 
         	// - ray_dir * sample_step can be precomputed
@@ -63,7 +68,7 @@ void main(void)
         	color.rgb = texture(inColorTexture, density).rgb;
         	color.a   = texture(inColorTexture, density).a /*density*/ * sample_step * val_threshold * brightness;
         	fragmentColor.rgb = fragmentColor.rgb * (1.0 - color.a) + color.rgb * color.a;
-			ray_pos += ray_dir * sample_step;  		
+			ray_pos += ray_dir * sample_step;  	
     	}
     }
 	fragmentColor = vec4 (fragmentColor.rgb,0.1); 

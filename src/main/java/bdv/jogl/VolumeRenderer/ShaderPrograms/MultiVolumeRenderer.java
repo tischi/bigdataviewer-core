@@ -19,6 +19,7 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.VectorUtil;
 
 
 /**
@@ -53,6 +54,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	public static final String shaderVariableMaxVolumeValue = "inMaxVolumeValue";
 
+	public static final String shaderVariableMaxDiagonalLength = "inMaxDiagonalLength";
+
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
 	private final int maxNumberOfDataBlocks = 2;
@@ -70,8 +73,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isEyeUpdateable = true;
 
 	private Matrix4 drawCubeTransformation = getNewIdentityMatrix();
-	
-	
+
+
+
 	private float[] calculateEyePositions(){
 		float eyePositionsObjectSpace[] = new float[3*maxNumberOfDataBlocks];
 
@@ -108,13 +112,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		//eye position
 		gl2.glUniform3fv(getLocation(shaderVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
-		
+
 		isEyeUpdateable = false;
 	}
 
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
-		
+
 		updateActiveVolumes(gl2);
 
 		updateLocalTransformationInverse(gl2);
@@ -122,6 +126,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		boolean update = updateTextureData(gl2);
 		if(update){
 			updateGlobalScale(gl2);
+
+			updateMaxDiagonalLength(gl2);
 		}
 
 		updateColor(gl2);
@@ -129,6 +135,36 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		updateEyes(gl2);
 	}
 
+
+	private void updateMaxDiagonalLength(GL2 gl2) {
+		float length = Float.MIN_VALUE;
+		float[][] globalUnitCubeHighLow = new float[][]{{0,0,0,1},{1,1,1,1}};
+
+		//get cube to global space
+		for(int i =0; i < globalUnitCubeHighLow.length;i++){
+			drawCubeTransformation.multVec(globalUnitCubeHighLow[i], globalUnitCubeHighLow[i]);
+		}
+
+		//cube transform in texture space to get the maximum extend
+		for(VolumeDataBlock data: getVolumeDataMap().values()){
+			float[][] coordsInTextureSpace = new float[2][4];
+
+			Matrix4 textureTransformation = copyMatrix(data.localTransformation);
+			textureTransformation.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			textureTransformation.invert();		
+			for(int i =0; i < globalUnitCubeHighLow.length;i++){
+				textureTransformation.multVec(globalUnitCubeHighLow[i], coordsInTextureSpace[i]);
+				for(int j = 0; j < 4; j++){
+					coordsInTextureSpace[i][j] /= coordsInTextureSpace[i][3];
+				}
+			}
+			
+			float currentLength = VectorUtil.distVec3(coordsInTextureSpace[0], coordsInTextureSpace[1]);
+			
+			length = Math.max(currentLength, length);
+		}
+		gl2.glUniform1f(getLocation(shaderVariableMaxDiagonalLength), length);
+	}
 
 	private void updateActiveVolumes(GL2 gl2) {
 		IntBuffer activeBuffers = Buffers.newDirectIntBuffer(maxNumberOfDataBlocks);
@@ -141,7 +177,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				active=0;
 			}
 			activeBuffers.put(i, active);
-			
+
 		}
 		activeBuffers.rewind();
 		gl2.glUniform1iv(getLocation(shaderVariableActiveVolumes),
@@ -154,7 +190,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			if(!data.needsUpdate()){
 				continue;
 			}
-			
+
 			Matrix4 localInverse = copyMatrix(data.localTransformation);
 			localInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 			localInverse.invert();
@@ -165,12 +201,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private void updateGlobalScale(GL2 gl2) {
 
-		
+
 		drawCubeTransformation = getNewIdentityMatrix();
-		
+
 		//iterate data for get bounding volume
 		float highPoint[] = {Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE};
 		float lowPoint[] = {Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE};
+
 		
 		for(int index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
@@ -183,22 +220,23 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 					{1,0,1,1},
 					{1,1,0,1},
 					{1,1,1,1},
-					};
-			
-			
+			};
+
+
 			Matrix4 transformation = copyMatrix(data.localTransformation);
 			transformation.scale(data.dimensions[0],data.dimensions[1],data.dimensions[2]);
 			for(float [] representant: repesentantsToCheck){
 				//transform
-				transformation.multVec(representant, representant);
-			
+				float[] globalVolumeCoordinate= new float[4];
+				transformation.multVec(representant, globalVolumeCoordinate);
 
-			//build box
-			for(int i = 0; i < 3 ; i++){
-				representant[i] = representant[i]/ representant[3];
-				highPoint[i] = Math.max(highPoint[i], representant[i]);
-				lowPoint[i] = Math.min(lowPoint[i], representant[i]);
-			} 
+
+				//build box
+				for(int i = 0; i < 3 ; i++){
+					globalVolumeCoordinate[i] = globalVolumeCoordinate[i]/ globalVolumeCoordinate[3];
+					highPoint[i] = Math.max(highPoint[i], globalVolumeCoordinate[i]);
+					lowPoint[i] = Math.min(lowPoint[i], globalVolumeCoordinate[i]);
+				} 
 			}
 		}
 		//correct origo
@@ -212,7 +250,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float min = Float.MAX_VALUE;
 		float max = Float.MIN_VALUE;
 		boolean somethingUpdated = false;
-		
+
 		for(Integer i : getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(i);
 
@@ -250,7 +288,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	@Override
 	protected void generateIdMappingSubClass(GL2 gl2) {
 
-		
+
 		mapUniforms(gl2, new String[]{
 				shaderVariableDrawCubeTransformation,
 				shaderVariableLocalTransformation,
@@ -259,7 +297,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				shaderVariableMinVolumeValue,
 				shaderVariableMaxVolumeValue,
 				shaderVariableVolumeTexture,
-				shaderVariableColorTexture});
+				shaderVariableColorTexture,
+				shaderVariableMaxDiagonalLength});
 
 		int location = getLocation(shaderVariableVolumeTexture);
 		for(int i =0; i< maxNumberOfDataBlocks; i++){
@@ -280,9 +319,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-		
+
 	}
-	
+
 	/**
 	 * Return the map of volume data with a user specific index.
 	 * @return
@@ -312,7 +351,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		isEyeUpdateable = true;
 	}
-	
+
 	private void updateColor(GL2 gl2){
 		if(!isColorUpdateable){
 			return;
@@ -387,4 +426,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		colorMap.putAll(newData);
 		isColorUpdateable = true;
 	}
+	
+	/**
+	 * @return the drawCubeTransformation
+	 */
+	public Matrix4 getDrawCubeTransformation() {
+		return copyMatrix( drawCubeTransformation);
+	}
+
 }
