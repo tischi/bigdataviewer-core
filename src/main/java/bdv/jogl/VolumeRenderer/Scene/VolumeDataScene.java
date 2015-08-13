@@ -52,7 +52,9 @@ public class VolumeDataScene extends AbstractScene{
 	private int latestRenderTimePoint = -1;
 
 	private int currentActiveSource = -1;
-
+	
+	//private UnitCube boundingVolume =new UnitCube();
+	
 	//TODO move out
 	private TransferFunctionPanel1D tfpanel = null;
 
@@ -184,6 +186,7 @@ public class VolumeDataScene extends AbstractScene{
 		if(!single){
 			addSceneElement(multiVolumeRenderer);
 			multiVolumeRenderer.init(gl2);
+			initBoundingVolumeCube(gl2);
 		}
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 
@@ -232,6 +235,14 @@ public class VolumeDataScene extends AbstractScene{
 	}
 
 
+	private void initBoundingVolumeCube(GL2 gl2) {
+	/*	addSceneElement(boundingVolume);
+	
+		boundingVolume.init(gl2);
+		boundingVolume.setRenderWireframe(true);
+		boundingVolume.setColor(Color.yellow);*/
+	}
+
 	/**
 	 * render the scene
 	 * @param gl2
@@ -246,9 +257,6 @@ public class VolumeDataScene extends AbstractScene{
 
 		int i =-1;
 
-		if(!single){
-			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
-		}
 
 		for(SourceState<?> source : sources){
 
@@ -313,6 +321,14 @@ public class VolumeDataScene extends AbstractScene{
 					multiVolumeRenderer.getVolumeDataMap().put(i, data);		
 				}
 			}
+		}
+
+		if(!single){
+			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
+		/*	multiVolumeRenderer.update(gl2);
+			Matrix4 model = copyMatrix(multiVolumeRenderer.getModelTransformation());
+			model.multMatrix(multiVolumeRenderer.getDrawCubeTransformation());
+			boundingVolume.setModelTransformation(model);*/
 		}
 	}
 
