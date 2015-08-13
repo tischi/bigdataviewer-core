@@ -15,6 +15,7 @@ import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRendererShaderSource.*;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
@@ -35,26 +36,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		aMap.put(GL2.GL_FRAGMENT_SHADER, "glsl"+File.separator+"MultiVolumeRendererFragmentShader.glsl");
 		shaderFiles = Collections.unmodifiableMap(aMap);
 	}	
-
-	//Vertex shader uniforms
-	public static final String shaderVariableDrawCubeTransformation ="inDrawCubeTransformation";
-
-	public static final String shaderVariableLocalTransformation ="inTextureTransformationInverse";
-
-	//Fragment shader uniforms 
-	public static final String shaderVariableActiveVolumes = "inActiveVolume";
-
-	public static final String shaderVariableVolumeTexture = "inVolumeTexture";
-
-	public static final String shaderVariableColorTexture = "inColorTexture";
-
-	public static final String shaderVariableEyePosition = "inEyePosition";
-
-	public static final String shaderVariableMinVolumeValue = "inMinVolumeValue";
-
-	public static final String shaderVariableMaxVolumeValue = "inMaxVolumeValue";
-
-	public static final String shaderVariableMaxDiagonalLength = "inMaxDiagonalLength";
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
@@ -111,7 +92,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float [] eyePositions = calculateEyePositions();
 
 		//eye position
-		gl2.glUniform3fv(getLocation(shaderVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
+		gl2.glUniform3fv(getLocation(shaderUniformVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
 
 		isEyeUpdateable = false;
 	}
@@ -163,7 +144,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			length = Math.max(currentLength, length);
 		}
-		gl2.glUniform1f(getLocation(shaderVariableMaxDiagonalLength), length);
+		gl2.glUniform1f(getLocation(shaderUniformVariableMaxDiagonalLength), length);
 	}
 
 	private void updateActiveVolumes(GL2 gl2) {
@@ -180,7 +161,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		}
 		activeBuffers.rewind();
-		gl2.glUniform1iv(getLocation(shaderVariableActiveVolumes),
+		gl2.glUniform1iv(getLocation(shaderUniformVariableActiveVolumes),
 				activeBuffers.capacity(),activeBuffers);
 	}
 
@@ -194,7 +175,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			Matrix4 localInverse = copyMatrix(data.localTransformation);
 			localInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 			localInverse.invert();
-			gl2.glUniformMatrix4fv(getLocation(shaderVariableLocalTransformation)+index,
+			gl2.glUniformMatrix4fv(getLocation(shaderUniformVariableLocalTransformation)+index,
 					1,false,localInverse.getMatrix(),0);
 		}
 	}
@@ -242,7 +223,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//correct origo
 		drawCubeTransformation.translate(lowPoint[0], lowPoint[1], lowPoint[2]);
 		drawCubeTransformation.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
-		gl2.glUniformMatrix4fv(getLocation(shaderVariableDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
+		gl2.glUniformMatrix4fv(getLocation(shaderUniformVariableDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
 	}
 
 	private boolean updateTextureData(GL2 gl2){
@@ -279,8 +260,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//update values
 		if(somethingUpdated){
 			//min max
-			gl2.glUniform1f(getLocation(shaderVariableMinVolumeValue), min);
-			gl2.glUniform1f(getLocation(shaderVariableMaxVolumeValue), max);
+			gl2.glUniform1f(getLocation(shaderUniformVariableMinVolumeValue), min);
+			gl2.glUniform1f(getLocation(shaderUniformVariableMaxVolumeValue), max);
 		}
 		return somethingUpdated;
 	}
@@ -290,17 +271,17 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 
 		mapUniforms(gl2, new String[]{
-				shaderVariableDrawCubeTransformation,
-				shaderVariableLocalTransformation,
-				shaderVariableActiveVolumes,
-				shaderVariableEyePosition,
-				shaderVariableMinVolumeValue,
-				shaderVariableMaxVolumeValue,
-				shaderVariableVolumeTexture,
-				shaderVariableColorTexture,
-				shaderVariableMaxDiagonalLength});
+				shaderUniformVariableDrawCubeTransformation,
+				shaderUniformVariableLocalTransformation,
+				shaderUniformVariableActiveVolumes,
+				shaderUniformVariableEyePosition,
+				shaderUniformVariableMinVolumeValue,
+				shaderUniformVariableMaxVolumeValue,
+				shaderUniformVariableVolumeTexture,
+				shaderUniformVariableColorTexture,
+				shaderUniformVariableMaxDiagonalLength});
 
-		int location = getLocation(shaderVariableVolumeTexture);
+		int location = getLocation(shaderUniformVariableVolumeTexture);
 		for(int i =0; i< maxNumberOfDataBlocks; i++){
 			Texture volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location+i,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 			volumeTexture.genTexture(gl2);
@@ -311,15 +292,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 			volumeTextureMap.put(i, volumeTexture);
 		}
-		location = getLocation(shaderVariableColorTexture);
+		location = getLocation(shaderUniformVariableColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
 		colorTexture.genTexture(gl2);
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-
 	}
 
 	/**

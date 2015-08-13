@@ -3,6 +3,7 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 import java.util.HashMap;
 import java.util.Map;
 
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.AbstractShaderSource.*;
 import bdv.jogl.VolumeRenderer.Scene.ISceneElements;
 import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 
@@ -12,20 +13,13 @@ import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 
+
 /**
  * Defines standard behavior for shader elements.
  * @author michael
  *
  */
 public abstract class AbstractShaderSceneElement implements ISceneElements{
-
-	public static final String shaderVariablePosition = "inPosition";
-
-	public static final String shaderVariableProjectionMatrix = "inProjection";
-
-	public static final String shaderVariableViewMatrix = "inView";
-
-	public static final String shaderVariableModelMatrix = "inModel";
 
 	protected static Map<Integer, String> shaderFiles;
 
@@ -174,9 +168,9 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.useProgram(gl2, true);
 
 		//memcopy
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableProjectionMatrix), 1, false, projection.getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableViewMatrix), 1, false, view.getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderVariableModelMatrix), 1, false, modelTransformations.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderUniformVariableProjectionMatrix), 1, false, projection.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderUniformVariableViewMatrix), 1, false, view.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderUniformVariableModelMatrix), 1, false, modelTransformations.getMatrix(),0);
 		updateShaderAttributesSubClass(gl2);
 
 		shaderProgram.useProgram(gl2, false);
@@ -199,11 +193,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		//get ids
 		mapUniforms(gl2, new String[]{
-				shaderVariableProjectionMatrix,
-				shaderVariableViewMatrix,
-				shaderVariableModelMatrix});
+				shaderUniformVariableProjectionMatrix,
+				shaderUniformVariableViewMatrix,
+				shaderUniformVariableModelMatrix});
 
-		mapAvertexAttributs(gl2, new String[]{shaderVariablePosition});
+		mapAvertexAttributs(gl2, new String[]{shaderAttributePosition});
 
 		generateIdMappingSubClass(gl2);
 
@@ -258,7 +252,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		position = new VertexAttribute(
 				gl2, 
-				getLocation(shaderVariablePosition), 
+				getLocation(shaderAttributePosition), 
 				GL2.GL_FLOAT, 3, Buffers.SIZEOF_FLOAT);
 		
 		position.allocateAttributes(gl2, getVertexBufferSize());
