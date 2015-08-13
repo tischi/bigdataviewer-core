@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.algorithm.stats.Min;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.view.Views;
 import bdv.BigDataViewer;
@@ -22,6 +23,8 @@ import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
+
+import bdv.viewer.Source;
 import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
@@ -94,7 +97,7 @@ public class VolumeDataScene extends AbstractScene{
 
 
 	private void cleanUpSceneElements(){
-		volumeBorders.clear();
+	//	volumeBorders.clear();
 		volumeRenderes.clear();
 	}
 
@@ -184,11 +187,8 @@ public class VolumeDataScene extends AbstractScene{
 		}
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 
-			//j++;
-			if(!source.isCurrent()){
-				continue;
-			}
-			currentActiveSource = j;
+
+			j++;
 
 			//create borders
 			UnitCube cubeShader = new UnitCube();
@@ -199,6 +199,11 @@ public class VolumeDataScene extends AbstractScene{
 			cubeShader.setColor(new Color(r,g,b,1));
 			r+=colorLinearFactor;
 			b-=colorLinearFactor;
+
+			if(!source.isCurrent()){
+				continue;
+			}
+			currentActiveSource = j;
 
 			//create vRenderer
 			if(single ){
@@ -219,7 +224,6 @@ public class VolumeDataScene extends AbstractScene{
 				dimensions[i]  =Math.max(dimensions[i], dimI[i]);
 
 			}
-			break;
 		}
 
 		initLocalCamera(camera, width, height, dimensions);
@@ -245,34 +249,49 @@ public class VolumeDataScene extends AbstractScene{
 		if(!single){
 			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
 		}
-		if(latestRenderTimePoint != currentTimepoint){
+
 		for(SourceState<?> source : sources){
 
 			i++;
+			UnitCube cubeShader = volumeBorders.get(i);
+
+			//block transform
+			int midMapLevel = getMidmapLevel(source);
+			AffineTransform3D sourceTransform3D = new AffineTransform3D();
+			source.getSpimSource().getSourceTransform(currentTimepoint, midMapLevel, sourceTransform3D);
+			Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
+			
+			
+			//block size
+			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
+			long[] min =  new long[3];
+			long[] dim =  new long[3];
+			ssource.min(min);
+
+			IterableInterval<?> tmp = Views.flatIterable(ssource);
+			tmp.dimensions(dim);	
+			Matrix4 scale = new Matrix4();
+			scale.loadIdentity();
+			scale.scale(dim[0], dim[1], dim[2]);
+
+
+			
+			Matrix4 modelMatrix = getNewIdentityMatrix();
+			modelMatrix=copyMatrix(globalModelTransformation);
+			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
+			modelMatrix.multMatrix(copyMatrix(scale));	
+			cubeShader.setModelTransformation(modelMatrix);
+			
+			
 			//no inactive sources
 			if(single){
 			if(!source.isCurrent()){
 				continue;
 			}
 			}
-
-			int midMapLevel = getMidmapLevel(source);
-			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
-
-			//block transform
-			AffineTransform3D sourceTransform3D = new AffineTransform3D();
-			source.getSpimSource().getSourceTransform(currentTimepoint, midMapLevel, sourceTransform3D);
-			Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
-
-
-			//block size
-			long[] min =  new long[3];
-			long[] dim =  new long[3];
-			ssource.min(min);
-
-			IterableInterval<?> tmp = Views.flatIterable(ssource);
-			tmp.dimensions(dim);			
-
+	
+			if(latestRenderTimePoint != currentTimepoint || 
+					!multiVolumeRenderer.getVolumeDataMap().containsKey(i)){
 			/*float[] values = VolumeDataUtils.getDataBlock(ssource);
 			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
 			if(1==1)
@@ -280,18 +299,7 @@ public class VolumeDataScene extends AbstractScene{
 			latestRenderTimePoint = currentTimepoint;
 			currentActiveSource = i;
 			VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
-			Matrix4 scale = new Matrix4();
-			scale.loadIdentity();
-			scale.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 
-			UnitCube cubeShader = volumeBorders.get(0);
-
-			Matrix4 modelMatrix = getNewIdentityMatrix();
-			modelMatrix=copyMatrix(globalModelTransformation);
-			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
-			modelMatrix.multMatrix(copyMatrix(scale));	
-			cubeShader.setModelTransformation(modelMatrix);
-			
 
 
 				
