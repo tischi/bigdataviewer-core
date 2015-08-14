@@ -1,9 +1,12 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
-import java.util.HashMap;
-import java.util.Map;
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.AbstractShaderSource.*;
 
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.AbstractShaderSource.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import bdv.jogl.VolumeRenderer.Scene.ISceneElements;
 import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 
@@ -21,15 +24,13 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
  */
 public abstract class AbstractShaderSceneElement implements ISceneElements{
 
-	protected static Map<Integer, String> shaderFiles;
+	protected Set<ShaderCode> shaderCodes = new HashSet<ShaderCode>();
 
 	private Matrix4 projection = MatrixUtils.getNewIdentityMatrix();
 
 	private Matrix4 view = MatrixUtils.getNewIdentityMatrix();
 
 	private Matrix4 modelTransformations = MatrixUtils.getNewIdentityMatrix();
-
-	private Map<Integer, ShaderCode> shaderCodes = new HashMap<Integer, ShaderCode>();
 
 	private Map<String, Integer> shaderVariableMapping = new HashMap<String, Integer>();
 
@@ -214,7 +215,14 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.init(gl2);
 
 		//compile and attache shaders from files
-		for(int key : shaderFiles.keySet()){
+		for(ShaderCode code:shaderCodes){
+			code.compile(gl2,System.err);
+			if(!code.isValid()){
+				throw new IllegalArgumentException("No valid shader code in "+ code);
+			}
+			shaderProgram.add(code);
+		}
+		/*for(int key : shaderFiles.keySet()){
 			String[] files = {shaderFiles.get(key)};
 			shaderCodes.put(key,ShaderCode.create(gl2,key , 
 					1, this.getClass(), files,
@@ -229,7 +237,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 			shaderProgram.add(shaderCodes.get(key));
 
-		}
+		}*/
 
 		//link program
 		shaderProgram.link(gl2, System.err);

@@ -1,16 +1,15 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.awt.Color;
-import java.io.File;
 import java.nio.FloatBuffer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource.*;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.util.glsl.ShaderCode;
 
 /**
  * class to render a cube in gl
@@ -19,27 +18,27 @@ import com.jogamp.opengl.GL2;
  */
 public class UnitCube extends AbstractShaderSceneElement{
 
-	public static final String shaderVariableColor = "inColor";
-	static {
-		Map<Integer, String> aMap = new HashMap<Integer, String>();
-		aMap.put(GL2.GL_VERTEX_SHADER, "glsl"+File.separator+"UnitCubeVertexShader.glsl");
-		aMap.put(GL2.GL_FRAGMENT_SHADER, "glsl"+File.separator+"UnitCubeFragmentShader.glsl");
-		shaderFiles = Collections.unmodifiableMap(aMap);
-	}	
-
 	private boolean renderWireframe = false;
 	
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
+	
+	private UnitCubeShaderSource source = new UnitCubeShaderSource();
 
+	public UnitCube(){
+		for(ShaderCode code: source.getShaderCodes()){
+			shaderCodes.add(code);
+		}
+	}
+	
 	protected void updateShaderAttributesSubClass(GL2 gl2){
-		gl2.glUniform4f(getLocation(shaderVariableColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
+		gl2.glUniform4f(getLocation(shaderUniformVariableColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
 	}
 
 	
 	protected void generateIdMappingSubClass(GL2 gl2){
-		mapUniforms(gl2, new String[]{shaderVariableColor});
+		mapUniforms(gl2, new String[]{shaderUniformVariableColor});
 	}
 
 

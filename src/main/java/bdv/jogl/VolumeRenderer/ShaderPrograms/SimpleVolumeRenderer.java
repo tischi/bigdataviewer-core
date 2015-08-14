@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeRendererShaderSources.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
 import java.awt.Color;
@@ -7,16 +8,20 @@ import java.io.File;
 import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeRendererShaderSources;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.util.glsl.ShaderCode;
 
 
 /**
@@ -26,25 +31,7 @@ import com.jogamp.opengl.math.Matrix4;
  */
 public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
-	static {
-		Map<Integer, String> aMap = new HashMap<Integer, String>();
-		aMap.put(GL2.GL_VERTEX_SHADER, "glsl"+File.separator+"SimpleVolumeRendererVertexShader.glsl");
-		aMap.put(GL2.GL_FRAGMENT_SHADER, "glsl"+File.separator+"SimpleVolumeRendererFragmentShader.glsl");
-		shaderFiles = Collections.unmodifiableMap(aMap);
-	}	
-
-	public static final String shaderVariableVolumeTexture = "inVolumeTexture";
-
-	public static final String shaderVariableColorTexture = "inColorTexture";
-
-	public static final String shaderVariableEyePosition = "inEyePosition";
-
-	public static final String shaderVariableMinVolumeValue = "inMinVolumeValue";
-
-	public static final String shaderVariableMaxVolumeValue = "inMaxVolumeValue";
-
 	private final TreeMap<Integer, Color> colorMap = new TreeMap<Integer, Color>();
-
 
 	private VolumeDataBlock data;
 
@@ -58,6 +45,9 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private boolean isColorUpdateable = true;
 
+	private SingleVolumeRendererShaderSources source = new SingleVolumeRendererShaderSources();
+	
+
 	private void initColorDefaults(){
 		colorMap.put(100,Color.green);
 		colorMap.put(0,Color.red);
@@ -67,6 +57,10 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	 * constructor 
 	 */
 	public SimpleVolumeRenderer(){
+		for(ShaderCode code :source.getShaderCodes()){
+			shaderCodes.add(code);
+		}
+		
 		initColorDefaults();
 	}
 
@@ -136,8 +130,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		//gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
 
 		//min max
-		gl2.glUniform1f(getLocation(shaderVariableMinVolumeValue), data.minValue);
-		gl2.glUniform1f(getLocation(shaderVariableMaxVolumeValue), data.maxValue);
+		gl2.glUniform1f(getLocation(shaderUniformVariableMinVolumeValue), data.minValue);
+		gl2.glUniform1f(getLocation(shaderUniformVariableMaxVolumeValue), data.maxValue);
 
 
 		data.setNeedsUpdate(false);
@@ -173,7 +167,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		float [] eyePosition = calculateEyePosition();
 
 		//eye position
-		gl2.glUniform3f(getLocation(shaderVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
+		gl2.glUniform3f(getLocation(shaderUniformVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
 		isEyeUpdateable = false;
 	}
 
@@ -247,14 +241,14 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		//get location
 		mapUniforms(gl2, new String[]{
-				shaderVariableEyePosition,
-				shaderVariableMinVolumeValue,
-				shaderVariableMaxVolumeValue,
-				shaderVariableVolumeTexture,
-				shaderVariableColorTexture
+				shaderUniformVariableEyePosition,
+				shaderUniformVariableMinVolumeValue,
+				shaderUniformVariableMaxVolumeValue,
+				shaderUniformVariableVolumeTexture,
+				shaderUniformVariableColorTexture
 		});
 
-		int location = getLocation(shaderVariableVolumeTexture);
+		int location = getLocation(shaderUniformVariableVolumeTexture);
 		volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 		volumeTexture.genTexture(gl2);
 		volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
@@ -263,7 +257,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
 		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 
-		location = getLocation(shaderVariableColorTexture);
+		location = getLocation(shaderUniformVariableColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
 		colorTexture.genTexture(gl2);
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);

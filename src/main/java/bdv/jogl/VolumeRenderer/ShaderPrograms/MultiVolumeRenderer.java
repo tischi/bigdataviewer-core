@@ -3,24 +3,25 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
 import java.awt.Color;
-import java.io.File;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
+
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRendererShaderSource.*;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
+import com.jogamp.opengl.util.glsl.ShaderCode;
 
 
 /**
@@ -29,13 +30,6 @@ import com.jogamp.opengl.math.VectorUtil;
  *
  */
 public class MultiVolumeRenderer extends AbstractShaderSceneElement{
-
-	static {
-		Map<Integer, String> aMap = new HashMap<Integer, String>();
-		aMap.put(GL2.GL_VERTEX_SHADER, "glsl"+File.separator+"MultiVolumeRendererVertexShader.glsl");
-		aMap.put(GL2.GL_FRAGMENT_SHADER, "glsl"+File.separator+"MultiVolumeRendererFragmentShader.glsl");
-		shaderFiles = Collections.unmodifiableMap(aMap);
-	}	
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
@@ -55,7 +49,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private Matrix4 drawCubeTransformation = getNewIdentityMatrix();
 
+	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
 
+	public MultiVolumeRenderer(){
+		for(ShaderCode code:sources.getShaderCodes()){
+			shaderCodes.add(code);
+		}
+	}
 
 	private float[] calculateEyePositions(){
 		float eyePositionsObjectSpace[] = new float[3*maxNumberOfDataBlocks];
@@ -139,9 +139,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 					coordsInTextureSpace[i][j] /= coordsInTextureSpace[i][3];
 				}
 			}
-			
+
 			float currentLength = VectorUtil.distVec3(coordsInTextureSpace[0], coordsInTextureSpace[1]);
-			
+
 			length = Math.max(currentLength, length);
 		}
 		gl2.glUniform1f(getLocation(shaderUniformVariableMaxDiagonalLength), length);
@@ -189,7 +189,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float highPoint[] = {Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE};
 		float lowPoint[] = {Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE};
 
-		
+
 		for(int index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
 			float repesentantsToCheck[][] = {
@@ -404,7 +404,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		colorMap.putAll(newData);
 		isColorUpdateable = true;
 	}
-	
+
 	/**
 	 * @return the drawCubeTransformation
 	 */
