@@ -91,7 +91,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float [] eyePositions = calculateEyePositions();
 
 		//eye position
-		gl2.glUniform3fv(getLocation(shaderUniformVariableEyePosition), 
+		gl2.glUniform3fv(getLocation(suvEyePosition), 
 				sources.getMaxNumberOfVolumes(),eyePositions,0);
 
 		isEyeUpdateable = false;
@@ -144,7 +144,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 			length = Math.max(currentLength, length);
 		}
-		gl2.glUniform1f(getLocation(shaderUniformVariableMaxDiagonalLength), length);
+		gl2.glUniform1f(getLocation(suvMaxDiagonalLength), length);
 	}
 
 	private void updateActiveVolumes(GL2 gl2) {
@@ -161,7 +161,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		}
 		activeBuffers.rewind();
-		gl2.glUniform1iv(getLocation(shaderUniformVariableActiveVolumes),
+		gl2.glUniform1iv(getLocation(suvActiveVolumes),
 				activeBuffers.capacity(),activeBuffers);
 	}
 
@@ -175,7 +175,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			Matrix4 localInverse = copyMatrix(data.localTransformation);
 			localInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 			localInverse.invert();
-			gl2.glUniformMatrix4fv(getLocation(shaderUniformVariableLocalTransformation)+index,
+			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
 		}
 	}
@@ -223,7 +223,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//correct origo
 		drawCubeTransformation.translate(lowPoint[0], lowPoint[1], lowPoint[2]);
 		drawCubeTransformation.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
-		gl2.glUniformMatrix4fv(getLocation(shaderUniformVariableDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
+		gl2.glUniformMatrix4fv(getLocation(suvDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
 	}
 
 	private boolean updateTextureData(GL2 gl2){
@@ -260,8 +260,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//update values
 		if(somethingUpdated){
 			//min max
-			gl2.glUniform1f(getLocation(shaderUniformVariableMinVolumeValue), min);
-			gl2.glUniform1f(getLocation(shaderUniformVariableMaxVolumeValue), max);
+			gl2.glUniform1f(getLocation(suvMinVolumeValue), min);
+			gl2.glUniform1f(getLocation(suvMaxVolumeValue), max);
 		}
 		return somethingUpdated;
 	}
@@ -271,17 +271,17 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 
 		mapUniforms(gl2, new String[]{
-				shaderUniformVariableDrawCubeTransformation,
-				shaderUniformVariableLocalTransformation,
-				shaderUniformVariableActiveVolumes,
-				shaderUniformVariableEyePosition,
-				shaderUniformVariableMinVolumeValue,
-				shaderUniformVariableMaxVolumeValue,
-				shaderUniformVariableVolumeTexture,
-				shaderUniformVariableColorTexture,
-				shaderUniformVariableMaxDiagonalLength});
+				suvDrawCubeTransformation,
+				suvTextureTransformationInverse,
+				suvActiveVolumes,
+				suvEyePosition,
+				suvMinVolumeValue,
+				suvMaxVolumeValue,
+				suvVolumeTexture,
+				suvColorTexture,
+				suvMaxDiagonalLength});
 
-		int location = getLocation(shaderUniformVariableVolumeTexture);
+		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
 			Texture volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location+i,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 			volumeTexture.genTexture(gl2);
@@ -292,7 +292,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 			volumeTextureMap.put(i, volumeTexture);
 		}
-		location = getLocation(shaderUniformVariableColorTexture);
+		location = getLocation(suvColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
 		colorTexture.genTexture(gl2);
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);

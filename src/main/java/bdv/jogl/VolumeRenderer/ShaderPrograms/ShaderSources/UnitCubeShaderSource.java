@@ -10,7 +10,7 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 
 public class UnitCubeShaderSource extends AbstractShaderSource {
 
-	public static final String shaderUniformVariableColor = "inColor";
+	public static final String suvColor = "inColor";
 	
 	@Override
 	public Set<ShaderCode> getShaderCodes() {

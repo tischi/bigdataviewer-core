@@ -124,8 +124,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		//gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0);
 
 		//min max
-		gl2.glUniform1f(getLocation(shaderUniformVariableMinVolumeValue), data.minValue);
-		gl2.glUniform1f(getLocation(shaderUniformVariableMaxVolumeValue), data.maxValue);
+		gl2.glUniform1f(getLocation(suvMinVolumeValue), data.minValue);
+		gl2.glUniform1f(getLocation(suvMaxVolumeValue), data.maxValue);
 
 
 		data.setNeedsUpdate(false);
@@ -161,7 +161,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		float [] eyePosition = calculateEyePosition();
 
 		//eye position
-		gl2.glUniform3f(getLocation(shaderUniformVariableEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
+		gl2.glUniform3f(getLocation(suvEyePosition), eyePosition[0],eyePosition[1],eyePosition[2]);
 		isEyeUpdateable = false;
 	}
 
@@ -235,14 +235,14 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 		//get location
 		mapUniforms(gl2, new String[]{
-				shaderUniformVariableEyePosition,
-				shaderUniformVariableMinVolumeValue,
-				shaderUniformVariableMaxVolumeValue,
-				shaderUniformVariableVolumeTexture,
-				shaderUniformVariableColorTexture
+				suvEyePosition,
+				suvMinVolumeValue,
+				suvMaxVolumeValue,
+				suvVolumeTexture,
+				suvColorTexture
 		});
 
-		int location = getLocation(shaderUniformVariableVolumeTexture);
+		int location = getLocation(suvVolumeTexture);
 		volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 		volumeTexture.genTexture(gl2);
 		volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
@@ -251,7 +251,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
 		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
 
-		location = getLocation(shaderUniformVariableColorTexture);
+		location = getLocation(suvColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
 		colorTexture.genTexture(gl2);
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);

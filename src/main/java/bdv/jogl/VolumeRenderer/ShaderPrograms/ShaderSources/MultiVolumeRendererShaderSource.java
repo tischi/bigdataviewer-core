@@ -18,24 +18,24 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	private int maxNumberOfVolumes = 2;
 
 	//Vertex shader uniforms
-	public static final String shaderUniformVariableDrawCubeTransformation ="inDrawCubeTransformation";
+	public static final String suvDrawCubeTransformation ="inDrawCubeTransformation";
 
-	public static final String shaderUniformVariableLocalTransformation ="inTextureTransformationInverse";
+	public static final String suvLocalTransformation ="inTextureTransformationInverse";
 
 	//Fragment shader uniforms 
-	public static final String shaderUniformVariableActiveVolumes = "inActiveVolume";
+	public static final String suvActiveVolumes = "inActiveVolume";
 
-	public static final String shaderUniformVariableVolumeTexture = "inVolumeTexture";
+	public static final String suvVolumeTexture = "inVolumeTexture";
 
-	public static final String shaderUniformVariableColorTexture = "inColorTexture";
+	public static final String suvColorTexture = "inColorTexture";
 
-	public static final String shaderUniformVariableEyePosition = "inEyePosition";
+	public static final String suvEyePosition = "inEyePosition";
 
-	public static final String shaderUniformVariableMinVolumeValue = "inMinVolumeValue";
+	public static final String suvMinVolumeValue = "inMinVolumeValue";
 
-	public static final String shaderUniformVariableMaxVolumeValue = "inMaxVolumeValue";
+	public static final String suvMaxVolumeValue = "inMaxVolumeValue";
 
-	public static final String shaderUniformVariableMaxDiagonalLength = "inMaxDiagonalLength";
+	public static final String suvMaxDiagonalLength = "inMaxDiagonalLength";
 
 	/**
 	 * @return the maxNumberOfVolumes

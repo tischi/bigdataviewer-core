@@ -169,9 +169,9 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.useProgram(gl2, true);
 
 		//memcopy
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderUniformVariableProjectionMatrix), 1, false, projection.getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderUniformVariableViewMatrix), 1, false, view.getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(shaderUniformVariableModelMatrix), 1, false, modelTransformations.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvProjectionMatrix), 1, false, projection.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvViewMatrix), 1, false, view.getMatrix(),0);
+		gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvModelMatrix), 1, false, modelTransformations.getMatrix(),0);
 		updateShaderAttributesSubClass(gl2);
 
 		shaderProgram.useProgram(gl2, false);
@@ -194,11 +194,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		//get ids
 		mapUniforms(gl2, new String[]{
-				shaderUniformVariableProjectionMatrix,
-				shaderUniformVariableViewMatrix,
-				shaderUniformVariableModelMatrix});
+				suvProjectionMatrix,
+				suvViewMatrix,
+				suvModelMatrix});
 
-		mapAvertexAttributs(gl2, new String[]{shaderAttributePosition});
+		mapAvertexAttributs(gl2, new String[]{satPosition});
 
 		generateIdMappingSubClass(gl2);
 
@@ -244,7 +244,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 		position = new VertexAttribute(
 				gl2, 
-				getLocation(shaderAttributePosition), 
+				getLocation(satPosition), 
 				GL2.GL_FLOAT, 3, Buffers.SIZEOF_FLOAT);
 		
 		position.allocateAttributes(gl2, getVertexBufferSize());

@@ -18,15 +18,15 @@ public abstract class AbstractShaderSource {
 	
 	private int shaderLanguageVersion = 130;
 	
-	//default vertex shader attributes
-	public static String shaderAttributePosition = "inPosition";
+	//default vertex shader attributes (sat)
+	public static String satPosition = "inPosition";
 	
-	//default vertex shader uniforms
-	public static final String shaderUniformVariableProjectionMatrix = "inProjection";
+	//default vertex shader uniforms (suv = shader uniform variable)
+	public static final String suvProjectionMatrix = "inProjection";
 
-	public static final String shaderUniformVariableViewMatrix = "inView";
+	public static final String suvViewMatrix = "inView";
 
-	public static final String shaderUniformVariableModelMatrix = "inModel";
+	public static final String suvModelMatrix = "inModel";
 	
 	/**
 	 * Retruns all shader codes build from the specific source.

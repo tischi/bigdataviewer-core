@@ -11,15 +11,15 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 
 public class SingleVolumeRendererShaderSources extends AbstractShaderSource {
 
-	public static final String shaderUniformVariableVolumeTexture = "inVolumeTexture";
+	public static final String suvVolumeTexture = "inVolumeTexture";
 
-	public static final String shaderUniformVariableColorTexture = "inColorTexture";
+	public static final String suvColorTexture = "inColorTexture";
 
-	public static final String shaderUniformVariableEyePosition = "inEyePosition";
+	public static final String suvEyePosition = "inEyePosition";
 
-	public static final String shaderUniformVariableMinVolumeValue = "inMinVolumeValue";
+	public static final String suvMinVolumeValue = "inMinVolumeValue";
 
-	public static final String shaderUniformVariableMaxVolumeValue = "inMaxVolumeValue";
+	public static final String suvMaxVolumeValue = "inMaxVolumeValue";
 
 
 	@Override
