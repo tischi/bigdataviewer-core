@@ -1,5 +1,7 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import com.jogamp.opengl.util.glsl.ShaderCode;
@@ -11,6 +13,8 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
  *
  */
 public abstract class AbstractShaderSource {
+	
+	private List<ISourceListener> sourceListeners = new LinkedList<ISourceListener>();
 
 	//default vertex shader attributes
 	public static String shaderAttributePosition = "inPosition";
@@ -27,4 +31,19 @@ public abstract class AbstractShaderSource {
 	 * @return
 	 */
 	public abstract Set<ShaderCode> getShaderCodes();
+	
+	/**
+	 * adds a source listener
+	 * @param listener
+	 */
+	public void addSourceListener(ISourceListener listener){
+		sourceListeners.add(listener);
+	}
+	
+	/**
+	 * clears all source listeners
+	 */
+	public void clearSourceListeners(){
+		sourceListeners.clear();
+	}
 }
