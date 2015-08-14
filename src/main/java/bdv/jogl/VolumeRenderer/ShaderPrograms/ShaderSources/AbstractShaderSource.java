@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources;
 
 import java.util.Set;
 

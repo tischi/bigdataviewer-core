@@ -17,7 +17,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 
-import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRendererShaderSource;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 
 public class MultiVolumeRendererShaderSourceTest {
 

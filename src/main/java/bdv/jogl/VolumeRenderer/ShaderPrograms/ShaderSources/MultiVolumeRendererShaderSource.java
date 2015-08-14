@@ -1,7 +1,9 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderCode;
@@ -42,14 +44,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	}
 
 
-
-	private void appendNewLines(String[] shaderCode){
-		for(int i = 0; i < shaderCode.length; i++){
-			   
-			shaderCode[i] = new String(shaderCode[i] + System.lineSeparator());
-		}
-	}
-	
 	private String[] vertexShaderCode() {
 		String[] shaderCode ={
 				"#version 130",
