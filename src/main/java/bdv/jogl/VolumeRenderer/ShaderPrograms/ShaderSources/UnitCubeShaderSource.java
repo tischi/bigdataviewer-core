@@ -10,6 +10,8 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 
 public class UnitCubeShaderSource extends AbstractShaderSource {
 
+	private static final String svFragmentColor = "fragmentColor";
+	
 	public static final String suvColor = "inColor";
 	
 	@Override
@@ -23,21 +25,21 @@ public class UnitCubeShaderSource extends AbstractShaderSource {
 	private String[] vertexShaderCode(){
 		String[] code={
 				"#version "+getShaderLanguageVersion(),
-				"in vec3 inPosition;",
-				"uniform vec4 inColor;",
-				"out vec4 fragmentColor;",
-				"uniform mat4x4 inView;",
-				"uniform mat4x4 inProjection;",
-				"uniform mat4x4 inModel;",
+				"",
+				"uniform mat4x4 "+suvProjectionMatrix+";",
+				"uniform mat4x4 "+suvViewMatrix+";",
+				"uniform mat4x4 "+suvModelMatrix+";",
+				"uniform vec4 "+suvColor+";",
+				"",
+				"in vec3 "+satPosition+";",
+				"out vec4 "+svFragmentColor+";",
 				"",
 				"void main()",
 				"{",
-				"	vec4 position4d = vec4(inPosition.xyz,1.f);",
+				"	vec4 position4d = vec4("+satPosition+".xyz,1.f);",
 				"",
-				"	gl_Position =inProjection *  inView *inModel * position4d;",
-				"	//outPosition =inView * inProjection *inView * inModel * position4d;",
-				"	fragmentColor = inColor;",
-				"	//gl_Position = vec4(inPosition,1.f);",
+				"	gl_Position ="+suvProjectionMatrix+" * "+suvViewMatrix+" * "+suvModelMatrix+" * position4d;",
+				"	"+svFragmentColor+" = "+suvColor+";",
 				"}"
 		};
 		appendNewLines(code);
@@ -47,12 +49,12 @@ public class UnitCubeShaderSource extends AbstractShaderSource {
 	private String[] fragmentShaderCode(){
 		String[] code={
 				"#version "+getShaderLanguageVersion(),
-				"in vec4 fragmentColor;",
+				"in vec4 "+svFragmentColor+";",
 				"out vec4 color;",
 				"",
 				"void main(void)",
 				"{",	
-				"	color = fragmentColor;",
+				"	color = "+svFragmentColor+";",
 				"}"
 		};
 		appendNewLines(code);

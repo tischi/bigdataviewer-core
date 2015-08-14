@@ -17,13 +17,15 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	private int maxNumberOfVolumes = 2;
 
+	private static final String svTextureCoordinate = "textureCoordinate";
+	
 	//Vertex shader uniforms
 	public static final String suvDrawCubeTransformation ="inDrawCubeTransformation";
 
-	public static final String suvLocalTransformation ="inTextureTransformationInverse";
+	public static final String suvTextureTransformationInverse ="inTextureTransformationInverse";
 
 	//Fragment shader uniforms 
-	public static final String suvActiveVolumes = "inActiveVolume";
+	public static final String suvActiveVolumes = "inActiveVolumes";
 
 	public static final String suvVolumeTexture = "inVolumeTexture";
 
@@ -68,28 +70,28 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"const int maxNumberOfData = "+maxNumberOfVolumes+";",
 				"",
-				"uniform mat4x4 inView;",
-				"uniform mat4x4 inProjection;",
-				"uniform mat4x4 inModel;",
-				"uniform mat4x4 inDrawCubeTransformation;",
-				"uniform mat4x4 inTextureTransformationInverse[maxNumberOfData];",
+				"uniform mat4x4 "+suvViewMatrix+";",
+				"uniform mat4x4 "+suvProjectionMatrix+";",
+				"uniform mat4x4 "+suvModelMatrix+";",
+				"uniform mat4x4 "+suvDrawCubeTransformation+";",
+				"uniform mat4x4 "+suvTextureTransformationInverse+"[maxNumberOfData];",
 				"",
-				"in vec3 inPosition;",
-				"out vec3 textureCoord[maxNumberOfData];",
+				"in vec3 "+satPosition+";",
+				"out vec3 "+svTextureCoordinate+"[maxNumberOfData];",
 				"",
 				"void main(){",
 				"",
-				"	vec4 position4d = vec4(inPosition.xyz,1.f);",
+				"	vec4 position4d = vec4("+satPosition+".xyz,1.f);",
 				"",
-				"	vec4 positionInGlobalSpace = inDrawCubeTransformation * position4d;",
+				"	vec4 positionInGlobalSpace = "+suvDrawCubeTransformation+" * position4d;",
 				"",
 				"	//calculate transformed texture coordinates",
 				"	for(int i =0; i<maxNumberOfData; i++ ){",
-				"		vec4 transformed = inTextureTransformationInverse[i] * positionInGlobalSpace;",
-				"		textureCoord[i] = transformed.xyz/transformed.w;",
+				"		vec4 transformed = "+suvTextureTransformationInverse+"[i] * positionInGlobalSpace;",
+				"		"+svTextureCoordinate+"[i] = transformed.xyz/transformed.w;",
 				"	}",
 				"",
-				"	gl_Position =inProjection * inView * inModel * positionInGlobalSpace;",
+				"	gl_Position ="+suvProjectionMatrix+" * "+suvViewMatrix+" * "+suvModelMatrix+" * positionInGlobalSpace;",
 				"}",
 
 		};
@@ -104,15 +106,15 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"const int maxInt = "+Integer.MAX_VALUE+";",
 				"const float val_threshold =1;",
 				"",
-				"uniform int inActiveVolume[maxNumberOfData];",
-				"uniform float inMaxVolumeValue;",
-				"uniform float inMinVolumeValue;",
-				"uniform vec3 inEyePosition[maxNumberOfData];",
-				"uniform sampler3D inVolumeTexture[maxNumberOfData];",
-				"uniform sampler1D inColorTexture;",
-				"uniform float inMaxDiagonalLength ;",
+				"uniform int "+suvActiveVolumes+"[maxNumberOfData];",
+				"uniform float "+suvMaxVolumeValue+";",
+				"uniform float "+suvMinVolumeValue+";",
+				"uniform vec3 "+suvEyePosition+"[maxNumberOfData];",
+				"uniform sampler3D "+suvVolumeTexture+"[maxNumberOfData];",
+				"uniform sampler1D "+suvColorTexture+";",
+				"uniform float "+suvMaxDiagonalLength+" ;",
 				"",
-				"in vec3 textureCoord[maxNumberOfData];",
+				"in vec3 "+svTextureCoordinate+"[maxNumberOfData];",
 				"out vec4 fragmentColor;",
 				"",
 				"int getStepsInVolume(float stepsSize, vec3 position, vec3 direction){",
@@ -135,15 +137,15 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"void main(void)",
 				"{",	
 				"	const int samples = 256;",
-				"	float sample_step =inMaxDiagonalLength/float(samples);",
+				"	float sample_step ="+suvMaxDiagonalLength+"/float(samples);",
 				"	const float brightness = 150.0f;",
 				"",	
 				"	fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);",
-				"	float volumeNormalizeFactor = 1.f/ (inMaxVolumeValue-inMinVolumeValue+0.01);",
+				"	float volumeNormalizeFactor = 1.f/ ("+suvMaxVolumeValue+"-"+suvMinVolumeValue+"+0.01);",
 				"",
 				"	for(int n = 0; n < maxNumberOfData; n++){",
-				"    	vec3 ray_dir = normalize(textureCoord[n] - inEyePosition[n] );",
-				"    	vec3 ray_pos = textureCoord[n]; // the current ray position",
+				"    	vec3 ray_dir = normalize("+svTextureCoordinate+"[n] - "+suvEyePosition+"[n] );",
+				"    	vec3 ray_pos = "+svTextureCoordinate+"[n]; // the current ray position",
 				"",
 				" 	 	vec4 color;",
 				"",
@@ -163,11 +165,11 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"        	// - we assume the volume has a cube-like shape",
 				"",
 				"        	// break out if ray reached the end of the cube.",
-				"        	density = (texture(inVolumeTexture[n], ray_pos).r-inMinVolumeValue) *volumeNormalizeFactor;",
+				"        	density = (texture("+suvVolumeTexture+"[n], ray_pos).r-"+suvMinVolumeValue+") *volumeNormalizeFactor;",
 				"",
 				"",
-				"        	color.rgb = texture(inColorTexture, density).rgb;",
-				"        	color.a   = texture(inColorTexture, density).a /*density*/ * sample_step * val_threshold * brightness;",
+				"        	color.rgb = texture("+suvColorTexture+", density).rgb;",
+				"        	color.a   = texture("+suvColorTexture+", density).a /*density*/ * sample_step * val_threshold * brightness;",
 				"        	fragmentColor.rgb = fragmentColor.rgb * (1.0 - color.a) + color.rgb * color.a;",
 				"			ray_pos += ray_dir * sample_step;",  	
 				"    	}",

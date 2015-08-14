@@ -19,7 +19,7 @@ public abstract class AbstractShaderSource {
 	private int shaderLanguageVersion = 130;
 	
 	//default vertex shader attributes (sat)
-	public static String satPosition = "inPosition";
+	public static final String satPosition = "inPosition";
 	
 	//default vertex shader uniforms (suv = shader uniform variable)
 	public static final String suvProjectionMatrix = "inProjection";
