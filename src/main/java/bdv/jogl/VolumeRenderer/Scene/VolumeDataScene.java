@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.algorithm.stats.Min;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.view.Views;
 import bdv.BigDataViewer;
@@ -24,7 +23,6 @@ import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 
-import bdv.viewer.Source;
 import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;

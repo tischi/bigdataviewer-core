@@ -222,23 +222,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 			}
 			shaderProgram.add(code);
 		}
-		/*for(int key : shaderFiles.keySet()){
-			String[] files = {shaderFiles.get(key)};
-			shaderCodes.put(key,ShaderCode.create(gl2,key , 
-					1, this.getClass(), files,
-					false));
-
-			shaderCodes.get(key).compile(gl2,System.err);
-
-			//valid shader?
-			if(!shaderCodes.get(key).isValid()){
-				throw new IllegalArgumentException("No valid shader code in "+ shaderFiles.get(key));
-			}
-
-			shaderProgram.add(shaderCodes.get(key));
-
-		}*/
-
+		
 		//link program
 		shaderProgram.link(gl2, System.err);
 

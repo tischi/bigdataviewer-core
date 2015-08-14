@@ -4,13 +4,7 @@ import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeR
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
 import java.awt.Color;
-import java.io.File;
 import java.nio.FloatBuffer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
