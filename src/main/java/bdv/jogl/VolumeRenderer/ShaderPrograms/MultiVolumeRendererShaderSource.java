@@ -43,6 +43,13 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 
 
 
+	private void appendNewLines(String[] shaderCode){
+		for(int i = 0; i < shaderCode.length; i++){
+			   
+			shaderCode[i] = new String(shaderCode[i] + System.lineSeparator());
+		}
+	}
+	
 	private String[] vertexShaderCode() {
 		String[] shaderCode ={
 				"#version 130",
@@ -71,8 +78,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	}",
 				"",
 				"	gl_Position =inProjection * inView * inModel * positionInGlobalSpace;",
-				"}"
+				"}",
+			
 		};
+		appendNewLines(shaderCode);
 		return shaderCode;
 	}
 
@@ -153,6 +162,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"   }",
 				"	fragmentColor = vec4 (fragmentColor.rgb,0.1);", 
 		"}"};
+		appendNewLines(shaderCode);
 		return shaderCode;
 	}
 
