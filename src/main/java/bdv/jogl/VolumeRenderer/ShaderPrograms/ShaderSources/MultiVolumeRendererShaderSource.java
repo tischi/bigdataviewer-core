@@ -14,7 +14,7 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
  *
  */
 public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
-
+	
 	private int maxNumberOfVolumes = 2;
 
 	//Vertex shader uniforms
@@ -50,6 +50,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	 */
 	public void setMaxNumberOfVolumes(int maxNumberOfVolumes) {
 		this.maxNumberOfVolumes = maxNumberOfVolumes;
+		notifySourceCodeChanged();
 	}
 
 
@@ -61,10 +62,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		return codes;
 	}
 
-
 	private String[] vertexShaderCode() {
 		String[] shaderCode ={
-				"#version 130",
+				"#version "+getShaderLanguageVersion(),
 				"",
 				"const int maxNumberOfData = "+maxNumberOfVolumes+";",
 				"",
@@ -99,9 +99,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 
 	private String[] fragmentShaderCode(){
 		String[] shaderCode = {
-				"#version 130",
+				"#version "+getShaderLanguageVersion(),
 				"const int maxNumberOfData = "+maxNumberOfVolumes+";",
-				"const int maxInt = 9999;",
+				"const int maxInt = "+Integer.MAX_VALUE+";",
 				"const float val_threshold =1;",
 				"",
 				"uniform int inActiveVolume[maxNumberOfData];",

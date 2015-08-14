@@ -22,7 +22,7 @@ public class UnitCubeShaderSource extends AbstractShaderSource {
 
 	private String[] vertexShaderCode(){
 		String[] code={
-				"#version 130",
+				"#version "+getShaderLanguageVersion(),
 				"in vec3 inPosition;",
 				"uniform vec4 inColor;",
 				"out vec4 fragmentColor;",
@@ -46,7 +46,7 @@ public class UnitCubeShaderSource extends AbstractShaderSource {
 	
 	private String[] fragmentShaderCode(){
 		String[] code={
-				"#version 130",
+				"#version "+getShaderLanguageVersion(),
 				"in vec4 fragmentColor;",
 				"out vec4 color;",
 				"",

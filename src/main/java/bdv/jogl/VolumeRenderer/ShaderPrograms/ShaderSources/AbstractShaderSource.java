@@ -15,7 +15,9 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 public abstract class AbstractShaderSource {
 	
 	private List<ISourceListener> sourceListeners = new LinkedList<ISourceListener>();
-
+	
+	private int shaderLanguageVersion = 130;
+	
 	//default vertex shader attributes
 	public static String shaderAttributePosition = "inPosition";
 	
@@ -45,5 +47,29 @@ public abstract class AbstractShaderSource {
 	 */
 	public void clearSourceListeners(){
 		sourceListeners.clear();
+	}
+	
+	/**
+	 * @return the shaderLanguageVersion
+	 */
+	public int getShaderLanguageVersion() {
+		return shaderLanguageVersion;
+	}
+
+	/**
+	 * @param shaderLanguageVersion the shaderLanguageVersion to set
+	 */
+	public void setShaderLanguageVersion(int shaderLanguageVersion) {
+		this.shaderLanguageVersion = shaderLanguageVersion;
+		notifySourceCodeChanged();
+	}
+	
+	/**
+	 * notifies the listeners for source changes
+	 */
+	protected void notifySourceCodeChanged(){
+		for (ISourceListener listener: sourceListeners){
+			listener.sourceCodeChanged();
+		}
 	}
 }

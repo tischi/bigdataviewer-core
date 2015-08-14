@@ -21,7 +21,7 @@ public class SingleVolumeRendererShaderSources extends AbstractShaderSource {
 
 	public static final String shaderUniformVariableMaxVolumeValue = "inMaxVolumeValue";
 
-	
+
 	@Override
 	public Set<ShaderCode> getShaderCodes() {
 		Set<ShaderCode> codes = new HashSet<ShaderCode>();
@@ -32,7 +32,7 @@ public class SingleVolumeRendererShaderSources extends AbstractShaderSource {
 
 	private String[] vertexShaderCode(){
 		String[] code={
-				"#version 130",
+				"#version "+ getShaderLanguageVersion(),
 				"in vec3 inPosition;",
 				"out vec4 fragmentColor;",
 				"uniform mat4x4 inView;",
@@ -51,10 +51,10 @@ public class SingleVolumeRendererShaderSources extends AbstractShaderSource {
 		appendNewLines(code);
 		return code;
 	}
-	
+
 	private String[] fragmentShaderCode(){
 		String[] code={
-				"#version 130",
+				"#version "+getShaderLanguageVersion(),
 				"//http://www.visualizationlibrary.org/documentation/pag_guide_raycast_volume.html",
 				"uniform sampler3D inVolumeTexture;",
 				"uniform sampler1D inColorTexture;",
