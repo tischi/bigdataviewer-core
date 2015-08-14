@@ -1,9 +1,12 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.GetMaxStepsFunction;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderCode;
@@ -14,11 +17,13 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
  *
  */
 public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
-	
-	private int maxNumberOfVolumes = 2;
 
-	private static final String svTextureCoordinate = "textureCoordinate";
+	private int maxNumberOfVolumes = 2;
 	
+	private final GetMaxStepsFunction stepsFunction = new GetMaxStepsFunction(); 
+	
+	private static final String svTextureCoordinate = "textureCoordinate";
+
 	//Vertex shader uniforms
 	public static final String suvDrawCubeTransformation ="inDrawCubeTransformation";
 
@@ -100,7 +105,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	}
 
 	private String[] fragmentShaderCode(){
-		String[] shaderCode = {
+		List<String> code = new ArrayList<String>();
+		String[] head = {
 				"#version "+getShaderLanguageVersion(),
 				"const int maxNumberOfData = "+maxNumberOfVolumes+";",
 				"const int maxInt = "+Integer.MAX_VALUE+";",
@@ -116,22 +122,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"in vec3 "+svTextureCoordinate+"[maxNumberOfData];",
 				"out vec4 fragmentColor;",
-				"",
-				"int getStepsInVolume(float stepsSize, vec3 position, vec3 direction){",
-				"	//infinite steps ;)",
-				"	int steps = maxInt;",
-				"",	
-				"	vec3 targetPoint = max(sign(direction),vec3(0,0,0));",
-				"	vec3 differenceVector = targetPoint - position;",
-				"	vec3 stepsInDirections = differenceVector / (direction * stepsSize);",
-				"	for(int i =0; i< 3; i++){",
-				"		if(stepsInDirections[i] < steps){",
-				"			steps = int(stepsInDirections[i])+1;",
-				"		}",
-				"",	
-				"	}",
-				"	return steps;",
-				"}",
+		""};
+
+		String[] body ={
 				"",
 				"",
 				"void main(void)",
@@ -150,7 +143,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				" 	 	vec4 color;",
 				"",
 				"",   
-				"    	int steps =  getStepsInVolume(sample_step,ray_pos,ray_dir);",
+				"    	int steps =  "+stepsFunction.call(new String[]{"sample_step","ray_pos","ray_dir"})+";",
 				"    	if(steps > samples){",
 				"    		steps = samples;",
 				"  		}",    
@@ -176,8 +169,13 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"   }",
 				"	fragmentColor = vec4 (fragmentColor.rgb,0.1);", 
 		"}"};
-		appendNewLines(shaderCode);
-		return shaderCode;
+		addCodeArrayToList(head, code);
+		addCodeArrayToList(stepsFunction.declaration(), code);
+		addCodeArrayToList(body, code);
+		String[] codeArray = new String[code.size()];
+		code.toArray(codeArray);
+		appendNewLines(codeArray);
+		return codeArray;
 	}
 
 }
