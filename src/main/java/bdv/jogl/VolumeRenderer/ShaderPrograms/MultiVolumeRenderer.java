@@ -33,8 +33,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
-	private final int maxNumberOfDataBlocks = 2;
-
 	private final Map<Integer,VolumeDataBlock> dataValues = new HashMap<Integer, VolumeDataBlock>();
 
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
@@ -58,13 +56,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private float[] calculateEyePositions(){
-		float eyePositionsObjectSpace[] = new float[3*maxNumberOfDataBlocks];
+		final int maxNumVolumes = sources.getMaxNumberOfVolumes();
+		float eyePositionsObjectSpace[] = new float[3*maxNumVolumes];
 
 		Matrix4 globalTransformation = getNewIdentityMatrix();
 		globalTransformation.multMatrix(getView());
 		globalTransformation.multMatrix(getModelTransformation());
 
-		for(int i =0; i< maxNumberOfDataBlocks;i++){
+		for(int i =0; i< maxNumVolumes;i++){
 			int fieldOffset = 3*i;
 			if(!getVolumeDataMap().containsKey(i)){
 				break;
@@ -92,7 +91,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float [] eyePositions = calculateEyePositions();
 
 		//eye position
-		gl2.glUniform3fv(getLocation(shaderUniformVariableEyePosition), maxNumberOfDataBlocks,eyePositions,0);
+		gl2.glUniform3fv(getLocation(shaderUniformVariableEyePosition), 
+				sources.getMaxNumberOfVolumes(),eyePositions,0);
 
 		isEyeUpdateable = false;
 	}
@@ -148,9 +148,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private void updateActiveVolumes(GL2 gl2) {
-		IntBuffer activeBuffers = Buffers.newDirectIntBuffer(maxNumberOfDataBlocks);
+		IntBuffer activeBuffers = Buffers.newDirectIntBuffer(sources.getMaxNumberOfVolumes());
 		activeBuffers.rewind();
-		for(int i = 0; i<maxNumberOfDataBlocks;i++){
+		for(int i = 0; i<sources.getMaxNumberOfVolumes();i++){
 			int active; 
 			if(getVolumeDataMap().containsKey(i)){
 				active=1;
@@ -282,7 +282,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				shaderUniformVariableMaxDiagonalLength});
 
 		int location = getLocation(shaderUniformVariableVolumeTexture);
-		for(int i =0; i< maxNumberOfDataBlocks; i++){
+		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
 			Texture volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location+i,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
 			volumeTexture.genTexture(gl2);
 			volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
