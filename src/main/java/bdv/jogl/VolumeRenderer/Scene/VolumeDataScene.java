@@ -50,9 +50,9 @@ public class VolumeDataScene extends AbstractScene{
 	private int latestRenderTimePoint = -1;
 
 	private int currentActiveSource = -1;
-	
+
 	//private UnitCube boundingVolume =new UnitCube();
-	
+
 	//TODO move out
 	private TransferFunctionPanel1D tfpanel = null;
 
@@ -97,7 +97,7 @@ public class VolumeDataScene extends AbstractScene{
 
 
 	private void cleanUpSceneElements(){
-	//	volumeBorders.clear();
+		//	volumeBorders.clear();
 		volumeRenderes.clear();
 	}
 
@@ -234,8 +234,8 @@ public class VolumeDataScene extends AbstractScene{
 
 
 	private void initBoundingVolumeCube(GL2 gl2) {
-	/*	addSceneElement(boundingVolume);
-	
+		/*	addSceneElement(boundingVolume);
+
 		boundingVolume.init(gl2);
 		boundingVolume.setRenderWireframe(true);
 		boundingVolume.setColor(Color.yellow);*/
@@ -266,8 +266,8 @@ public class VolumeDataScene extends AbstractScene{
 			AffineTransform3D sourceTransform3D = new AffineTransform3D();
 			source.getSpimSource().getSourceTransform(currentTimepoint, midMapLevel, sourceTransform3D);
 			Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
-			
-			
+
+
 			//block size
 			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
 			long[] min =  new long[3];
@@ -281,34 +281,34 @@ public class VolumeDataScene extends AbstractScene{
 			scale.scale(dim[0], dim[1], dim[2]);
 
 
-			
+
 			Matrix4 modelMatrix = getNewIdentityMatrix();
 			modelMatrix=copyMatrix(globalModelTransformation);
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
 			cubeShader.setModelTransformation(modelMatrix);
-			
-			
+
+
 			//no inactive sources
 			if(single){
-			if(!source.isCurrent()){
-				continue;
+				if(!source.isCurrent()){
+					continue;
+				}
 			}
-			}
-	
+
 			if(latestRenderTimePoint != currentTimepoint || 
 					!multiVolumeRenderer.getVolumeDataMap().containsKey(i)){
-			/*float[] values = VolumeDataUtils.getDataBlock(ssource);
+				/*float[] values = VolumeDataUtils.getDataBlock(ssource);
 			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
 			if(1==1)
 				throw new NullPointerException();*/
-			latestRenderTimePoint = currentTimepoint;
-			currentActiveSource = i;
-			VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
+				latestRenderTimePoint = currentTimepoint;
+				currentActiveSource = i;
+				VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
 
 
 
-				
+
 				data.localTransformation =sourceTransformation;
 				if(single){
 					volumeRenderes.get(0).setModelTransformation(modelMatrix);
@@ -323,7 +323,7 @@ public class VolumeDataScene extends AbstractScene{
 
 		if(!single){
 			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
-		/*	multiVolumeRenderer.update(gl2);
+			/*	multiVolumeRenderer.update(gl2);
 			Matrix4 model = copyMatrix(multiVolumeRenderer.getModelTransformation());
 			model.multMatrix(multiVolumeRenderer.getDrawCubeTransformation());
 			boundingVolume.setModelTransformation(model);*/
