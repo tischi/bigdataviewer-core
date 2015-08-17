@@ -2,6 +2,7 @@ package bdv.jogl.VolumeRenderer.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -56,11 +57,10 @@ public class TransferFunctionPanel1D extends JPanel {
 	}
 
 	private void initWindow() {
-		setSize(200, 100);
+		setSize(640, 100);
 		setPreferredSize(getSize());
 		setMinimumSize(getSize());
 		setMaximumSize(getSize());
-		
 	}
 
 	

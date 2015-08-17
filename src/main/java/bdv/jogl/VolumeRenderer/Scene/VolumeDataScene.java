@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -19,6 +21,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
@@ -85,7 +88,13 @@ public class VolumeDataScene extends AbstractScene{
 		tfWindow = new JFrame();
 		tfWindow.setTitle("Transfer function configurations");
 		tfWindow.setSize(640, 100);
-		tfWindow.getContentPane().add(tfpanel);
+		JPanel mainPanel  = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		
+		mainPanel.add(tfpanel);
+		mainPanel.add(new TransferFunctionDataPanel());
+		tfWindow.getContentPane().add(mainPanel);
+		tfWindow.pack();
 		tfWindow.setVisible(true);
 	}
 
