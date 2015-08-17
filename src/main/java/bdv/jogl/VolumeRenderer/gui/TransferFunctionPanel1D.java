@@ -187,10 +187,4 @@ public class TransferFunctionPanel1D extends JPanel {
 		
 		paintPoints(g);
 	} 
-
-
-
-
-
-
 }
