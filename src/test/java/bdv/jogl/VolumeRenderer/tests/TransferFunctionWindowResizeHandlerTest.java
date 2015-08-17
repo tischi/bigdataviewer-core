@@ -4,9 +4,11 @@ import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -17,8 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
-
+import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionWindowResizeHandler;
 
 public class TransferFunctionWindowResizeHandlerTest {
@@ -27,9 +28,7 @@ public class TransferFunctionWindowResizeHandlerTest {
 	
 	private Dimension[] testSizes;
 	
-	private TreeMap<Integer, Integer> testPointMap;
-	
-	private TreeMap<Integer, Color> testColorMap;
+	private TransferFunction1D testTransferFunction;
 	
 	private TransferFunctionWindowResizeHandler objectUnderTest;
 	
@@ -69,13 +68,15 @@ public class TransferFunctionWindowResizeHandlerTest {
 	
 	@Before
 	public void setup(){
-		testPointMap = new TreeMap<Integer, Integer>();
-		testColorMap = new TreeMap<Integer, Color>();
+		Dimension testBeginSize = new Dimension(73,83 );
+		testPanel = new JPanel();
+		testPanel.setSize(testBeginSize);
+		testTransferFunction = new TransferFunction1D(testBeginSize.width, testBeginSize.height);
 		testSizes = new Dimension[]{new Dimension(51,101),new Dimension(104,17),
 				new Dimension(11,1000),new Dimension(640,480),new Dimension(200,100)};
 		
 		
-		testPanel = new JPanel();
+		
 	}
 	
 	private void pointBorderTests(Dimension size) throws InterruptedException{
@@ -85,11 +86,13 @@ public class TransferFunctionWindowResizeHandlerTest {
 		Boolean check = sync.poll(1, TimeUnit.SECONDS);
 		assertTrue(check);
 		
-		assertTrue(testPointMap.containsKey(0));
-		assertEquals(0, testPointMap.get(0).intValue());
+		TreeSet<Point> points = testTransferFunction.getFunctionPoints();
 		
-		assertTrue("schearched for: " +size.width+" in: "+testPointMap,testPointMap.containsKey(size.width));
-		assertEquals(size.height, testPointMap.get(size.width).intValue());
+		Point searchPoint = new Point(0,0);
+		assertTrue(points.contains(searchPoint));
+		
+		searchPoint = new Point(size.width,size.height);
+		assertTrue("schearched for: " +searchPoint,points.contains(searchPoint));
 	}
 	
 	private void colorBorderTests(Dimension size) throws InterruptedException{
@@ -99,19 +102,22 @@ public class TransferFunctionWindowResizeHandlerTest {
 		Boolean check = sync.poll(1, TimeUnit.SECONDS);
 		assertTrue(check);
 		
-		assertTrue(testColorMap.containsKey(0));
-		assertEquals(Color.BLUE, testColorMap.get(0));
+		TreeMap<Point, Color> colors = testTransferFunction.getColors();
 		
-		assertTrue("schearched for: " +size.width+" in: "+testColorMap,testColorMap.containsKey(size.width));
-		assertEquals(Color.RED, testColorMap.get(size.width));
+		Point searchPoint = new Point(0,0);
+		assertTrue(colors.containsKey(searchPoint));
+		assertEquals(Color.BLUE, colors.get(searchPoint));
+		
+		searchPoint = new Point(size.width,size.height);
+		assertTrue("schearched for: " +searchPoint+ " in " +colors,colors.containsKey(searchPoint));
+		assertEquals(Color.RED, colors.get(searchPoint));
 	}
 	@Test
 	public void borderPointsTest() throws InterruptedException {
-		Dimension testBeginSize = new Dimension(73,83 );
-		testPanel.setSize(testBeginSize);
-		testPointMap.put(0,0);
-		testPointMap.put(testPanel.getWidth(), testPanel.getHeight());
-		objectUnderTest = new TransferFunctionWindowResizeHandler(testPanel.getSize(), testColorMap, testPointMap);
+
+		testTransferFunction.addFunctionPoint(new Point(0,0));
+		testTransferFunction.addFunctionPoint(new Point(testPanel.getWidth(), testPanel.getHeight()));
+		objectUnderTest = new TransferFunctionWindowResizeHandler(testPanel.getSize(), testTransferFunction);
 		testPanel.addComponentListener(objectUnderTest);
 		testPanel.addComponentListener(syncListener);
 		
@@ -126,9 +132,9 @@ public class TransferFunctionWindowResizeHandlerTest {
 	public void borderColorTest() throws InterruptedException{
 		Dimension testBeginSize = new Dimension(73,83 );
 		testPanel.setSize(testBeginSize);
-		testColorMap.put(0,Color.BLUE);
-		testColorMap.put(testPanel.getWidth(),Color.red);
-		objectUnderTest = new TransferFunctionWindowResizeHandler(testPanel.getSize(), testColorMap, testPointMap);
+		testTransferFunction.setColor(new Point(0,0),Color.BLUE);
+		testTransferFunction.setColor(new Point(testPanel.getWidth(),testPanel.getHeight()),Color.red);
+		objectUnderTest = new TransferFunctionWindowResizeHandler(testPanel.getSize(), testTransferFunction);
 		testPanel.addComponentListener(objectUnderTest);
 		testPanel.addComponentListener(syncListener);
 		
@@ -140,8 +146,6 @@ public class TransferFunctionWindowResizeHandlerTest {
 	
 	@After
 	public void tearDown(){
-		testColorMap = null;
-		testColorMap = null;
 		testPanel = null;
 		testSizes =null;
 	}

@@ -34,7 +34,7 @@ public class TransferFunctionContexMenu extends JPopupMenu implements MouseListe
 					return;
 				}
 		
-				parent.setColor(colorPickPoint, color);
+				parent.getTransferFunction().setColor(colorPickPoint, color);
 			}
 		});
 		
@@ -42,7 +42,7 @@ public class TransferFunctionContexMenu extends JPopupMenu implements MouseListe
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				parent.resetLine();
+				parent.getTransferFunction().resetLine();
 			}
 		});
 		
@@ -50,7 +50,7 @@ public class TransferFunctionContexMenu extends JPopupMenu implements MouseListe
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				parent.resetColors();
+				parent.getTransferFunction().resetColors();
 			}
 		});
 	}

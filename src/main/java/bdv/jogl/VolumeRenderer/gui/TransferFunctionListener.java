@@ -15,5 +15,5 @@ public interface TransferFunctionListener extends EventListener {
 	 * Triggered by color changes. 
 	 * @param xToColorMap Colors per ordinate.
 	 */
-	public void colorChanged(final TreeMap<Integer, Color> xToColorMap);
+	public void colorChanged(final TransferFunction1D transferFunction );
 }

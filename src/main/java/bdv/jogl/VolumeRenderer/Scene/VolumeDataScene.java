@@ -18,6 +18,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
+import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
@@ -62,17 +63,17 @@ public class VolumeDataScene extends AbstractScene{
 
 	private void createTFWindow(){
 		tfpanel = new TransferFunctionPanel1D();
-		tfpanel.addTransferFunctionListener(new TransferFunctionListener() {
+		tfpanel.getTransferFunction().addTransferFunctionListener(new TransferFunctionListener() {
 
 
 			@Override
-			public void colorChanged(final TreeMap<Integer, Color> xToColorMap) {
+			public void colorChanged(final TransferFunction1D function) {
 				if(single){
 					for(SimpleVolumeRenderer renderer: volumeRenderes){
-						renderer.setColorMapData(xToColorMap);
+						renderer.setColorMapData(function.getTexturColor());
 					}}
 				else{
-					multiVolumeRenderer.setColorMapData(xToColorMap);
+					multiVolumeRenderer.setColorMapData(function.getTexturColor());
 				}
 				//trigger scene update
 				for(SceneEventListener listener: sceneListeners){
