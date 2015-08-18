@@ -1,14 +1,8 @@
 package bdv.jogl.VolumeRenderer.gui;
 
 
-
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.event.WindowStateListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -118,31 +112,13 @@ public class GLWindow extends JFrame {
 		});
 
 		//close listener
-		this.bigDataViewer.getViewerFrame().addWindowListener(new WindowListener() {
-
-			@Override
-			public void windowOpened(WindowEvent e) { }
-
-			@Override
-			public void windowIconified(WindowEvent e) { }
-
-			@Override
-			public void windowDeiconified(WindowEvent e) { }
-
-			@Override
-			public void windowDeactivated(WindowEvent e) { }
+		this.bigDataViewer.getViewerFrame().addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
 				glCanvas.destroy();
 				dispose();
 			}
-
-			@Override
-			public void windowClosed(WindowEvent e) { }
-
-			@Override
-			public void windowActivated(WindowEvent e) { }
 		});
 
 	}
