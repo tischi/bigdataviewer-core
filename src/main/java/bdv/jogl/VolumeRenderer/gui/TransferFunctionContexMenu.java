@@ -34,7 +34,7 @@ public class TransferFunctionContexMenu extends JPopupMenu implements MouseListe
 					return;
 				}
 		
-				parent.getTransferFunction().setColor(colorPickPoint, color);
+				parent.getTransferFunction().setColor(new Point(colorPickPoint.x,0), color);
 			}
 		});
 		
