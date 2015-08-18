@@ -45,9 +45,6 @@ public class TransferFunctionDataPanel extends JPanel {
 		pointTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));				
 		colorTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));
 		
-
-
-		
 		setLayout(mainLayout);		
 		add(pointTableScroller);
 		add(colorTableScroller);	
@@ -62,7 +59,7 @@ public class TransferFunctionDataPanel extends JPanel {
 	
 	private void updateFunctionPoints() {
 		
-		TreeSet<Point> functionPoints = transferFunction.getFunctionPoints();
+		final TreeSet<Point> functionPoints = transferFunction.getFunctionPoints();
 		
 		DefaultTableModel model = new DefaultTableModel(new String[]{"Transfer function points"},0);
 		
@@ -70,6 +67,23 @@ public class TransferFunctionDataPanel extends JPanel {
 			model.addRow(new Point[]{point});
 		}
 		pointTable.setModel(model);
+		model.addTableModelListener(new TableModelListener() {
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if(e.getType() == TableModelEvent.UPDATE){
+					//points changed TODO
+					if(e.getColumn() == 0){
+						Point[] newPoints = new Point[functionPoints.size()];
+						Point[] oldPoints = new Point[functionPoints.size()];
+						
+						functionPoints.toArray(newPoints);
+						transferFunction.getFunctionPoints().toArray(oldPoints);
+						transferFunction.updateFunctionPoint(oldPoints[e.getFirstRow()],newPoints[e.getFirstRow()]);
+					}
+				}
+			}
+		});
 		
 		PointCellEditor pointCellEditor  = new PointCellEditor();
 		pointTable.getColumnModel().getColumn(0).setCellEditor(pointCellEditor);
@@ -123,12 +137,10 @@ public class TransferFunctionDataPanel extends JPanel {
 
 		colorTable.getColumnModel().getColumn(0).setCellEditor(pointEditor);
 		colorTable.getColumnModel().getColumn(0).setCellRenderer(pointEditor);
+		
 		//add button
 		colorTable.getColumnModel().getColumn(1).setCellEditor(colorEditor);
 		colorTable.getColumnModel().getColumn(1).setCellRenderer(colorEditor);
-		
-
-			
 		
 	}
 

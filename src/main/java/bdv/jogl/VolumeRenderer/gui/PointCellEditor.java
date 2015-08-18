@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -48,8 +50,29 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 		}
 		
 		private void createControls() {
-			// TODO Auto-generated method stub
+			xSpinner.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if(currentPoint == null){
+						return;
+					}
+					currentPoint.x = (Integer)xSpinner.getValue();
+					fireEditingStopped();
+				}
+			});
 			
+			ySpinner.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if(currentPoint == null){
+						return;
+					}
+					currentPoint.y = (Integer)ySpinner.getValue();
+					fireEditingStopped();
+				}
+			});
 		}
 
 		@Override
