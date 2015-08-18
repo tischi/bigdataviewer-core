@@ -22,6 +22,7 @@ import bdv.jogl.VolumeRenderer.FrameBufferRedirector;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
+import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 public class SimpleVolumeRendererTest {
@@ -33,6 +34,8 @@ public class SimpleVolumeRendererTest {
 	private float[] volumeData = {1,2,3,
 			4,5,6};
 
+	private TransferFunction1D testtf = new TransferFunction1D(100, 100);
+	
 	private SimpleVolumeRenderer objectUnderTest = new SimpleVolumeRenderer();
 
 	private SimpleScene testScene = new SimpleScene();
@@ -55,6 +58,7 @@ public class SimpleVolumeRendererTest {
 		VolumeDataBlock block = new VolumeDataBlock();
 		block.data = volumeData;
 		objectUnderTest.setData(block);
+		objectUnderTest.setTransferFunction(testtf);
 		
 		testScene.getCamera().setEyePoint(testEye);
 		testScene.getCamera().setLookAtPoint(testCenter);

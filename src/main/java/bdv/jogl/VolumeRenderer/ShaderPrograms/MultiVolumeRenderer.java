@@ -11,6 +11,8 @@ import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
+import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
@@ -37,11 +39,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
 
+	private TransferFunction1D tf;
+	
 	private Texture colorTexture;
 
 	private boolean isColorUpdateable;
-
-	private final TreeMap<Integer, Color> colorMap = new TreeMap<Integer, Color>();
 
 	private boolean isEyeUpdateable = true;
 
@@ -336,47 +338,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 		//get Buffer last key is the highest number 
-		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
-
-
-		//make samples
-		Integer latestMapIndex = colorMap.firstKey();
-		//iterate candidates
-		for(Integer currentMapIndex: colorMap.keySet()){
-			if(currentMapIndex == colorMap.firstKey()){
-				continue;
-			}
-
-			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
-			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
-			float[] colorGradient = {0,0,0,0};
-			colorMap.get(latestMapIndex).getColorComponents(currentColor);
-			colorMap.get(currentMapIndex).getColorComponents(finalColor);
-
-			//forward difference
-			for(int dim = 0; dim < colorGradient.length; dim++){
-				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
-			}
-
-			//sample linear
-			for(Integer step = latestMapIndex; step < currentMapIndex; step++ ){
-
-				//add to buffer and increment
-				for(int dim = 0; dim < colorGradient.length; dim++){
-					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
-					currentColor[dim] += colorGradient[dim];
-				}
-			}		
-			//add latest color
-			if(currentMapIndex == colorMap.lastKey()){
-				for(int dim = 0; dim < finalColor.length; dim++){
-					buffer.put(finalColor[dim]);
-				}
-			}
-			latestMapIndex = currentMapIndex;
-		}
-
-		buffer.rewind();
+		FloatBuffer buffer = tf.getTexture(); 
+				
 		//upload data
 		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});
 		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
@@ -399,10 +362,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 * Updates color data
 	 * @param newData
 	 */
-	public void setColorMapData(final TreeMap<Integer, Color> newData){
-		colorMap.clear();
-		colorMap.putAll(newData);
-		isColorUpdateable = true;
+	public void setTransferFunction(final TransferFunction1D tf){
+		this.tf = tf;
+		this.tf.addTransferFunctionListener(new TransferFunctionListener() {
+			
+			@Override
+			public void colorChanged(TransferFunction1D transferFunction) {
+				isColorUpdateable =true;
+				
+			}
+		});
 	}
 
 	/**

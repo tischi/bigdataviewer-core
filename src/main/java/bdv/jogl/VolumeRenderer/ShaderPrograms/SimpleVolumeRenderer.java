@@ -3,12 +3,12 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeRendererShaderSources.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
-import java.awt.Color;
 import java.nio.FloatBuffer;
-import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeRendererShaderSources;
+import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
@@ -25,14 +25,14 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
  */
 public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
-	private final TreeMap<Integer, Color> colorMap = new TreeMap<Integer, Color>();
-
 	private VolumeDataBlock data;
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
 	private Texture volumeTexture;
 
+	private TransferFunction1D tf;
+	
 	private Texture colorTexture;
 
 	private boolean isEyeUpdateable = false;
@@ -42,11 +42,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	private SingleVolumeRendererShaderSources source = new SingleVolumeRendererShaderSources();
 	
 
-	private void initColorDefaults(){
-		colorMap.put(100,Color.green);
-		colorMap.put(0,Color.red);
-	}
-
 	/**
 	 * constructor 
 	 */
@@ -54,18 +49,23 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		for(ShaderCode code :source.getShaderCodes()){
 			shaderCodes.add(code);
 		}
-		
-		initColorDefaults();
+	
 	}
 
 	/**
 	 * Updates color data
 	 * @param newData
 	 */
-	public void setColorMapData(final TreeMap<Integer, Color> newData){
-		colorMap.clear();
-		colorMap.putAll(newData);
-		isColorUpdateable = true;
+	public void setTransferFunction(final TransferFunction1D tf){
+		this.tf = tf;
+		this.tf.addTransferFunctionListener(new TransferFunctionListener() {
+			
+			@Override
+			public void colorChanged(TransferFunction1D transferFunction) {
+				isColorUpdateable = true;
+			}
+		});
+		
 	}
 
 	@Override
@@ -172,47 +172,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		}
 
 		//get Buffer last key is the highest number 
-		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
-
-
-		//make samples
-		Integer latestMapIndex = colorMap.firstKey();
-		//iterate candidates
-		for(Integer currentMapIndex: colorMap.keySet()){
-			if(currentMapIndex == colorMap.firstKey()){
-				continue;
-			}
-
-			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
-			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
-			float[] colorGradient = {0,0,0,0};
-			colorMap.get(latestMapIndex).getColorComponents(currentColor);
-			colorMap.get(currentMapIndex).getColorComponents(finalColor);
-
-			//forward difference
-			for(int dim = 0; dim < colorGradient.length; dim++){
-				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
-			}
-
-			//sample linear
-			for(Integer step = latestMapIndex; step < currentMapIndex; step++ ){
-
-				//add to buffer and increment
-				for(int dim = 0; dim < colorGradient.length; dim++){
-					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
-					currentColor[dim] += colorGradient[dim];
-				}
-			}		
-			//add latest color
-			if(currentMapIndex == colorMap.lastKey()){
-				for(int dim = 0; dim < finalColor.length; dim++){
-					buffer.put(finalColor[dim]);
-				}
-			}
-			latestMapIndex = currentMapIndex;
-		}
-
-		buffer.rewind();
+		FloatBuffer buffer = tf.getTexture();
+		
 		//upload data
 		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});
 		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
@@ -257,9 +218,6 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-
 	}
 
 
@@ -271,25 +229,8 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	@Override
 	protected void renderSubClass(GL2 gl2) {
-		/*	gl2.glEnable(GL2.GL_CULL_FACE);
-		gl2.glCullFace(GL2.GL_BACK); 
-		gl2.glEnable(GL2.GL_DEPTH_TEST);
-		gl2.glDepthRangef(0.1f, 1000000);
-		gl2.glDepthFunc(GL2.GL_LEQUAL);*/
-		//gl2.glActiveTexture(GL2.GL_TEXTURE0);
 
-		/*	gl2.glActiveTexture(GL2.GL_TEXTURE0);
-		gl2.glBindTexture(GL2.GL_TEXTURE_3D, volumeTextureObject);
-		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableVolumeTexture),0);
-
-		gl2.glActiveTexture(GL2.GL_TEXTURE0);
-		gl2.glBindTexture(GL2.GL_TEXTURE_1D, colorTextureObject);
-		gl2.glUniform1i(shaderVariableMapping.get(shaderVariableColorTexture),1);
-		 */
 		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
-		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
-		//	gl2.glBindTexture(GL2.GL_TEXTURE_3D, 0); 
-		/*gl2.glDisable(GL2.GL_CULL_FACE);
-	    gl2.glDisable(GL2.GL_DEPTH_TEST);*/
+
 	}
 }

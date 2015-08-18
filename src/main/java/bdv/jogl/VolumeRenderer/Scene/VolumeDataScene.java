@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -53,7 +52,7 @@ public class VolumeDataScene extends AbstractScene{
 	//private UnitCube boundingVolume =new UnitCube();
 
 	private final TransferFunction1D transferFunction = new TransferFunction1D(640, 100);
-	
+
 	private SceneControlsWindow controls;
 
 	private final boolean single = false;
@@ -79,16 +78,9 @@ public class VolumeDataScene extends AbstractScene{
 		bigDataViewer = bdv;
 		transferFunction.addTransferFunctionListener( new TransferFunctionListener() {
 
-
 			@Override
 			public void colorChanged(final TransferFunction1D function) {
-				if(single){
-					for(SimpleVolumeRenderer renderer: volumeRenderes){
-						renderer.setColorMapData(function.getTexturColor());
-					}}
-				else{
-					multiVolumeRenderer.setColorMapData(function.getTexturColor());
-				}
+
 				//trigger scene update
 				for(SceneEventListener listener: sceneListeners){
 					listener.needsUpdate();
@@ -161,6 +153,7 @@ public class VolumeDataScene extends AbstractScene{
 
 		if(!single){
 			addSceneElement(multiVolumeRenderer);
+			multiVolumeRenderer.setTransferFunction(transferFunction);
 			multiVolumeRenderer.init(gl2);
 			initBoundingVolumeCube(gl2);
 		}
@@ -187,6 +180,7 @@ public class VolumeDataScene extends AbstractScene{
 			//create vRenderer
 			if(single ){
 				SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
+				vRenderer.setTransferFunction(transferFunction);
 				volumeRenderes.add(vRenderer);
 				addSceneElement(vRenderer);
 				vRenderer.init(gl2);
@@ -280,9 +274,8 @@ public class VolumeDataScene extends AbstractScene{
 			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
 			if(1==1)
 				throw new NullPointerException();*/
-				latestRenderTimePoint = currentTimepoint;
-				currentActiveSource = i;
-				VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(latestRenderTimePoint, midMapLevel));
+			
+				VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(currentTimepoint, midMapLevel));
 
 
 
@@ -290,15 +283,16 @@ public class VolumeDataScene extends AbstractScene{
 				data.localTransformation =sourceTransformation;
 				if(single){
 					volumeRenderes.get(0).setModelTransformation(modelMatrix);
-					if( i != currentActiveSource){
-						volumeRenderes.get(0).setData(data);
+					if( i == currentActiveSource){
+						volumeRenderes.get(0).setData(data);	
+						currentActiveSource = i;
 					}
 				}else{
 					multiVolumeRenderer.getVolumeDataMap().put(i, data);		
 				}
 			}
 		}
-
+		latestRenderTimePoint = currentTimepoint;
 		if(!single){
 			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
 			/*	multiVolumeRenderer.update(gl2);
