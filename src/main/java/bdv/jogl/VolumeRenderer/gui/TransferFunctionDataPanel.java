@@ -71,16 +71,20 @@ public class TransferFunctionDataPanel extends JPanel {
 		}
 		pointTable.setModel(model);
 		
+		PointCellEditor pointCellEditor  = new PointCellEditor();
+		pointTable.getColumnModel().getColumn(0).setCellEditor(pointCellEditor);
+		pointTable.getColumnModel().getColumn(0).setCellRenderer(pointCellEditor);
+		
 	}
 
 	private void updateColors() {
 		
 		final TreeMap<Point, Color> colors = transferFunction.getColors();
 
-		final DefaultTableModel model =new DefaultTableModel(new String[]{"positions x","positions y","colors"},0);
+		final DefaultTableModel model =new DefaultTableModel(new String[]{"Color position","Colors"},0);
 		for(Point position: colors.keySet()){
 			Color color = colors.get(position);
-			model.addRow(new Object[]{position.x,position.y,color});
+			model.addRow(new Object[]{position,color});
 			
 		}
 
@@ -93,17 +97,16 @@ public class TransferFunctionDataPanel extends JPanel {
 				if(e.getType() == TableModelEvent.UPDATE){
 
 					//color changed
-					if(e.getColumn() == 2){
+					if(e.getColumn() == 1){
 						int row = e.getFirstRow();
-						Point colorPosition = new Point( (Integer)model.getValueAt(row, 0),
-								(Integer)model.getValueAt(row, 1));
-						Color newColor = (Color) model.getValueAt(e.getFirstRow(), 2); 
+						Point colorPosition = (Point) model.getValueAt(row, 0);
+						Color newColor = (Color) model.getValueAt(e.getFirstRow(), 1); 
 						transferFunction.setColor(colorPosition, newColor);
 						
 					}
 					
 					//points changed TODO
-					if(e.getColumn() != 2){
+					if(e.getColumn() == 0){
 						Point[] newPoints = new Point[colors.size()];
 						Point[] oldPoints = new Point[colors.size()];
 						
@@ -115,16 +118,14 @@ public class TransferFunctionDataPanel extends JPanel {
 			}
 		});
 		
-		ColorCellEditor editor = new ColorCellEditor();
+		ColorCellEditor colorEditor = new ColorCellEditor();		
+		PointCellEditor pointEditor = new PointCellEditor();
 
-		
-		DefaultCellEditor ieditor = new DefaultCellEditor(new JTextField());
-
-		colorTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JTextField()));
-		colorTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JTextField()));
+		colorTable.getColumnModel().getColumn(0).setCellEditor(pointEditor);
+		colorTable.getColumnModel().getColumn(0).setCellRenderer(pointEditor);
 		//add button
-		colorTable.getColumnModel().getColumn(2).setCellEditor(editor);
-		colorTable.getColumnModel().getColumn(2).setCellRenderer(editor);
+		colorTable.getColumnModel().getColumn(1).setCellEditor(colorEditor);
+		colorTable.getColumnModel().getColumn(1).setCellRenderer(colorEditor);
 		
 
 			
