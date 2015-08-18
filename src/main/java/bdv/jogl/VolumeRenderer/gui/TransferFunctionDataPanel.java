@@ -1,19 +1,16 @@
 package bdv.jogl.VolumeRenderer.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.TableView;
 
 /**
  * direct data manipulation panel
@@ -22,52 +19,81 @@ import javax.swing.text.TableView;
  */
 public class TransferFunctionDataPanel extends JPanel {
 	
+	private TransferFunction1D transferFunction;
+	
 	private JScrollPane pointTableScroller;
 	
 	private JScrollPane colorTableScroller;
 	
-	private ItemListener advanceListener = new ItemListener() {
-		
-		@Override
-		public void itemStateChanged(ItemEvent arg0) {
-			pointTableScroller.setVisible(advancedCheck.isSelected());
-			colorTableScroller.setVisible(advancedCheck.isSelected());			
-		}
-	};
+	private final JTable pointTable = new JTable(); 
 	
-	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations");
-	
-	private DefaultTableModel model = new DefaultTableModel(new Object[][]{{true}},  new String[]{"Transfer function points"});
-	
-	private JTable pointTable = new JTable(model); 
-	
-	private JTable colorTable = new JTable(new Object[][]{{new Point(0,0),Color.red}}, new String[]{"Positions","Color"});
+	private final JTable colorTable = new JTable();
 	
 	private BoxLayout mainLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 	
-
-
-	private void initCheckBox(){
-
-		advancedCheck.addItemListener(advanceListener);
-		advancedCheck.setSelected(false);
-		
-		//update all events
-		advanceListener.itemStateChanged(null);
-
-	}
-	
 	private void initUI(){
+		pointTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));
+		colorTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));
+		
 		setLayout(mainLayout);		
-		add(advancedCheck);
 		add(pointTableScroller);
 		add(colorTableScroller);	
 	}
 	
-	public TransferFunctionDataPanel(){
+	private void updateData(){
+		
+		updateFunctionPoints();
+		
+		updateColors();
+	}
+	
+	private void updateFunctionPoints() {
+		
+		TreeSet<Point> functionPoints = transferFunction.getFunctionPoints();
+		
+		DefaultTableModel model = new DefaultTableModel(new String[]{"Transfer function points"},0);
+		
+		for(Point point: functionPoints){
+			model.addRow(new Point[]{point});
+		}
+		pointTable.setModel(model);
+		
+	}
+
+	private void updateColors() {
+		
+		TreeMap<Point, Color> colors = transferFunction.getColors();
+
+		DefaultTableModel model =new DefaultTableModel(new String[]{"Color positions","colors"},0);
+		
+		for(Point position: colors.keySet()){
+			Color color = colors.get(position);
+			model.addRow(new Object[]{position,color});
+			
+			
+		}
+		
+		colorTable.setModel(model);
+	}
+
+	public void setTransferFunction(TransferFunction1D tf){
+		transferFunction = tf;
+		transferFunction.addTransferFunctionListener(new TransferFunctionListener() {
+			
+			@Override
+			public void colorChanged(TransferFunction1D transferFunction) {
+				updateData();
+				
+			}
+		});
+	}
+	
+	public TransferFunctionDataPanel(final TransferFunction1D tf){
+		
 		pointTableScroller = new JScrollPane(pointTable);
 		colorTableScroller = new JScrollPane(colorTable);
-		initCheckBox();
 		initUI();
+		
+		setTransferFunction(tf);
 	}
 }
