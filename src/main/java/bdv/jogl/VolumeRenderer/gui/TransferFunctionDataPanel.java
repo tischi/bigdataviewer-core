@@ -1,16 +1,26 @@
 package bdv.jogl.VolumeRenderer.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.EventObject;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 
 /**
  * direct data manipulation panel
@@ -32,8 +42,11 @@ public class TransferFunctionDataPanel extends JPanel {
 	private BoxLayout mainLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 	
 	private void initUI(){
-		pointTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));
+		pointTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));				
 		colorTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));
+		
+
+
 		
 		setLayout(mainLayout);		
 		add(pointTableScroller);
@@ -62,18 +75,60 @@ public class TransferFunctionDataPanel extends JPanel {
 
 	private void updateColors() {
 		
-		TreeMap<Point, Color> colors = transferFunction.getColors();
+		final TreeMap<Point, Color> colors = transferFunction.getColors();
 
-		DefaultTableModel model =new DefaultTableModel(new String[]{"Color positions","colors"},0);
-		
+		final DefaultTableModel model =new DefaultTableModel(new String[]{"positions x","positions y","colors"},0);
 		for(Point position: colors.keySet()){
 			Color color = colors.get(position);
-			model.addRow(new Object[]{position,color});
-			
+			model.addRow(new Object[]{position.x,position.y,color});
 			
 		}
-		
+
 		colorTable.setModel(model);
+		model .addTableModelListener(new TableModelListener() {
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				
+				if(e.getType() == TableModelEvent.UPDATE){
+
+					//color changed
+					if(e.getColumn() == 2){
+						int row = e.getFirstRow();
+						Point colorPosition = new Point( (Integer)model.getValueAt(row, 0),
+								(Integer)model.getValueAt(row, 1));
+						Color newColor = (Color) model.getValueAt(e.getFirstRow(), 2); 
+						transferFunction.setColor(colorPosition, newColor);
+						
+					}
+					
+					//points changed TODO
+					if(e.getColumn() != 2){
+						Point[] newPoints = new Point[colors.size()];
+						Point[] oldPoints = new Point[colors.size()];
+						
+						colors.keySet().toArray(newPoints);
+						transferFunction.getColors().keySet().toArray(oldPoints);
+						transferFunction.moveColor(oldPoints[e.getFirstRow()],newPoints[e.getFirstRow()]);
+					}
+				}
+			}
+		});
+		
+		ColorCellEditor editor = new ColorCellEditor();
+
+		
+		DefaultCellEditor ieditor = new DefaultCellEditor(new JTextField());
+
+		colorTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JTextField()));
+		colorTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JTextField()));
+		//add button
+		colorTable.getColumnModel().getColumn(2).setCellEditor(editor);
+		colorTable.getColumnModel().getColumn(2).setCellRenderer(editor);
+		
+
+			
+		
 	}
 
 	public void setTransferFunction(TransferFunction1D tf){

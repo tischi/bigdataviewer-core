@@ -325,4 +325,15 @@ public class TransferFunction1D {
 		return returnColors;
 	}
 
+	public void moveColor(Point oldPoint, Point newPoint) {
+		Color color = colors.get(oldPoint);
+		if(color == null){
+			return;
+		}
+		
+		colors.remove(oldPoint);
+		colors.put(newPoint, color);
+		fireEventAll();
+	}
+
 }
