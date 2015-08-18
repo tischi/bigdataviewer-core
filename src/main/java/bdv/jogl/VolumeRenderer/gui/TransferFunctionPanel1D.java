@@ -45,10 +45,10 @@ public class TransferFunctionPanel1D extends JPanel {
 	/**
 	 * constructor
 	 */
-	public TransferFunctionPanel1D(){
+	public TransferFunctionPanel1D(final TransferFunction1D tf){
 
 		initWindow();
-		setTransferFunction( new TransferFunction1D(getWidth(),getHeight()));
+		setTransferFunction( tf);
 		
 		resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),transferFunction);
 

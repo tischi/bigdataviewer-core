@@ -3,11 +3,7 @@ package bdv.jogl.VolumeRenderer.Scene;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -19,11 +15,10 @@ import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
+import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
 import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
-import bdv.jogl.VolumeRenderer.gui.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
-import bdv.jogl.VolumeRenderer.gui.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 
@@ -57,51 +52,18 @@ public class VolumeDataScene extends AbstractScene{
 
 	//private UnitCube boundingVolume =new UnitCube();
 
-	//TODO move out
-	private TransferFunctionPanel1D tfpanel = null;
-
-	private JFrame tfWindow = null;
+	private final TransferFunction1D transferFunction = new TransferFunction1D(640, 100);
+	
+	private SceneControlsWindow controls;
 
 	private final boolean single = false;
 
 	private void createTFWindow(){
-		tfpanel = new TransferFunctionPanel1D();
-		tfpanel.getTransferFunction().addTransferFunctionListener(new TransferFunctionListener() {
-
-
-			@Override
-			public void colorChanged(final TransferFunction1D function) {
-				if(single){
-					for(SimpleVolumeRenderer renderer: volumeRenderes){
-						renderer.setColorMapData(function.getTexturColor());
-					}}
-				else{
-					multiVolumeRenderer.setColorMapData(function.getTexturColor());
-				}
-				//trigger scene update
-				for(SceneEventListener listener: sceneListeners){
-					listener.needsUpdate();
-				}
-			}
-		});
-
-		tfWindow = new JFrame();
-		tfWindow.setTitle("Transfer function configurations");
-		tfWindow.setSize(640, 100);
-		JPanel mainPanel  = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		
-		mainPanel.add(tfpanel);
-		mainPanel.add(new TransferFunctionDataPanel());
-		tfWindow.getContentPane().add(mainPanel);
-		tfWindow.pack();
-		tfWindow.setVisible(true);
+		controls =new SceneControlsWindow(transferFunction);
 	}
 
 	private void destroyTFWindow() {
-		tfWindow.dispose();
-		tfWindow = null;
-		tfpanel = null;
+		controls.destroyTFWindow();
 	}
 	//TODO 
 
@@ -126,7 +88,24 @@ public class VolumeDataScene extends AbstractScene{
 
 	public VolumeDataScene(BigDataViewer bdv){
 		bigDataViewer = bdv;
+		transferFunction.addTransferFunctionListener( new TransferFunctionListener() {
 
+
+			@Override
+			public void colorChanged(final TransferFunction1D function) {
+				if(single){
+					for(SimpleVolumeRenderer renderer: volumeRenderes){
+						renderer.setColorMapData(function.getTexturColor());
+					}}
+				else{
+					multiVolumeRenderer.setColorMapData(function.getTexturColor());
+				}
+				//trigger scene update
+				for(SceneEventListener listener: sceneListeners){
+					listener.needsUpdate();
+				}
+			}
+		});
 	}
 
 	/**
