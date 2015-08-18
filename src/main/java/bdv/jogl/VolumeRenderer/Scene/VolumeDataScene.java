@@ -58,29 +58,18 @@ public class VolumeDataScene extends AbstractScene{
 
 	private final boolean single = false;
 
-	private void createTFWindow(){
-		controls =new SceneControlsWindow(transferFunction);
-	}
-
-	private void destroyTFWindow() {
-		controls.destroyTFWindow();
-	}
-	//TODO 
-
-
 	private void cleanUpSceneElements(){
 		//	volumeBorders.clear();
 		volumeRenderes.clear();
 	}
 
-
 	@Override
 	protected void disposeSpecial(GL2 gl2) {
-		destroyTFWindow();
+		controls.destroyTFWindow();
+		controls = null;
 		cleanUpSceneElements();
 
 	}
-
 
 	@Override
 	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
@@ -218,7 +207,7 @@ public class VolumeDataScene extends AbstractScene{
 
 		initLocalCamera(camera, width, height, dimensions);
 
-		createTFWindow();
+		controls =new SceneControlsWindow(transferFunction);
 	}
 
 
