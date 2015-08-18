@@ -1,7 +1,5 @@
 package bdv.jogl.VolumeRenderer.gui;
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -9,8 +7,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;;
 
 /**
  * Class for providing tf scene controls
@@ -46,8 +42,6 @@ public class SceneControlsWindow extends JFrame {
 		mainPanel.add(advancedCheck);
 		mainPanel.add(tfDataPanel);
 		tfDataPanel.setVisible(advancedCheck.isSelected());
-
-	
 		
 		getContentPane().add(mainPanel);
 		pack();
