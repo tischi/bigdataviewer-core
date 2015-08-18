@@ -21,7 +21,7 @@ public class SceneControlsWindow extends JFrame {
 	
 	private TransferFunctionDataPanel tfDataPanel = null;
 	
-	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",true);
+	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
 	
 	public SceneControlsWindow(final TransferFunction1D tf){
 		createTFWindow(tf);
