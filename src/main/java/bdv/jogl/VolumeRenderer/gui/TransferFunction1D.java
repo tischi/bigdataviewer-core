@@ -2,12 +2,14 @@ package bdv.jogl.VolumeRenderer.gui;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.math.VectorUtil;
 
 /**
@@ -58,7 +60,7 @@ public class TransferFunction1D {
 		functionPoints.clear();
 		functionPoints.add(new Point(0,0));
 		functionPoints.add(new Point(maxOrdinates));	
-		
+
 		fireEventAll();
 	}
 
@@ -67,7 +69,7 @@ public class TransferFunction1D {
 		colors.put(new Point(0,0), Color.BLUE);
 		colors.put(new Point(maxOrdinates.x/2,0), Color.WHITE);
 		colors.put(new Point(maxOrdinates.x,0),Color.RED);
-		
+
 		fireEventAll();
 	}
 
@@ -88,7 +90,7 @@ public class TransferFunction1D {
 	public TreeMap<Point, Color> getColors() {
 		return new TreeMap<Point, Color>(colors);
 	}
-	
+
 	/**
 	 * Sets the color of a certain point in the panel.
 	 * @param point Position on the panel area.
@@ -96,7 +98,7 @@ public class TransferFunction1D {
 	 */
 	public void setColor(final Point point, final Color color){
 		colors.put(point, color);
-		
+
 		fireEventAll();
 	}
 
@@ -122,7 +124,7 @@ public class TransferFunction1D {
 		}
 		functionPoints.remove(dragPoint);
 		functionPoints.add(newPoint);
-		
+
 		fireEventAll();
 	}
 
@@ -142,7 +144,7 @@ public class TransferFunction1D {
 			return;
 		}
 		functionPoints.add(point);
-		
+
 		fireEventAll();
 	}
 
@@ -174,7 +176,7 @@ public class TransferFunction1D {
 		this.maxOrdinates = maxOrdinates;
 
 		rescale(oldMax);
-		
+
 		fireEventAll();
 	}
 
@@ -206,17 +208,17 @@ public class TransferFunction1D {
 		functionPoints.clear();
 		functionPoints.addAll(newFunctionPoints);
 	}
-	
+
 	private Color getColorComponent(Point index){
 		float [] result = {0,0,0};
 
-		
+
 		//get RGB
 		Point nextIndex = colors.ceilingKey(index);
 		if(nextIndex == null){
 			return colors.lastEntry().getValue();
 		}
-		
+
 		if(nextIndex == index){
 			return colors.get(index);
 		}
@@ -241,27 +243,27 @@ public class TransferFunction1D {
 
 	private float getNormalizedAlphaValue(int unNormalizedValue){
 		float normFactor = 1f/ (float)getMaxOrdinates().y;
-		
+
 		float calculatedValue =  unNormalizedValue*normFactor;
-		
+
 		return Math.min(1, Math.max(calculatedValue, 0));
-		
+
 	}
-	
+
 	private float getAlpha (Point index){
 		//get alpha
 		Point nextIndex = functionPoints.ceiling(index);
 		float nextAlpha = getNormalizedAlphaValue(nextIndex.y);
-		
+
 		if(nextIndex.x == index.x){
 			return nextAlpha;
 		}
 		Point previousIndex = functionPoints.lower(index);
 		float prevAlpha = getNormalizedAlphaValue(previousIndex.y);
-		
+
 		float colorDiff = nextIndex.x-previousIndex.x;
 		float colorOffset = index.x - previousIndex.x;
-		
+
 		float m = (nextAlpha - prevAlpha)/colorDiff;
 		return m* colorOffset + prevAlpha;
 
@@ -284,11 +286,10 @@ public class TransferFunction1D {
 		return resultColor;
 	}
 
-
 	/**
 	 * @return the with alpha values
 	 */
-	public final TreeMap<Integer, Color> getTexturColor() {		
+	private final TreeMap<Integer, Color> getTexturColor() {		
 		TreeMap<Integer, Color> returnColors = new TreeMap<Integer, Color>();
 
 
@@ -325,15 +326,66 @@ public class TransferFunction1D {
 		return returnColors;
 	}
 
+	/**
+	 * updates a color point
+	 * @param oldPoint
+	 * @param newPoint
+	 */
 	public void moveColor(Point oldPoint, Point newPoint) {
 		Color color = colors.get(oldPoint);
 		if(color == null){
 			return;
 		}
-		
+
 		colors.remove(oldPoint);
 		colors.put(newPoint, color);
 		fireEventAll();
 	}
 
+	public FloatBuffer getTexture(){
+		TreeMap<Integer, Color> colorMap = getTexturColor();
+		//get Buffer last key is the highest number 
+		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
+
+
+		//make samples
+		Integer latestMapIndex = colorMap.firstKey();
+		//iterate candidates
+		for(Integer currentMapIndex: colorMap.keySet()){
+			if(currentMapIndex == colorMap.firstKey()){
+				continue;
+			}
+
+			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
+			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
+			float[] colorGradient = {0,0,0,0};
+			colorMap.get(latestMapIndex).getColorComponents(currentColor);
+			colorMap.get(currentMapIndex).getColorComponents(finalColor);
+
+			//forward difference
+			for(int dim = 0; dim < colorGradient.length; dim++){
+				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
+			}
+
+			//sample linear
+			for(Integer step = latestMapIndex; step < currentMapIndex; step++ ){
+
+				//add to buffer and increment
+				for(int dim = 0; dim < colorGradient.length; dim++){
+					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
+					currentColor[dim] += colorGradient[dim];
+				}
+			}		
+			//add latest color
+			if(currentMapIndex == colorMap.lastKey()){
+				for(int dim = 0; dim < finalColor.length; dim++){
+					buffer.put(finalColor[dim]);
+				}
+			}
+			latestMapIndex = currentMapIndex;
+		}
+
+		buffer.rewind();
+		return buffer;
+	}
 }
