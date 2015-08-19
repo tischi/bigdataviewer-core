@@ -3,6 +3,8 @@ package bdv.jogl.VolumeRenderer;
 import java.util.LinkedList;
 import java.util.List;
 
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
+
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
@@ -280,15 +282,27 @@ public class Camera {
 	}
 	
 	private void tilt(float alpha){
-		viewMatrix.rotate(alpha,1,0,0);
+		Matrix4 tmp = getNewIdentityMatrix();
+		
+		tmp.rotate(alpha,1,0,0);
+		tmp.multMatrix(viewMatrix);
+		viewMatrix = copyMatrix(tmp);
 	}
 	
 	private void pan(float beta){
-		viewMatrix.rotate(beta, 0, 1, 0);
+		Matrix4 tmp = getNewIdentityMatrix();
+		
+		tmp.rotate(beta, 0, 1, 0);
+		tmp.multMatrix(viewMatrix);
+		viewMatrix = copyMatrix(tmp);
 	} 
 	
 	private void dolly(float z) {
-		viewMatrix.translate(0, 0, z);
+		Matrix4 tmp = getNewIdentityMatrix();
+		tmp.translate(0, 0, z);
+
+		tmp.multMatrix(viewMatrix);
+		viewMatrix = copyMatrix(tmp);
 		
 	}
 	

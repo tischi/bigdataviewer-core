@@ -26,6 +26,6 @@ public class SceneGlobalTransformationListener implements TransformListener<Affi
 	
 	@Override
 	public void transformChanged(AffineTransform3D transform) {
-		scene.setGlobalModelTransformation(convertToJoglTransform(transform));
+		//scene.setGlobalModelTransformation(convertToJoglTransform(transform));
 	}
 }
