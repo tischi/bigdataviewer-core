@@ -63,7 +63,9 @@ public class GLWindow extends JFrame {
 				
 			}
 		});
-		
+		CameraUpdater cUpdater = new CameraUpdater(scene.getCamera());
+		glCanvas.addMouseListener(cUpdater.getMouseListener());
+		glCanvas.addMouseMotionListener(cUpdater.getMouseMotionListener());
 		scenes.clear();
 		scenes.add(scene);
 		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(scene));
