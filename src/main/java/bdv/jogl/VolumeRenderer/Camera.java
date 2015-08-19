@@ -307,6 +307,20 @@ public class Camera {
 	}
 	
 	/**
+	 * Transition of the camera on the current view x y plane
+	 * @param x
+	 * @param y
+	 */
+	public void trac(float x, float y){
+		Matrix4 tmp = getNewIdentityMatrix();
+		tmp.translate(x, y, 0);
+
+		tmp.multMatrix(viewMatrix);
+		viewMatrix = copyMatrix(tmp);
+		fireUpdateViewAll();
+	}
+	
+	/**
 	 * Orbit motion around a look point
 	 * @param alpha angle y axis
 	 * @param beta angle x axis

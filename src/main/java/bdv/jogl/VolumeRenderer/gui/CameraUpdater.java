@@ -21,29 +21,39 @@ public class CameraUpdater {
 	
 	private final Camera camera;
 
-	private Point previousPoint = null;
+	private Point previousOrbitPoint = null;
+	
+	private Point previousTracPoint = null;
 	
 	private final static float angleScale = 0.1f;
 	
-	private final static int leftButton = MouseEvent.BUTTON1;
+	private final static int orbitButton = MouseEvent.BUTTON1;
+	
+	private final static int tracButton = MouseEvent.BUTTON3;
 	
 	private final MouseListener mouseListener = new MouseAdapter() {
 	
 		@Override
 		public void mousePressed(MouseEvent e) {
 			
-			if(e.getButton() != leftButton){
-				return;
+			if(e.getButton() == orbitButton){
+				previousOrbitPoint = e.getPoint();	
 			}
-			previousPoint = e.getPoint();
+			
+			if(e.getButton() == tracButton){
+				previousTracPoint = e.getPoint();	
+			}
 		};
 		
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if(e.getButton() != leftButton){
-				return;
+			if(e.getButton() == orbitButton){
+				previousOrbitPoint = null;
 			}
-			previousPoint = null;
+			
+			if(e.getButton() == tracButton){
+				previousTracPoint = null;
+			}			
 		};
 	};
 	
@@ -51,16 +61,22 @@ public class CameraUpdater {
 		@Override
 		public void mouseDragged(MouseEvent e) {
 
-
-			if(previousPoint == null){
+			Point currentPoint = e.getPoint();
+			if(previousOrbitPoint != null){
+				float alpha = (previousOrbitPoint.y - currentPoint.y)*angleScale;
+				float beta = (previousOrbitPoint.x - currentPoint.x)*angleScale;
+				camera.orbit(alpha, beta);
+				previousOrbitPoint = currentPoint;
 				return;
 			}
 
-			Point currentPoint = e.getPoint();
-			float alpha = (previousPoint.y - currentPoint.y)*angleScale;
-			float beta = (previousPoint.x - currentPoint.x)*angleScale;
-			camera.orbit(alpha, beta);
-			previousPoint = currentPoint;
+			if(previousTracPoint != null){
+				float diffx = previousTracPoint.x - currentPoint.x;
+				float diffy = previousTracPoint.y - currentPoint.y;
+				camera.trac(diffx, diffy);
+				previousTracPoint = currentPoint;
+				return;
+			}
 		};
 	};
 	
