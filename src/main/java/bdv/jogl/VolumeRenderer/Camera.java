@@ -269,8 +269,41 @@ public class Camera {
 		}
 	}
 
+	private void fireUpdateViewAll(){
+		for(CameraListener l :cameraListeners){
+			fireUpdateView(l);
+		}
+	}
+	
+	private void fireUpdateView(CameraListener l){
+		l.viewMatrixUpdate(getViewMatrix());
+	}
+	
 	private void tilt(float alpha){
+		viewMatrix.rotate(alpha,1,0,0);
+	}
+	
+	private void pan(float beta){
+		viewMatrix.rotate(beta, 0, 1, 0);
+	} 
+	
+	private void dolly(float z) {
+		viewMatrix.translate(0, 0, z);
 		
+	}
+	
+	/**
+	 * Orbit motion around a look point
+	 * @param alpha angle y axis
+	 * @param beta angle x axis
+	 */
+	public void orbit(float alpha, float beta){
+		float fdepth = VectorUtil.distVec3(eyePoint, lookAtPoint);
+		dolly(fdepth);
+		pan(beta);
+		tilt(alpha);
+		dolly(-fdepth);
+		fireUpdateViewAll();
 	}
 	
 	/**
