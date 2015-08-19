@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.math.Matrix4;
 
 /**
  * Class defining a standard scene.
@@ -17,7 +19,7 @@ import com.jogamp.opengl.GL2;
  */
 public abstract class AbstractScene {
 
-	protected Camera camera = new Camera();
+	protected Camera camera;
 
 	protected Color backgroundColor = new Color(0.f,0.f,0.f,1.f);
 
@@ -25,6 +27,20 @@ public abstract class AbstractScene {
 	
 	protected List<SceneEventListener> sceneListeners = new ArrayList<SceneEventListener>();
 
+	protected void fireNeedUpdate(SceneEventListener l){
+		l.needsUpdate();
+	}
+	
+	protected void fireNeedUpdateAll(){
+		for(SceneEventListener l : sceneListeners){
+			fireNeedUpdate(l);
+		}
+	}
+	
+	public AbstractScene(){
+		setCamera(new Camera());
+	}
+	
 	/**
 	 * adds an abstract element to scene
 	 * @param sceneElement
@@ -63,6 +79,28 @@ public abstract class AbstractScene {
 	 */
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+		this.camera.addCameraListener(new CameraListener() {
+
+			@Override
+			public void viewMatrixUpdate(Matrix4 matrix) {
+
+				//update all views
+				for(ISceneElements element : sceneElements){
+					element.setView(matrix);
+				}
+				fireNeedUpdateAll();
+			}
+
+			@Override
+			public void projectionMatrixUpdate(Matrix4 matrix) {
+
+				//update all projections
+				for(ISceneElements element : sceneElements){
+					element.setProjection(matrix);
+				}
+				fireNeedUpdateAll();
+			}
+		});
 	}
 
 

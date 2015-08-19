@@ -82,9 +82,7 @@ public class VolumeDataScene extends AbstractScene{
 			public void colorChanged(final TransferFunction1D function) {
 
 				//trigger scene update
-				for(SceneEventListener listener: sceneListeners){
-					listener.needsUpdate();
-				}
+				fireNeedUpdateAll();
 			}
 		});
 	}
@@ -95,30 +93,11 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	private void initLocalCamera(Camera camera2, int width, int height, int[] dim){
 
-		float[] center = {dim[0] ,dim[1],dim[2]};
+		float[] center = {dim[0]/2 ,dim[1]/2,dim[2]/2};
 
 		float[] eye = {center[0],center[1],	center[2] - 30f * (dim[2])};
 
-		camera2.addCameraListener(new CameraListener() {
 
-			@Override
-			public void viewMatrixUpdate(Matrix4 matrix) {
-
-				//update all views
-				for(ISceneElements element : sceneElements){
-					element.setView(matrix);
-				}
-			}
-
-			@Override
-			public void projectionMatrixUpdate(Matrix4 matrix) {
-
-				//update all projections
-				for(ISceneElements element : sceneElements){
-					element.setProjection(matrix);
-				}
-			}
-		});
 		camera2.setAlpha(45);
 		camera2.setWidth(width);
 		camera2.setHeight(height);
@@ -189,6 +168,7 @@ public class VolumeDataScene extends AbstractScene{
 			int midMapLevel = getMidmapLevel(source);
 
 			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(currentRenderTimePoint, midMapLevel);
+			
 			long[] dim = new long[3];
 			int[] dimI = new int[3];
 			data.dimensions(dim);
