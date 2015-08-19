@@ -69,7 +69,7 @@ public class FrameBufferRedirectorTest {
 				Camera camera = testScene.getCamera();
 				camera.setWidth(width);
 				camera.setHeight(height);
-				camera.update();
+				camera.init();
 			}
 
 			@Override
@@ -88,7 +88,7 @@ public class FrameBufferRedirectorTest {
 				camera.setEyePoint(eye);
 				camera.setLookAtPoint(center);
 				camera.setLookAtPoint(up);
-				camera.update();
+				camera.init();
 
 				testScene.setBackgroundColor(Color.GREEN);
 

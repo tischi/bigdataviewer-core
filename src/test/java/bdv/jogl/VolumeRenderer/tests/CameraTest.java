@@ -97,7 +97,7 @@ public class CameraTest {
 			camera.setEyePoint(eye);
 			camera.setLookAtPoint(center);
 			camera.setUpVector(up);
-			camera.update();
+			camera.init();
 			viewCamera = camera.getViewMatrix().getMatrix();
 			projCamera = camera.getProjectionMatix().getMatrix();
 
@@ -333,7 +333,7 @@ public class CameraTest {
 		c.setZnear(znear);
 		c.setLookAtPoint(center.clone());
 		c.setEyePoint(eye.clone());
-		c.update();
+		c.init();
 
 		float[] proj1 = c.getProjectionMatix().getMatrix().clone();
 		float[] view1 = c.getViewMatrix().getMatrix().clone();
@@ -350,7 +350,7 @@ public class CameraTest {
 		c.setZnear(znear);
 		c.setLookAtPoint(center.clone());
 		c.setEyePoint(eye.clone());
-		c.update();
+		c.init();
 
 		float[] proj2 = c.getProjectionMatix().getMatrix().clone();
 		float[] view2 = c.getViewMatrix().getMatrix().clone();

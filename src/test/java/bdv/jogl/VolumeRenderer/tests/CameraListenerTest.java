@@ -62,13 +62,13 @@ public class CameraListenerTest {
 		assertEquals(1, calledProject);
 		assertEquals(1, calledView);
 		
-		c.update();
+		c.init();
 		
 		assertEquals(2, calledProject);
 		assertEquals(2, calledView);
 		
 		c.clearCameraListeners();
-		c.update();
+		c.init();
 		
 		assertEquals(2, calledProject);
 		assertEquals(2, calledView);

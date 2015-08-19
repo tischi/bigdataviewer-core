@@ -127,7 +127,7 @@ public class VolumeDataScene extends AbstractScene{
 		camera2.setLookAtPoint(center);
 		camera2.setEyePoint(eye);
 		camera2.setUpVector(new float[]{0,-1,0});
-		camera2.update();
+		camera2.init();
 	}
 
 	private int getMidmapLevel(final SourceState<?> source){

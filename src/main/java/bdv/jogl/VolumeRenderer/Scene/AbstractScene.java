@@ -114,7 +114,9 @@ public abstract class AbstractScene {
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		
 		gl2.glDepthFunc(GL2.GL_LESS);
+		
 
+		
 		//subclass stuff
 		renderSpecial(gl2);
 
@@ -134,7 +136,7 @@ public abstract class AbstractScene {
 	 */
 	public void init(GL2 gl2, int width, int height){
 		
-		camera.update();
+		camera.init();
 		
 		for(ISceneElements scene:sceneElements){
 			scene.init(gl2);

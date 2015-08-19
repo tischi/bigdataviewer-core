@@ -236,7 +236,7 @@ public class Camera {
 	/**
 	 * does updatePerspectiveMatrix and updateViewMatrix  
 	 */
-	public void update(){
+	public void init(){
 		updatePerspectiveMatrix();
 
 		updateViewMatrix();
@@ -269,6 +269,9 @@ public class Camera {
 		}
 	}
 
+	private void tilt(float alpha){
+		
+	}
 	
 	/**
 	 * Adds a new camera listener.
