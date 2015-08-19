@@ -2,27 +2,26 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
-import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
-
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
+import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
+import com.jogamp.opengl.math.geom.AABBox;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 
 
@@ -188,43 +187,28 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		drawCubeTransformation = getNewIdentityMatrix();
 
 		//iterate data for get bounding volume
-		float highPoint[] = {Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE};
-		float lowPoint[] = {Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE};
+		float lowhighPoint[][] = {
+				{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE},
+				{Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE}
+				};
 
 
 		for(int index: getVolumeDataMap().keySet()){
 			VolumeDataBlock data = getVolumeDataMap().get(index);
-			float repesentantsToCheck[][] = {
-					{0,0,0,1},
-					{0,0,1,1},
-					{0,1,0,1},
-					{0,1,1,1},
-					{1,0,0,1},
-					{1,0,1,1},
-					{1,1,0,1},
-					{1,1,1,1},
-			};
-
-
-			Matrix4 transformation = copyMatrix(data.localTransformation);
-			transformation.scale(data.dimensions[0],data.dimensions[1],data.dimensions[2]);
-			for(float [] representant: repesentantsToCheck){
-				//transform
-				float[] globalVolumeCoordinate= new float[4];
-				transformation.multVec(representant, globalVolumeCoordinate);
-
-
-				//build box
-				for(int i = 0; i < 3 ; i++){
-					globalVolumeCoordinate[i] = globalVolumeCoordinate[i]/ globalVolumeCoordinate[3];
-					highPoint[i] = Math.max(highPoint[i], globalVolumeCoordinate[i]);
-					lowPoint[i] = Math.min(lowPoint[i], globalVolumeCoordinate[i]);
-				} 
+			
+			AABBox box = getAABBOfTransformedBox(data.dimensions, data.localTransformation);
+			
+			for(int d =0; d < 3; d++){
+				lowhighPoint[0][d] = Math.min(lowhighPoint[0][d], box.getLow()[d]);
+				lowhighPoint[1][d] = Math.max(lowhighPoint[1][d], box.getHigh()[d]); 
 			}
 		}
+		
+		AABBox boundingVolume = new AABBox(lowhighPoint[0],lowhighPoint[1]);
+		
 		//correct origo
-		drawCubeTransformation.translate(lowPoint[0], lowPoint[1], lowPoint[2]);
-		drawCubeTransformation.scale(highPoint[0]-lowPoint[0],highPoint[1]-lowPoint[1],highPoint[2]-lowPoint[2]);
+		drawCubeTransformation.translate(boundingVolume.getMinX(),boundingVolume.getMinY(),boundingVolume.getMinZ());
+		drawCubeTransformation.scale(boundingVolume.getWidth(),boundingVolume.getHeight(),boundingVolume.getDepth());
 		gl2.glUniformMatrix4fv(getLocation(suvDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
 	}
 
