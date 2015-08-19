@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import bdv.jogl.VolumeRenderer.Camera;
 
@@ -62,6 +64,18 @@ public class CameraUpdater {
 		};
 	};
 	
+	private final MouseWheelListener mouseWheelListener = new MouseWheelListener() {
+		
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			float alpha = camera.getAlpha(); 
+			alpha += angleScale * (float)e.getWheelRotation();
+			alpha = Math.min(Camera.maxAlpha,Math.max(Camera.minAlpha,alpha));
+			camera.setAlpha(alpha);
+			camera.updatePerspectiveMatrix();
+		}
+	};
+	
 	/**
 	 * Constructor for setting the camera
 	 * @param camera
@@ -84,6 +98,13 @@ public class CameraUpdater {
 	 */
 	public MouseListener getMouseListener() {
 		return mouseListener;
+	}
+
+	/**
+	 * @return the mouseWheelListener
+	 */
+	public MouseWheelListener getMouseWheelListener() {
+		return mouseWheelListener;
 	} 
 
 }
