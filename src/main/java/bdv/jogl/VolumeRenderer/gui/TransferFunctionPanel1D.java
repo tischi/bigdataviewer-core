@@ -33,11 +33,11 @@ public class TransferFunctionPanel1D extends JPanel {
 	private final int pointRadius = 10;
 
 	private void addControls(){
-		addMouseListener(contextMenue);
+		addMouseListener(contextMenue.getMouseListener());
 
-		addMouseMotionListener(pointInteractor);
+		addMouseMotionListener(pointInteractor.getMouseMotionListener());
 
-		addMouseListener(pointInteractor);
+		addMouseListener(pointInteractor.getMouseListener());
 		
 		addComponentListener(resizeHandler);
 	}
