@@ -21,6 +21,8 @@ public class TransferFunction1D {
 
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
+	private RegularSampler sampler = new RegularSampler();
+	
 	//order points first by x then by y
 	private final Comparator<Point> pointOrderXOperator = new Comparator<Point>() {
 
@@ -289,7 +291,7 @@ public class TransferFunction1D {
 	/**
 	 * @return the with alpha values
 	 */
-	private final TreeMap<Integer, Color> getTexturColor() {		
+	public final TreeMap<Integer, Color> getTexturColor() {		
 		TreeMap<Integer, Color> returnColors = new TreeMap<Integer, Color>();
 
 
@@ -343,49 +345,7 @@ public class TransferFunction1D {
 	}
 
 	public FloatBuffer getTexture(){
-		TreeMap<Integer, Color> colorMap = getTexturColor();
-		//get Buffer last key is the highest number 
-		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
-
-
-		//make samples
-		Integer latestMapIndex = colorMap.firstKey();
-		//iterate candidates
-		for(Integer currentMapIndex: colorMap.keySet()){
-			if(currentMapIndex == colorMap.firstKey()){
-				continue;
-			}
-
-			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
-			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
-			float[] colorGradient = {0,0,0,0};
-			colorMap.get(latestMapIndex).getColorComponents(currentColor);
-			colorMap.get(currentMapIndex).getColorComponents(finalColor);
-
-			//forward difference
-			for(int dim = 0; dim < colorGradient.length; dim++){
-				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
-			}
-
-			//sample linear
-			for(Integer step = latestMapIndex; step < currentMapIndex; step++ ){
-
-				//add to buffer and increment
-				for(int dim = 0; dim < colorGradient.length; dim++){
-					buffer.put(Math.min( finalColor[dim],  currentColor[dim]));
-					currentColor[dim] += colorGradient[dim];
-				}
-			}		
-			//add latest color
-			if(currentMapIndex == colorMap.lastKey()){
-				for(int dim = 0; dim < finalColor.length; dim++){
-					buffer.put(finalColor[dim]);
-				}
-			}
-			latestMapIndex = currentMapIndex;
-		}
-
-		buffer.rewind();
-		return buffer;
+	
+		return sampler.sample(this, 1);
 	}
 }
