@@ -5,14 +5,16 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
  * @author michael
  *
  */
-public class GetMaxStepsFunction implements IFunction {
-
-	private final static String functionName = "getMaxSteps";
+public class GetMaxStepsFunction extends AbstractShaderFunction implements IFunction {
+	
+	public GetMaxStepsFunction(){
+		super("getMaxSteps");
+	}
 	
 	@Override
 	public String[] declaration() {
 		String dec[] = {
-		"int "+functionName+"(float stepsSize, vec3 position, vec3 direction){",
+		"int "+getFunctionName()+"(float stepsSize, vec3 position, vec3 direction){",
 		"	//infinite steps ;)",
 		"	int steps = maxInt;",
 		"",	
@@ -28,22 +30,4 @@ public class GetMaxStepsFunction implements IFunction {
 		"}"};
 		return dec;
 	}
-
-	@Override
-	public String call(String[] parameters) {
-		String call = functionName + "(";
-		int i =0;
-		for(String parameter:parameters){
-			call += parameter;
-			if(i < parameters.length-1){
-				call+=",";
-			}
-			i++;
-		}
-		call+=")";
-		return call;
-	}
-
-	
-
 }
