@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.math.VectorUtil;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
@@ -24,7 +23,7 @@ public class TransferFunction1D {
 
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
-	private RegularSampler sampler = new RegularSampler();
+	private ITransferFunctionSampler sampler = new RegularSampler();
 	
 	//order points first by x then by y
 	private final Comparator<Point> pointOrderXOperator = new Comparator<Point>() {

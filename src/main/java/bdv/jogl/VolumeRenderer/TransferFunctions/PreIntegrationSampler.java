@@ -7,24 +7,19 @@ import java.util.TreeMap;
 import com.jogamp.common.nio.Buffers;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.RegularTransferFunctionDesampler;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.PreIntegrationDesampler;
 
-/**
- * Samples transfer function texture regularly 
- * @author michael
- *
- */
-public class RegularSampler implements ITransferFunctionSampler {
+public class PreIntegrationSampler implements ITransferFunctionSampler {
 	
-	private final RegularTransferFunctionDesampler desampler = new RegularTransferFunctionDesampler();  
+	private final PreIntegrationDesampler desampler = new PreIntegrationDesampler();
 	
-	/**
-	 * Samples tf data and returns 1d texture
-	 * @param transferFunction
-	 * @param sampleStep
-	 * @return
-	 */
-	public FloatBuffer sample(TransferFunction1D transferFunction, float sampleStep){
+	@Override
+	public IFunction getShaderCode() {
+		return desampler;
+	}
+
+	@Override
+	public FloatBuffer sample(TransferFunction1D transferFunction, float sampleStep) {
 		TreeMap<Integer, Color> colorMap = transferFunction.getTexturColor();
 		//get Buffer last key is the highest number 
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
@@ -32,6 +27,7 @@ public class RegularSampler implements ITransferFunctionSampler {
 
 		//make samples
 		Integer latestMapIndex = colorMap.firstKey();
+		float[] integral = {0,0,0,0};
 		//iterate candidates
 		for(Integer currentMapIndex: colorMap.keySet()){
 			if(currentMapIndex == colorMap.firstKey()){
@@ -40,9 +36,19 @@ public class RegularSampler implements ITransferFunctionSampler {
 
 			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
 			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
-			float[] colorGradient = {0,0,0,0};
 			colorMap.get(latestMapIndex).getColorComponents(currentColor);
 			colorMap.get(currentMapIndex).getColorComponents(finalColor);
+			
+			
+			//TODO
+			//alpha of mean integral
+			float currentAbsorbtionIntegral = sampleStep * (((finalColor[3]-currentColor[3])/2.f)+currentColor[3]);
+			integral[3] += currentAbsorbtionIntegral;
+			for(int i = 0; i< 3; i++){
+				integral[i] +=(((finalColor[3]-currentColor[3])/2.f)+currentColor[3])*currentAbsorbtionIntegral;
+			}
+			/*float[] colorGradient = {0,0,0,0};
+
 
 			//forward difference
 			for(int dim = 0; dim < colorGradient.length; dim++){
@@ -64,19 +70,12 @@ public class RegularSampler implements ITransferFunctionSampler {
 					buffer.put(finalColor[dim]);
 				}
 			}
-			latestMapIndex = currentMapIndex;
+			latestMapIndex = currentMapIndex;*/
 		}
 
 		buffer.rewind();
 		return buffer;
-	};
-	
-	/**
-	 * Retruns the de sampling shader code
-	 * @return
-	 */
-	public IFunction getShaderCode(){
-		return desampler;
+		
 	}
-	
+
 }
