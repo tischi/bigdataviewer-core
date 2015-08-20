@@ -261,9 +261,10 @@ public class Camera {
 	 * update the angle based perspective
 	 */
 	public void updatePerspectiveMatrix() {
+		float alphaInRad = (float) (alpha * (Math.PI / 180));
 		
 		FloatUtil.makePerspective(projectionMatrix.getMatrix(), 0, true, 
-				alpha,width.floatValue()/height.floatValue(), znear, zfar);
+				alphaInRad,width.floatValue()/height.floatValue(), znear, zfar);
 		
 		//notify listeners
 		for(CameraListener l : cameraListeners){

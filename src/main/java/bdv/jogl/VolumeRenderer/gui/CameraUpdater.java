@@ -85,7 +85,7 @@ public class CameraUpdater {
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			float alpha = camera.getAlpha(); 
-			alpha += angleScale * (float)e.getWheelRotation();
+			alpha += (float)e.getWheelRotation();
 			alpha = Math.min(Camera.maxAlpha,Math.max(Camera.minAlpha,alpha));
 			camera.setAlpha(alpha);
 			camera.updatePerspectiveMatrix();
