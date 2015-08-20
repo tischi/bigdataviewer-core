@@ -8,7 +8,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.transformWindowNormalSpace;
 import bdv.jogl.VolumeRenderer.Camera;
 
 /**
@@ -35,13 +35,13 @@ public class CameraUpdater {
 	
 		@Override
 		public void mousePressed(MouseEvent e) {
-			
+			Point point = transformWindowNormalSpace(e.getPoint(),e.getComponent().getSize());
 			if(e.getButton() == orbitButton){
-				previousOrbitPoint = e.getPoint();	
+				previousOrbitPoint = point;	
 			}
 			
 			if(e.getButton() == tracButton){
-				previousTracPoint = e.getPoint();	
+				previousTracPoint = point;	
 			}
 		};
 		
@@ -61,18 +61,18 @@ public class CameraUpdater {
 		@Override
 		public void mouseDragged(MouseEvent e) {
 
-			Point currentPoint = e.getPoint();
+			Point currentPoint = transformWindowNormalSpace(e.getPoint(),e.getComponent().getSize());
 			if(previousOrbitPoint != null){
-				float alpha = (previousOrbitPoint.y - currentPoint.y)*angleScale;
-				float beta = (previousOrbitPoint.x - currentPoint.x)*angleScale;
+				float alpha = -( currentPoint.y - previousOrbitPoint.y )*angleScale;
+				float beta = ( currentPoint.x - previousOrbitPoint.x )*angleScale;
 				camera.orbit(alpha, beta);
 				previousOrbitPoint = currentPoint;
 				return;
 			}
 
 			if(previousTracPoint != null){
-				float diffx = previousTracPoint.x - currentPoint.x;
-				float diffy = previousTracPoint.y - currentPoint.y;
+				float diffx = currentPoint.x - previousTracPoint.x;
+				float diffy = currentPoint.y - previousTracPoint.y;
 				camera.trac(diffx, diffy);
 				previousTracPoint = currentPoint;
 				return;
