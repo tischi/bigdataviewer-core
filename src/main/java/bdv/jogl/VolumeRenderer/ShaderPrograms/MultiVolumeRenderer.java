@@ -9,7 +9,7 @@ import java.util.Map;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
-import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
@@ -50,7 +50,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
 
-	public MultiVolumeRenderer(){
+	public MultiVolumeRenderer(TransferFunction1D tf){
+		setTransferFunction(tf);
 		for(ShaderCode code:sources.getShaderCodes()){
 			shaderCodes.add(code);
 		}
@@ -356,6 +357,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				
 			}
 		});
+		sources.setTransferFunctionCode(this.tf.getTransferFunctionShaderCode());
 	}
 
 	/**

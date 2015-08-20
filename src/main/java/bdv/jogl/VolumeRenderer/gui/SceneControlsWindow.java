@@ -8,6 +8,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+
 /**
  * Class for providing tf scene controls
  * @author michael

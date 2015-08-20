@@ -18,6 +18,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
 public class MultiVolumeRendererShaderSourceTest {
 
@@ -40,7 +41,7 @@ public class MultiVolumeRendererShaderSourceTest {
 			GL gl = drawable.getGL();
 			GL gl2 = gl.getGL2();
 			MultiVolumeRendererShaderSource shaderSource = new MultiVolumeRendererShaderSource();
-			
+			shaderSource.setTransferFunctionCode(new TransferFunction1D(0, 0).getTransferFunctionShaderCode());
 			boolean result = true;
 			for(ShaderCode code : shaderSource.getShaderCodes()){
 

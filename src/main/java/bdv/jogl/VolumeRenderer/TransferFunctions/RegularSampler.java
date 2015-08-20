@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.TransferFunctions;
 
 import java.awt.Color;
 import java.nio.FloatBuffer;

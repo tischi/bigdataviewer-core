@@ -7,6 +7,7 @@ import java.util.Set;
 
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.GetMaxStepsFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderCode;
@@ -21,6 +22,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	private int maxNumberOfVolumes = 2;
 	
 	private final GetMaxStepsFunction stepsFunction = new GetMaxStepsFunction(); 
+	
+	private IFunction transferFunctionCode;
 	
 	private static final String svTextureCoordinate = "textureCoordinate";
 
@@ -68,6 +71,14 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		codes.add(new ShaderCode(GL2.GL_FRAGMENT_SHADER, 1, new String[][]{fragmentShaderCode()}));
 		return codes;
 	}
+
+	/**
+	 * @param transferFunctionCode the transferFunctionCode to set
+	 */
+	public void setTransferFunctionCode(IFunction transferFunctionCode) {
+		this.transferFunctionCode = transferFunctionCode;
+	}
+
 
 	private String[] vertexShaderCode() {
 		String[] shaderCode ={
@@ -117,7 +128,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform float "+suvMinVolumeValue+";",
 				"uniform vec3 "+suvEyePosition+"[maxNumberOfData];",
 				"uniform sampler3D "+suvVolumeTexture+"[maxNumberOfData];",
-				"uniform sampler1D "+suvColorTexture+";",
 				"uniform float "+suvMaxDiagonalLength+" ;",
 				"",
 				"in vec3 "+svTextureCoordinate+"[maxNumberOfData];",
@@ -148,7 +158,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"    		steps = samples;",
 				"  		}",    
 				"",
-				"  		float density;",
+				"  		float density = (texture("+suvVolumeTexture+"[n], ray_pos).r-"+suvMinVolumeValue+") *volumeNormalizeFactor;;",
 				"  		for(int i = 0; i< steps; i++){",
 				"",        				
 				"",
@@ -158,19 +168,21 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"        	// - we assume the volume has a cube-like shape",
 				"",
 				"        	// break out if ray reached the end of the cube.",
-				"        	density = (texture("+suvVolumeTexture+"[n], ray_pos).r-"+suvMinVolumeValue+") *volumeNormalizeFactor;",
+				"        	float nextDensity = (texture("+suvVolumeTexture+"[n], ray_pos).r-"+suvMinVolumeValue+") *volumeNormalizeFactor;",
+				"			",
 				"",
-				"",
-				"        	color.rgb = texture("+suvColorTexture+", density).rgb;",
-				"        	color.a   = texture("+suvColorTexture+", density).a /*density*/ * sample_step * val_threshold * brightness;",
+				"        	color = "+transferFunctionCode.call(new String[]{"density","nextDensity","sample_step"})+";",
+				"        	color.a = color.a /*density*/ * sample_step * val_threshold * brightness;",
 				"        	fragmentColor.rgb = fragmentColor.rgb * (1.0 - color.a) + color.rgb * color.a;",
-				"			ray_pos += ray_dir * sample_step;",  	
+				"			ray_pos += ray_dir * sample_step;",
+				"			density = nextDensity;",
 				"    	}",
 				"   }",
 				"	fragmentColor = vec4 (fragmentColor.rgb,0.1);", 
 		"}"};
 		addCodeArrayToList(head, code);
 		addCodeArrayToList(stepsFunction.declaration(), code);
+		addCodeArrayToList(transferFunctionCode.declaration(), code);
 		addCodeArrayToList(body, code);
 		String[] codeArray = new String[code.size()];
 		code.toArray(codeArray);

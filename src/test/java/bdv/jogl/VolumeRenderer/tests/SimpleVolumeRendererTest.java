@@ -22,7 +22,7 @@ import bdv.jogl.VolumeRenderer.FrameBufferRedirector;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
-import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 public class SimpleVolumeRendererTest {

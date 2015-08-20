@@ -22,6 +22,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+
 /**
  * direct data manipulation panel
  * @author michael

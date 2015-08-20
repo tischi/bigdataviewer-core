@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+
 /**
  * Class handling the rescaling of the transfer function logical data while resizing 
  * @author michael

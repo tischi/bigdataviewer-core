@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.TransferFunctions;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -11,6 +11,9 @@ import java.util.TreeSet;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.math.VectorUtil;
+
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 
 /**
  * store data for 1D Transfer functions
@@ -345,7 +348,10 @@ public class TransferFunction1D {
 	}
 
 	public FloatBuffer getTexture(){
-	
 		return sampler.sample(this, 1);
+	}
+	
+	public IFunction getTransferFunctionShaderCode(){
+		return sampler.getShaderCode();
 	}
 }

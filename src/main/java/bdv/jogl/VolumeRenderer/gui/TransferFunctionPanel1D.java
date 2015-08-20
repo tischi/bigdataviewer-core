@@ -13,6 +13,8 @@ import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
 
 /**

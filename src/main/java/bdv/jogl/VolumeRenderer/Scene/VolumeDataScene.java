@@ -10,15 +10,12 @@ import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.view.Views;
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Camera;
-import bdv.jogl.VolumeRenderer.CameraListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
-import bdv.jogl.VolumeRenderer.gui.SceneEventListener;
-import bdv.jogl.VolumeRenderer.gui.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
-import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
@@ -43,7 +40,9 @@ public class VolumeDataScene extends AbstractScene{
 
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
-	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer();
+	private final TransferFunction1D transferFunction = new TransferFunction1D(640, 100);
+	
+	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer(transferFunction);
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 
@@ -53,7 +52,7 @@ public class VolumeDataScene extends AbstractScene{
 
 	//private UnitCube boundingVolume =new UnitCube();
 
-	private final TransferFunction1D transferFunction = new TransferFunction1D(640, 100);
+
 
 	private SceneControlsWindow controls;
 
