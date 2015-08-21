@@ -13,7 +13,9 @@ public class RegularTransferFunctionDesampler extends AbstractTransferFunctionDe
 				"uniform sampler1D "+suvTransferFunctionTexture+";",
 				"",
 				"vec4 "+getFunctionName()+"(float vbegin, float vend, float distance){",
-				"	return texture("+suvTransferFunctionTexture+",vbegin);",
+				"	vec4 color = texture("+suvTransferFunctionTexture+",vbegin);",
+				"	color.a = 1-exp(-color.a * distance);",	
+				"	return color;",
 				"}",
 				""
 		};
