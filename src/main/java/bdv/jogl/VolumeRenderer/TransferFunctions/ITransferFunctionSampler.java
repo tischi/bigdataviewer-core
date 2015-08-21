@@ -22,5 +22,5 @@ public interface ITransferFunctionSampler {
 	 * @param sampleStep
 	 * @return
 	 */
-	public FloatBuffer sample(TransferFunction1D transferFunction, float sampleStep);
+	public SamplerOutput sample(TransferFunction1D transferFunction, float sampleStep);
 }

@@ -172,7 +172,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		}
 
 		//get Buffer last key is the highest number 
-		FloatBuffer buffer = tf.getTexture();
+		FloatBuffer buffer = tf.getTexture().textureData;
 		
 		//upload data
 		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});

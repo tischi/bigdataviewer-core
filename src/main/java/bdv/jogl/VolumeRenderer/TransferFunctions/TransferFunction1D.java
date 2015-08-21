@@ -346,7 +346,7 @@ public class TransferFunction1D {
 		fireEventAll();
 	}
 
-	public FloatBuffer getTexture(){
+	public SamplerOutput getTexture(){
 		return sampler.sample(this, 1);
 	}
 	

@@ -24,7 +24,7 @@ public class RegularSampler implements ITransferFunctionSampler {
 	 * @param sampleStep
 	 * @return
 	 */
-	public FloatBuffer sample(TransferFunction1D transferFunction, float sampleStep){
+	public SamplerOutput sample(TransferFunction1D transferFunction, float sampleStep){
 		TreeMap<Integer, Color> colorMap = transferFunction.getTexturColor();
 		//get Buffer last key is the highest number 
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
@@ -68,7 +68,9 @@ public class RegularSampler implements ITransferFunctionSampler {
 		}
 
 		buffer.rewind();
-		return buffer;
+		SamplerOutput out= new SamplerOutput();
+		out.textureData = buffer;
+		return out;
 	};
 	
 	/**
