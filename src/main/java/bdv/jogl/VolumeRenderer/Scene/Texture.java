@@ -14,19 +14,19 @@ import com.jogamp.opengl.GL2;
 public class Texture {
 
 	private static Set<Integer> usedTextureUnits = new HashSet<Integer>();
-
+	
 	private int textureUnit;
-
+	
 	private int textureObject;
-
+	
 	private final int textureType;
-
+	
 	private final int variableLocation;
 
 	private final int internalFormat;
 
 	private final int pixelFormat;
-
+	
 	private final int pixelDataType;
 
 	/**
@@ -49,7 +49,7 @@ public class Texture {
 	 */
 	public void genTexture(GL2 gl2){
 		int testUnit = GL2.GL_TEXTURE0; 
-
+		
 		//find next free unit
 		for(;;){
 			if(!usedTextureUnits.contains( testUnit)){
@@ -59,7 +59,7 @@ public class Texture {
 			testUnit++;
 		}
 		textureUnit = testUnit;
-
+		
 		//activate texture
 		gl2.glActiveTexture(textureUnit);
 
@@ -71,7 +71,7 @@ public class Texture {
 		rebindTexture(gl2);
 
 	}
-
+	
 	private void rebindTexture(GL2 gl2){
 		gl2.glBindTexture(textureType, textureObject);
 
@@ -80,46 +80,7 @@ public class Texture {
 		//activate texture unit
 		gl2.glUniform1i(variableLocation,logicalTextureUnit);
 	}
-
-	public void updateSub(GL2 gl2,int midmapLevel, Buffer data,int offsets[], int[] dimensions){
-		//activate context
-		gl2.glActiveTexture(textureUnit);
-		rebindTexture(gl2);
-		switch (dimensions.length) {
-		case 1:
-			gl2.glTexSubImage1D(textureType, 
-					midmapLevel, 
-					offsets[0],
-					dimensions[0],
-					pixelFormat, 
-					pixelDataType, 
-					data);
-			break;
-
-		case 2:
-			gl2.glTexSubImage2D(textureType, 
-					midmapLevel, 
-					offsets[0],offsets[1],
-					dimensions[0],dimensions[1], 
-					pixelFormat, 
-					pixelDataType, 
-					data);
-			break;
-
-		case 3:
-			gl2.glTexSubImage3D(textureType, 
-					midmapLevel, 
-					offsets[0],offsets[1],offsets[2],
-					dimensions[0],dimensions[1],dimensions[2], 
-					pixelFormat, 
-					pixelDataType, 
-					data);
-			break;
-		default:
-			break;
-		}
-	}
-
+	
 	/**
 	 * Updates the data for the texture
 	 * @param gl2
@@ -143,7 +104,7 @@ public class Texture {
 					pixelDataType, 
 					data);
 			break;
-
+	
 		case 2:
 			gl2.glTexImage2D(textureType, 
 					midmapLevel, 
@@ -169,7 +130,7 @@ public class Texture {
 			break;
 		}
 	}
-
+	
 	/**
 	 * Sets texture parameters with glTexParameteri
 	 * @param gl2
@@ -179,5 +140,5 @@ public class Texture {
 	public void setTexParameteri(GL2 gl2, int parameter, int value){
 		gl2.glTexParameteri(textureType, parameter, value);
 	}
-
+	
 }
