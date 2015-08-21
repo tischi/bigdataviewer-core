@@ -31,8 +31,8 @@ public class PreIntegrationSamplerTest {
 		int colorDist = 10; 
 		int maxIndex = texture.capacity()-1;
 		float a = getAlpha(texture, maxIndex-colorDist, maxIndex, 1);
-		float b = getAlpha(texture, maxIndex-2*colorDist,maxIndex-colorDist, 1);
-		float c = getAlpha(texture, maxIndex-3*colorDist, maxIndex-2*colorDist, 1);
+		float b = getAlpha(texture, maxIndex-5*colorDist,maxIndex-4*colorDist, 1);
+		float c = getAlpha(texture, maxIndex-10*colorDist, maxIndex-9*colorDist, 1);
 		
 		assertTrue(0 < getAlpha(texture, 0, texture.capacity()-1, 1));
 		assertTrue(0 < getAlpha(texture, texture.capacity()/3, maxIndex, 1));
@@ -47,7 +47,7 @@ public class PreIntegrationSamplerTest {
 		assertTrue(0< c);
 		
 		assertTrue(b< a);
-		//assertTrue(c< b);
+		assertTrue(c< b);
 	}
 
 }

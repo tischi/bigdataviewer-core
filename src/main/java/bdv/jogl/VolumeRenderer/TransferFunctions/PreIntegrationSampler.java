@@ -68,7 +68,7 @@ public class PreIntegrationSampler implements ITransferFunctionSampler {
 				for(int i = 0; i< 3; i++){
 					float fx1 = formerSampleColor[i];
 					float fx2 = sampleColor[i];
-					float componetColorIntegral= sampleStep/3.f *(fx1*gx1+(fx1*gx2+fx2*gx1)/2.f +fx2*gx2) ;
+					float componetColorIntegral=  sampleStep/3.f *(fx1*gx1+(fx1*gx2+fx2*gx1)/2.f +fx2*gx2) ;
 					integral[i] += componetColorIntegral;
 				}
 				buffer.put(integral.clone());
