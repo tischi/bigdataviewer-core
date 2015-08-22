@@ -7,10 +7,11 @@ public class PreIntegrationDesampler extends AbstractTransferFunctionDesampler {
 		String dec[] ={
 				"",
 				"uniform sampler1D "+suvTransferFunctionTexture+";",
+				"const float minValue = 0.00001f;",
 				"",
 				"vec4 "+getFunctionName()+"(float vbegin, float vend, float distance){",
-				"	if(vbegin < 0.f || vend < 0.f){",
-				"		return vec4(0.f);",
+				"	if(vbegin - vend < minValue){",
+				"		vend+=minValue;",
 				"	}",
 				"	vec4 iFront = texture("+suvTransferFunctionTexture+",vbegin);",
 				"	vec4 iBack = texture("+suvTransferFunctionTexture+",vend);",

@@ -23,7 +23,7 @@ public class TransferFunction1D {
 
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
-	private ITransferFunctionSampler sampler = new RegularSampler();
+	private ITransferFunctionSampler sampler = new PreIntegrationSampler();
 	
 	//order points first by x then by y
 	private final Comparator<Point> pointOrderXOperator = new Comparator<Point>() {
