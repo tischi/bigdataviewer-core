@@ -18,4 +18,11 @@ public interface TransferFunctionListener extends EventListener {
 	 * @param xToColorMap Colors per ordinate.
 	 */
 	public void colorChanged(final TransferFunction1D transferFunction );
+	
+
+	/**
+	 * called if the sampler (pre integration or normal sampler) was altered. 
+	 * The shader then needs to recompile.
+	 */
+	public void samplerChanged(final TransferFunction1D transferFunction1D);
 }

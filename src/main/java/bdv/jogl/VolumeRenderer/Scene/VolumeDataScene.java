@@ -15,6 +15,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
@@ -77,7 +78,7 @@ public class VolumeDataScene extends AbstractScene{
 
 	public VolumeDataScene(BigDataViewer bdv){
 		bigDataViewer = bdv;
-		transferFunction.addTransferFunctionListener( new TransferFunctionListener() {
+		transferFunction.addTransferFunctionListener( new TransferFunctionAdapter() {
 
 			@Override
 			public void colorChanged(final TransferFunction1D function) {

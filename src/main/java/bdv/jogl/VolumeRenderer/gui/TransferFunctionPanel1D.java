@@ -77,7 +77,7 @@ public class TransferFunctionPanel1D extends JPanel {
 	 */
 	public void setTransferFunction(TransferFunction1D transferFunction) {
 		this.transferFunction = transferFunction;
-		this.transferFunction.addTransferFunctionListener(new TransferFunctionListener() {
+		this.transferFunction.addTransferFunctionListener(new TransferFunctionAdapter() {
 			
 			@Override
 			public void colorChanged(TransferFunction1D transferFunction) {

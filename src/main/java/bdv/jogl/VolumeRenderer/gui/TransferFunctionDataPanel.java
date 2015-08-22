@@ -148,7 +148,8 @@ public class TransferFunctionDataPanel extends JPanel {
 
 	public void setTransferFunction(TransferFunction1D tf){
 		transferFunction = tf;
-		transferFunction.addTransferFunctionListener(new TransferFunctionListener() {
+		transferFunction.addTransferFunctionListener(new TransferFunctionAdapter() {
+		
 			
 			@Override
 			public void colorChanged(TransferFunction1D transferFunction) {

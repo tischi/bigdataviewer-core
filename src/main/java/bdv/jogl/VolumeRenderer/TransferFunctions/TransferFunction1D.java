@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import jogamp.opengl.ListenerSyncedImplStub;
+
 import com.jogamp.opengl.math.VectorUtil;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
@@ -23,7 +25,7 @@ public class TransferFunction1D {
 
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
-	private ITransferFunctionSampler sampler = new PreIntegrationSampler();
+	private ITransferFunctionSampler sampler; 
 	
 	//order points first by x then by y
 	private final Comparator<Point> pointOrderXOperator = new Comparator<Point>() {
@@ -44,19 +46,29 @@ public class TransferFunction1D {
 
 	private final TreeSet<Point > functionPoints;
 
+	private void fireSamplerChangedEventAll(){
+		for(TransferFunctionListener listener: transferFunctionListeners){
+			fireSamplerChangedEvent(listener);
+		}
+	}
+	
+	private void fireSamplerChangedEvent(final TransferFunctionListener l){
+		l.samplerChanged(this);
+	}
+	
 	/**
 	 * Calls all event methods on listener using the current data state
 	 * @param listener
 	 */
-	private void fireEvent(final TransferFunctionListener listener){
+	private void fireColorChangedEvent(final TransferFunctionListener listener){
 
 		listener.colorChanged(this);
 	}
 
-	private void fireEventAll(){
+	private void fireColorChangedEventAll(){
 
 		for(TransferFunctionListener listener:transferFunctionListeners){
-			fireEvent(listener);
+			fireColorChangedEvent(listener);
 		}
 	}
 
@@ -65,7 +77,7 @@ public class TransferFunction1D {
 		functionPoints.add(new Point(0,0));
 		functionPoints.add(new Point(maxOrdinates));	
 
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 	public void resetColors(){
@@ -74,7 +86,7 @@ public class TransferFunction1D {
 		colors.put(new Point(maxOrdinates.x/2,0), Color.WHITE);
 		colors.put(new Point(maxOrdinates.x,0),Color.RED);
 
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 
@@ -84,8 +96,10 @@ public class TransferFunction1D {
 
 		maxOrdinates = new Point(maxX, maxY);
 
+		
 		resetColors();
 		resetLine();
+		setSampler( new PreIntegrationSampler());
 	}
 
 	/**
@@ -103,7 +117,7 @@ public class TransferFunction1D {
 	public void setColor(final Point point, final Color color){
 		colors.put(point, color);
 
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 	/**
@@ -129,7 +143,7 @@ public class TransferFunction1D {
 		functionPoints.remove(dragPoint);
 		functionPoints.add(newPoint);
 
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 	/**
@@ -149,7 +163,7 @@ public class TransferFunction1D {
 		}
 		functionPoints.add(point);
 
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 	/**
@@ -159,7 +173,7 @@ public class TransferFunction1D {
 	public void addTransferFunctionListener(final TransferFunctionListener listener){
 		transferFunctionListeners.add(listener);
 
-		fireEvent(listener);
+		fireColorChangedEvent(listener);
 	}
 
 
@@ -181,7 +195,7 @@ public class TransferFunction1D {
 
 		rescale(oldMax);
 
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 	/**
@@ -343,7 +357,7 @@ public class TransferFunction1D {
 
 		colors.remove(oldPoint);
 		colors.put(newPoint, color);
-		fireEventAll();
+		fireColorChangedEventAll();
 	}
 
 	public FloatBuffer getTexture(){
@@ -352,5 +366,20 @@ public class TransferFunction1D {
 	
 	public IFunction getTransferFunctionShaderCode(){
 		return sampler.getShaderCode();
+	}
+
+	/**
+	 * @return the sampler
+	 */
+	public ITransferFunctionSampler getSampler() {
+		return sampler;
+	}
+
+	/**
+	 * @param sampler the sampler to set
+	 */
+	public void setSampler(ITransferFunctionSampler sampler) {
+		this.sampler = sampler;
+		fireSamplerChangedEventAll();
 	}
 }

@@ -23,7 +23,11 @@ public class SceneControlsWindow extends JFrame {
 	
 	private TransferFunctionDataPanel tfDataPanel = null;
 	
+	private JCheckBox usePreIntegration = new JCheckBox("Use pre-integration",true);
+	
 	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
+	
+	
 	
 	public SceneControlsWindow(final TransferFunction1D tf){
 		createTFWindow(tf);
@@ -34,6 +38,7 @@ public class SceneControlsWindow extends JFrame {
 	
 		tfDataPanel = new TransferFunctionDataPanel(tf);
 
+		
 
 		setTitle("Transfer function configurations");
 		setSize(640, 100);
@@ -41,6 +46,7 @@ public class SceneControlsWindow extends JFrame {
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(tfpanel);
+		mainPanel.add(usePreIntegration);
 		mainPanel.add(advancedCheck);
 		mainPanel.add(tfDataPanel);
 		tfDataPanel.setVisible(advancedCheck.isSelected());

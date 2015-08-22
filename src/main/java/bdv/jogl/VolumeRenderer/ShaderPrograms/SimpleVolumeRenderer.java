@@ -8,6 +8,7 @@ import java.nio.FloatBuffer;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeRendererShaderSources;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
@@ -58,7 +59,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	 */
 	public void setTransferFunction(final TransferFunction1D tf){
 		this.tf = tf;
-		this.tf.addTransferFunctionListener(new TransferFunctionListener() {
+		this.tf.addTransferFunctionListener(new TransferFunctionAdapter() {
 			
 			@Override
 			public void colorChanged(TransferFunction1D transferFunction) {

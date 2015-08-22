@@ -10,6 +10,7 @@ import java.util.Map;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.gui.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
@@ -349,7 +350,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 */
 	public void setTransferFunction(final TransferFunction1D tf){
 		this.tf = tf;
-		this.tf.addTransferFunctionListener(new TransferFunctionListener() {
+		this.tf.addTransferFunctionListener(new TransferFunctionAdapter() {
 			
 			@Override
 			public void colorChanged(TransferFunction1D transferFunction) {
