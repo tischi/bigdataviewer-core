@@ -51,6 +51,20 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
 
+	private void setAllUpdate(boolean flag){
+		setNeedsRebuild(flag);
+		isColorUpdateable = flag;
+		isEyeUpdateable = flag;
+		for(VolumeDataBlock data: dataValues.values()){
+			data.setNeedsUpdate(true);
+		}
+		shaderCodes.clear();
+		sources.setTransferFunctionCode(tf.getTransferFunctionShaderCode());
+		for(ShaderCode code:sources.getShaderCodes()){
+			shaderCodes.add(code);
+		}
+	} 
+	
 	public MultiVolumeRenderer(TransferFunction1D tf){
 		setTransferFunction(tf);
 		for(ShaderCode code:sources.getShaderCodes()){
@@ -356,6 +370,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			public void colorChanged(TransferFunction1D transferFunction) {
 				isColorUpdateable =true;
 				
+			}
+			
+			@Override
+			public void samplerChanged(TransferFunction1D transferFunction1D) {
+				setAllUpdate(true);
 			}
 		});
 		sources.setTransferFunctionCode(this.tf.getTransferFunctionShaderCode());

@@ -86,6 +86,11 @@ public class VolumeDataScene extends AbstractScene{
 				//trigger scene update
 				fireNeedUpdateAll();
 			}
+			
+			@Override
+			public void samplerChanged(TransferFunction1D transferFunction1D) {
+				fireNeedUpdateAll();
+			}
 		});
 	}
 

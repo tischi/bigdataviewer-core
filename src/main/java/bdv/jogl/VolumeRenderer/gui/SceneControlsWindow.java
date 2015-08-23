@@ -8,6 +8,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
+import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
 /**
@@ -23,6 +25,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private TransferFunctionDataPanel tfDataPanel = null;
 	
+	private TransferFunction1D transferFunction;
+	
 	private JCheckBox usePreIntegration = new JCheckBox("Use pre-integration",true);
 	
 	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
@@ -30,6 +34,7 @@ public class SceneControlsWindow extends JFrame {
 	
 	
 	public SceneControlsWindow(final TransferFunction1D tf){
+		transferFunction = tf;
 		createTFWindow(tf);
 	}
 	
@@ -43,6 +48,7 @@ public class SceneControlsWindow extends JFrame {
 		setTitle("Transfer function configurations");
 		setSize(640, 100);
 		initAdvancedBox();
+		initUsePreIntegration();
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(tfpanel);
@@ -54,6 +60,22 @@ public class SceneControlsWindow extends JFrame {
 		getContentPane().add(mainPanel);
 		pack();
 		setVisible(true);
+	}
+
+	private void initUsePreIntegration() {
+		usePreIntegration.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				if(usePreIntegration.isSelected()){
+					transferFunction.setSampler(new PreIntegrationSampler());
+				}else{
+					transferFunction.setSampler(new RegularSampler());
+				}
+				
+			}
+		});
+		
 	}
 
 	private void initAdvancedBox() {

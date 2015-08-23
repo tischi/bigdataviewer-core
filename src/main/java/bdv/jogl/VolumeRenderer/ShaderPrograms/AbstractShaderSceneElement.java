@@ -37,7 +37,16 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	private ShaderProgram shaderProgram= new ShaderProgram();
 
 	private VertexAttribute position;
+	
+	private boolean needsRebuild = false;
 
+
+	/**
+	 * @param needsRebuild the needsRebuild to set
+	 */
+	public void setNeedsRebuild(boolean needsRebuild) {
+		this.needsRebuild = needsRebuild;
+	}
 
 	/**
 	 * @param projection the projection to set
@@ -91,6 +100,12 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * update all shader variables 
 	 */
 	public void update(GL2 gl){
+		if(needsRebuild){
+			disposeGL(gl);
+			init(gl);
+			needsRebuild = false;
+		}
+		
 		updateShaderAttributes(gl);
 
 		updateVertexBuffer(gl);

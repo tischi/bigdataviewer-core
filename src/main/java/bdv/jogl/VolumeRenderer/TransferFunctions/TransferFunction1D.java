@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import jogamp.opengl.ListenerSyncedImplStub;
-
 import com.jogamp.opengl.math.VectorUtil;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
