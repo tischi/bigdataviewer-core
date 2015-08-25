@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TransferFunctionAdapter;
@@ -70,6 +71,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(ShaderCode code:sources.getShaderCodes()){
 			shaderCodes.add(code);
 		}
+		sources.addSourceListener(new ISourceListener() {
+			
+			@Override
+			public void sourceCodeChanged() {
+				setAllUpdate(true);
+				
+			}
+		});
 	}
 
 	private float[] calculateEyePositions(){
