@@ -5,7 +5,7 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
  * @author michael
  *
  */
-public class RegularTransferFunctionDesampler extends AbstractTransferFunctionDesampler {
+public class RegularTransferFunctionInterpreter extends AbstractTransferFunctionInterpreter {
 	@Override
 	public String[] declaration() {
 		String dec[] ={

@@ -7,11 +7,11 @@ import java.util.TreeMap;
 import com.jogamp.common.nio.Buffers;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.PreIntegrationDesampler;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.PreIntegrationInterpreter;
 
 public class PreIntegrationSampler implements ITransferFunctionSampler {
 
-	private final PreIntegrationDesampler desampler = new PreIntegrationDesampler();
+	private final PreIntegrationInterpreter desampler = new PreIntegrationInterpreter();
 
 	@Override
 	public IFunction getShaderCode() {

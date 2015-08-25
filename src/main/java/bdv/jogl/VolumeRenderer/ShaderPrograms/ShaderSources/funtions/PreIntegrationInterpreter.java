@@ -1,6 +1,6 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
 
-public class PreIntegrationDesampler extends AbstractTransferFunctionDesampler {
+public class PreIntegrationInterpreter extends AbstractTransferFunctionInterpreter {
 	//http://www.uni-koblenz.de/~cg/Studienarbeiten/SA_MariusErdt.pdf
 	@Override
 	public String[] declaration() {

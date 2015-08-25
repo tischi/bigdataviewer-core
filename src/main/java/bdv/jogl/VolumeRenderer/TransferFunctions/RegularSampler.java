@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import com.jogamp.common.nio.Buffers;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.RegularTransferFunctionDesampler;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.RegularTransferFunctionInterpreter;
 
 /**
  * Samples transfer function texture regularly 
@@ -16,7 +16,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.RegularTran
  */
 public class RegularSampler implements ITransferFunctionSampler {
 	
-	private final RegularTransferFunctionDesampler desampler = new RegularTransferFunctionDesampler();  
+	private final RegularTransferFunctionInterpreter desampler = new RegularTransferFunctionInterpreter();  
 	
 	/**
 	 * Samples tf data and returns 1d texture
