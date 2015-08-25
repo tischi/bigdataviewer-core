@@ -60,6 +60,9 @@ public abstract class AbstractShaderSource {
 	 * @param shaderLanguageVersion the shaderLanguageVersion to set
 	 */
 	public void setShaderLanguageVersion(int shaderLanguageVersion) {
+		if(this.shaderLanguageVersion == shaderLanguageVersion){
+			return;
+		}
 		this.shaderLanguageVersion = shaderLanguageVersion;
 		notifySourceCodeChanged();
 	}

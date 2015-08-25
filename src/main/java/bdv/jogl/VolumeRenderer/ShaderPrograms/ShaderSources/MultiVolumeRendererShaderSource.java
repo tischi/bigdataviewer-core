@@ -59,6 +59,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	 * @param maxNumberOfVolumes the maxNumberOfVolumes to set
 	 */
 	public void setMaxNumberOfVolumes(int maxNumberOfVolumes) {
+		if(this.maxNumberOfVolumes == maxNumberOfVolumes){
+			return;
+		}
 		this.maxNumberOfVolumes = maxNumberOfVolumes;
 		notifySourceCodeChanged();
 	}
@@ -76,7 +79,11 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	 * @param transferFunctionCode the transferFunctionCode to set
 	 */
 	public void setTransferFunctionCode(IFunction transferFunctionCode) {
+		if(transferFunctionCode.equals(this.transferFunctionCode)){
+			return;
+		}
 		this.transferFunctionCode = transferFunctionCode;
+		notifySourceCodeChanged();
 	}
 
 

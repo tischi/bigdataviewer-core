@@ -17,7 +17,10 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
+import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
+import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
 public class MultiVolumeRendererShaderSourceTest {
@@ -28,12 +31,14 @@ public class MultiVolumeRendererShaderSourceTest {
 	
 	private GLCanvas glcanvas;
 	
+	int counter;
+	
 	private GLEventListener shaderBuilder = new GLEventListener() {
 		
 		@Override
 		public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
 			// TODO Auto-generated method stub
-			
+			// TODO Auto-generated method stub
 		}
 		
 		@Override
@@ -80,6 +85,7 @@ public class MultiVolumeRendererShaderSourceTest {
 		testWindow = new JFrame("test window mvr");
 		testWindow.getContentPane().add(glcanvas);
 		
+		counter = 0;
 	}
 	
 	@Test
@@ -97,5 +103,46 @@ public class MultiVolumeRendererShaderSourceTest {
 		assertTrue(syncVal);
 	}	
 	
+	@Test
+	public void listenerTest(){
+		MultiVolumeRendererShaderSource source = new MultiVolumeRendererShaderSource();
+		source.addSourceListener(new ISourceListener() {
+			
+			@Override
+			public void sourceCodeChanged() {
+				counter++;
+			}
+		});
+		int outCounter = 0;
+		source.setMaxNumberOfVolumes(0);
+		assertEquals(counter, ++outCounter);
+		source.setMaxNumberOfVolumes(2);
+		assertEquals(counter, ++outCounter);
+		
+		//no change on same number
+		source.setMaxNumberOfVolumes(2);
+		assertEquals(counter, outCounter);
+		
+		source.setShaderLanguageVersion(0);
+		assertEquals(counter, ++outCounter);
+		source.setShaderLanguageVersion(3);
+		assertEquals(counter, ++outCounter);
+		
+		//no change
+		source.setShaderLanguageVersion(3);
+		assertEquals(counter, outCounter);
+		
+		source.setTransferFunctionCode(new RegularSampler().getShaderCode());
+		assertEquals(counter, ++outCounter);
+		source.setTransferFunctionCode(new PreIntegrationSampler().getShaderCode());
+		assertEquals(counter, ++outCounter);
+		
+		//no change
+		source.setTransferFunctionCode(new PreIntegrationSampler().getShaderCode());
+		assertEquals(counter, outCounter);
+		
+		
+		
+	}
 	
 }

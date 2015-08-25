@@ -23,6 +23,28 @@ public abstract class AbstractShaderFunction implements IFunction {
 	}
 	
 	@Override
+	public boolean equals(Object obj) {
+		if(obj==null){
+			return false;
+		}
+		if(obj.getClass()!=this.getClass()){
+			return false;
+		}
+		AbstractShaderFunction func = (AbstractShaderFunction) obj;
+		String[] dec = this.declaration();
+		String[] fdec= func.declaration();
+		if(dec.length != fdec.length){
+			return false;
+		}
+		for(int i =0; i < dec.length; i++){
+			if(!dec[i].equals(fdec[i])){
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	@Override
 	public String call(String[] parameters) {
 		String call = functionName + "(";
 		int i =0;
