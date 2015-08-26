@@ -19,6 +19,7 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
@@ -141,8 +142,30 @@ public class MultiVolumeRendererShaderSourceTest {
 		source.setTransferFunctionCode(new PreIntegrationSampler().getShaderCode());
 		assertEquals(counter, outCounter);
 		
+		AbstractVolumeAccumulator a1 = new AbstractVolumeAccumulator() {
+			
+			@Override
+			public String[] declaration() {
+				return new String[]{"fooo"};
+			}
+		};
 		
+		AbstractVolumeAccumulator a2 = new AbstractVolumeAccumulator() {
+			
+			@Override
+			public String[] declaration() {
+				return new String[]{"bar"};
+			}
+		};
+		source.setAccumulator(a1 );
+		assertEquals(counter, ++outCounter);
+		source.setAccumulator(a2 );
+		assertEquals(counter, ++outCounter);
 		
+		source.setAccumulator(a2 );
+		assertEquals(counter, outCounter);
 	}
+	
+	
 	
 }
