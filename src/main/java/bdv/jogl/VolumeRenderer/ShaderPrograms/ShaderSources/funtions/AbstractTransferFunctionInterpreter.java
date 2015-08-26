@@ -7,8 +7,6 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
  */
 public abstract class AbstractTransferFunctionInterpreter extends AbstractShaderFunction {
 	
-	public static final String suvTransferFunctionTexture = "inColorTexture";
-	
 	protected AbstractTransferFunctionInterpreter(){
 		super("desampler");
 	}
