@@ -1,12 +1,14 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
 
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
+
 public class PreIntegrationInterpreter extends AbstractTransferFunctionInterpreter {
 	//http://www.uni-koblenz.de/~cg/Studienarbeiten/SA_MariusErdt.pdf
 	@Override
 	public String[] declaration() {
 		String dec[] ={
 				"",
-				"uniform sampler1D "+suvTransferFunctionTexture+";",
+				"uniform sampler1D "+suvColorTexture+";",
 				"const float minValue = 0.00001f;",
 				"const float minValueHalf = minValue/2.f;",
 				"",
@@ -15,8 +17,8 @@ public class PreIntegrationInterpreter extends AbstractTransferFunctionInterpret
 				"		vend+=minValueHalf;",
 				"		vbegin-=minValueHalf;",
 				"	}",
-				"	vec4 iFront = texture("+suvTransferFunctionTexture+",vbegin);",
-				"	vec4 iBack = texture("+suvTransferFunctionTexture+",vend);",
+				"	vec4 iFront = texture("+suvColorTexture+",vbegin);",
+				"	vec4 iBack = texture("+suvColorTexture+",vend);",
 				"	vec4 color = vec4(0.f);",
 				"	vec4 iDiff = distance/(vend - vbegin) * (iBack - iFront);",
 				"",
