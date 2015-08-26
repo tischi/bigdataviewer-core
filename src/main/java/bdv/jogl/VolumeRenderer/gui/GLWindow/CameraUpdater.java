@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;

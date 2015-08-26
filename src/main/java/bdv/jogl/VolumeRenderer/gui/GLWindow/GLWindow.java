@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 
 import java.awt.event.WindowAdapter;
@@ -11,12 +11,13 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
+import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions;
 import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.*;
-
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.SceneGlobalTransformationListener;
+import bdv.jogl.VolumeRenderer.Scene.SceneEventListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
 import com.jogamp.opengl.GL;

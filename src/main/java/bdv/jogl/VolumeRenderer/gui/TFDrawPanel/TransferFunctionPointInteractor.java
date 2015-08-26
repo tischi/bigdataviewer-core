@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -7,6 +7,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+
+
 
 
 

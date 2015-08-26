@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Dimension;
 import java.awt.Point;

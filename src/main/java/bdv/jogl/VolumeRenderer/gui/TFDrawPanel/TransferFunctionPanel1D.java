@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -7,14 +7,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
-
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
 
 /**

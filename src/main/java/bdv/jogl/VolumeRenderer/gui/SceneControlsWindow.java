@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
+import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionPanel1D;
 
 /**
  * Class for providing tf scene controls

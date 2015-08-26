@@ -3,6 +3,7 @@ package bdv.jogl.VolumeRenderer.gui;
 import java.awt.event.ActionEvent;
 
 import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.util.AbstractNamedAction;
 
 /**

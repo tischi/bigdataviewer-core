@@ -8,8 +8,8 @@ import java.nio.FloatBuffer;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.SingleVolumeRendererShaderSources;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
-import bdv.jogl.VolumeRenderer.gui.TransferFunctionAdapter;
-import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 

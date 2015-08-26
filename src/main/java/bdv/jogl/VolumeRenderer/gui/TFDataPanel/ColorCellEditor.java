@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.TFDataPanel;
 
 import java.awt.Color;
 import java.awt.Component;

@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.TFDataPanel;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 
 /**
  * direct data manipulation panel

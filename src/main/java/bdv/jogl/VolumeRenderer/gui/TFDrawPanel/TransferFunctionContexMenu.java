@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -11,6 +11,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
+
+
 
 
 

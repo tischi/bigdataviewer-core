@@ -1,10 +1,8 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.TransferFunctions;
 
 import java.awt.Color;
 import java.util.EventListener;
 import java.util.TreeMap;
-
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
 /**
  * listen if a certain transfer function was altered.

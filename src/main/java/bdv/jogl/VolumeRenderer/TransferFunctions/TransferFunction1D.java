@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import com.jogamp.opengl.math.VectorUtil;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
-import bdv.jogl.VolumeRenderer.gui.TransferFunctionListener;
 
 /**
  * store data for 1D Transfer functions

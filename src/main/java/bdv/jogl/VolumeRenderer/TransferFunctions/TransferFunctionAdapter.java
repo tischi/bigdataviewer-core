@@ -1,6 +1,5 @@
-package bdv.jogl.VolumeRenderer.gui;
+package bdv.jogl.VolumeRenderer.TransferFunctions;
 
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
 /**
  * empty implementation of the listener to not waste code

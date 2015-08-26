@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
-import bdv.jogl.VolumeRenderer.gui.TransferFunctionWindowResizeHandler;
+import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionWindowResizeHandler;
 
 public class TransferFunctionWindowResizeHandlerTest {
 

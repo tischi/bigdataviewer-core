@@ -37,7 +37,7 @@ import org.jdom2.output.XMLOutputter;
 import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterConsole;
 import bdv.img.cache.Cache;
-import bdv.jogl.VolumeRenderer.gui.GLWindow;
+import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.WrapBasicImgLoader;
 import bdv.spimdata.XmlIoSpimDataMinimal;
