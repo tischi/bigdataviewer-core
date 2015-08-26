@@ -30,6 +30,5 @@ public class ShaderSourceUtil {
 		for(String line: code){
 			list.add(line);
 		}
-	}
-	
+	} 
 }
