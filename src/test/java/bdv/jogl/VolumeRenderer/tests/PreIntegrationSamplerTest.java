@@ -2,7 +2,6 @@ package bdv.jogl.VolumeRenderer.tests;
 
 import static org.junit.Assert.*;
 
-import java.awt.Color;
 import java.nio.FloatBuffer;
 
 import org.junit.Test;
@@ -74,10 +73,6 @@ public class PreIntegrationSamplerTest {
 	@Test
 	public void shaderLikeColorTest(){
 		FloatBuffer texture = objectUnderTest.sample(testTransferFunction, 1);
-		
-		//linear ramp tf assumed
-		int colorDist = 10; 
-		int maxIndex = texture.capacity()/4-1;
 		
 		float[] a = getRGB(texture, 0, 0, 100);
 		float[] b = getRGB(texture,0,0,1000);
