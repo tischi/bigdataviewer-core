@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvMinVolumeValue;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AverageVolumeAccumulator;
@@ -204,7 +205,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"      	// break out if ray reached the end of the cube.",
 				"		float nextDensity = 0;",
 				"		float densities["+scvMaxNumberOfVolumes+"] = getVolumeValues(ray_poss);",
-				"		nextDensity = "+accumulator.call(new String[]{"densities"})+";",		
+				"		nextDensity = "+accumulator.call(new String[]{"densities"})+" - "+suvMinVolumeValue+";",		
 				"      	nextDensity *= volumeNormalizeFactor;",
 				"",
 				"      	color = "+transferFunctionCode.call(new String[]{"density","nextDensity","sample_step"})+";",

@@ -13,6 +13,8 @@ import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionPanel1D;
+import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
+import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPanel;
 
 /**
  * Class for providing tf scene controls
@@ -29,21 +31,23 @@ public class SceneControlsWindow extends JFrame {
 	
 	private TransferFunction1D transferFunction;
 	
+	private VolumeDataAggregationPanel aggregationPanel;
+	
 	private JCheckBox usePreIntegration = new JCheckBox("Use pre-integration",true);
 	
 	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
 	
 	
 	
-	public SceneControlsWindow(final TransferFunction1D tf){
+	public SceneControlsWindow(final TransferFunction1D tf,final AggregatorManager agm){
 		transferFunction = tf;
-		createTFWindow(tf);
+		createTFWindow(tf,agm);
 	}
 	
-	private void createTFWindow(final TransferFunction1D tf){
+	private void createTFWindow(final TransferFunction1D tf,final AggregatorManager agm){
 		tfpanel = new TransferFunctionPanel1D(tf);
-	
 		tfDataPanel = new TransferFunctionDataPanel(tf);
+		aggregationPanel = new VolumeDataAggregationPanel(agm);
 
 		
 
@@ -57,6 +61,7 @@ public class SceneControlsWindow extends JFrame {
 		mainPanel.add(usePreIntegration);
 		mainPanel.add(advancedCheck);
 		mainPanel.add(tfDataPanel);
+		mainPanel.add(aggregationPanel);
 		tfDataPanel.setVisible(advancedCheck.isSelected());
 		
 		getContentPane().add(mainPanel);

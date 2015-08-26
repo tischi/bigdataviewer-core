@@ -1,11 +1,11 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
 
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.scvMaxNumberOfVolumes;
 
-public class AverageVolumeAccumulator extends AbstractVolumeAccumulator {
+public class MinimumVolumeAccumulator extends AbstractVolumeAccumulator {
 
-	public AverageVolumeAccumulator(){
-		super("average");
+	public MinimumVolumeAccumulator(){
+		super("minimum");
 	}
 	
 	@Override
@@ -13,11 +13,12 @@ public class AverageVolumeAccumulator extends AbstractVolumeAccumulator {
 		String[] dec= new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
-				"	float density = 0;",		
+				"	float density = "+Float.MAX_VALUE+";",		
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
-				"		density += densities[n];",
+				"		if(density > densities[n]){",
+				"			density = densities[n];",
+				"		}",	
 				"	}",
-				"	density/="+scvMaxNumberOfVolumes+";",
 				"	return density;",	
 				"}"
 		};

@@ -142,7 +142,7 @@ public class MultiVolumeRendererShaderSourceTest {
 		source.setTransferFunctionCode(new PreIntegrationSampler().getShaderCode());
 		assertEquals(counter, outCounter);
 		
-		AbstractVolumeAccumulator a1 = new AbstractVolumeAccumulator() {
+		AbstractVolumeAccumulator a1 = new AbstractVolumeAccumulator("fo") {
 			
 			@Override
 			public String[] declaration() {
@@ -150,7 +150,7 @@ public class MultiVolumeRendererShaderSourceTest {
 			}
 		};
 		
-		AbstractVolumeAccumulator a2 = new AbstractVolumeAccumulator() {
+		AbstractVolumeAccumulator a2 = new AbstractVolumeAccumulator("barrr") {
 			
 			@Override
 			public String[] declaration() {

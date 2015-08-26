@@ -2,7 +2,9 @@ package bdv.jogl.VolumeRenderer.Scene;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -13,10 +15,16 @@ import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AverageVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.MaximumVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.MinimumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
+import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
+import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
@@ -194,7 +202,25 @@ public class VolumeDataScene extends AbstractScene{
 		AABBox volumeBoundingBox = new AABBox(minMaxDimensions[0],minMaxDimensions[1]);
 		initLocalCamera(camera, width, height, volumeBoundingBox);
 
-		controls =new SceneControlsWindow(transferFunction);
+		
+		//window
+		Set<AbstractVolumeAccumulator> acc =  new HashSet<AbstractVolumeAccumulator>();
+		AverageVolumeAccumulator avg = new AverageVolumeAccumulator();
+		acc.add(avg);
+		acc.add(new MaximumVolumeAccumulator());
+		acc.add(new MinimumVolumeAccumulator());
+		AggregatorManager aggm = new AggregatorManager(acc);
+		aggm.setActiveAcumulator(avg.getFunctionName());
+		aggm.addListener(new IVolumeAggregationListener() {
+			
+			@Override
+			public void aggregationChanged(AbstractVolumeAccumulator acc) {
+				multiVolumeRenderer.getSource().setAccumulator(acc);
+				fireNeedUpdateAll();
+			}
+		});
+		
+		controls =new SceneControlsWindow(transferFunction,aggm);
 	}
 
 

@@ -52,6 +52,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
 
+	/**
+	 * returns the source
+	 * @return
+	 */
+	public MultiVolumeRendererShaderSource getSource(){
+		return sources;
+	}
+	
 	private void setAllUpdate(boolean flag){
 		setNeedsRebuild(flag);
 		isColorUpdateable = flag;
