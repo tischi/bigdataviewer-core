@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Set;
 
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.AbstractVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.AverageVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.GetMaxStepsFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AverageVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderCode;

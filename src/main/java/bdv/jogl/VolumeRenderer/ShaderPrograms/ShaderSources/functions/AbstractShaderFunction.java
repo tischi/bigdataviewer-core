@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
 
 /**
  * defines function name for function and std call syntax

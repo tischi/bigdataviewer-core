@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
 
 public abstract class AbstractVolumeAccumulator extends AbstractShaderFunction {
 	

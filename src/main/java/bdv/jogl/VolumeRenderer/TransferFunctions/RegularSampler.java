@@ -6,8 +6,8 @@ import java.util.TreeMap;
 
 import com.jogamp.common.nio.Buffers;
 
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.RegularTransferFunctionInterpreter;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.RegularTransferFunctionInterpreter;
 
 /**
  * Samples transfer function texture regularly 

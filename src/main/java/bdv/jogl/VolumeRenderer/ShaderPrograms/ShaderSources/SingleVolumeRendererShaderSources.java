@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.GetMaxStepsFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderCode;

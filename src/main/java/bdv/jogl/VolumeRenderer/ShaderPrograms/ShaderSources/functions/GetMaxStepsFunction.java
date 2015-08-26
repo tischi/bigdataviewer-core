@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
 
 /**
  * Function to get the maximal amount of steps in a volume 

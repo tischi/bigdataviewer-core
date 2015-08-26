@@ -6,8 +6,8 @@ import java.util.TreeMap;
 
 import com.jogamp.common.nio.Buffers;
 
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.funtions.PreIntegrationInterpreter;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.PreIntegrationInterpreter;
 
 public class PreIntegrationSampler implements ITransferFunctionSampler {
 
