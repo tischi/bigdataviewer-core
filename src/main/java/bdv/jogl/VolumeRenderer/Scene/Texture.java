@@ -141,4 +141,18 @@ public class Texture {
 		gl2.glTexParameteri(textureType, parameter, value);
 	}
 	
+	
+	/**
+	 * Clears the current texture context of the object
+	 * @param gl2
+	 */
+	public void delete(GL2 gl2){
+		
+		
+		int textBuffer[] = {textureObject};
+		gl2.glDeleteTextures(1, textBuffer, 0);
+		
+		usedTextureUnits.remove(textureUnit);
+	}
+	
 }
