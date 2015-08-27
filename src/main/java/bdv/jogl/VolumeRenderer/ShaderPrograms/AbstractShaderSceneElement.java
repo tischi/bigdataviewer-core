@@ -75,11 +75,20 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 */
 	public void disposeGL(GL2 gl2){
 		
+		disposeSubClass(gl2);
+		
 		position.delete(gl2);
 
 		shaderProgram.destroy(gl2);
 	}
-
+	
+	/**
+	 * Subclass hooks for disposal
+	 * @param gl2
+	 */
+	protected void disposeSubClass(GL2 gl2){
+		
+	}
 
 	/**
 	 * initializes the shader program

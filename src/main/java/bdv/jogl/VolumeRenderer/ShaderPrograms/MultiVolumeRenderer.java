@@ -404,4 +404,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		return copyMatrix( drawCubeTransformation);
 	}
 
+	@Override
+	protected void disposeSubClass(GL2 gl2) {
+		colorTexture.delete(gl2);
+		
+		for(Texture texture: volumeTextureMap.values() ){
+			texture.delete(gl2);
+		}
+	}
 }
