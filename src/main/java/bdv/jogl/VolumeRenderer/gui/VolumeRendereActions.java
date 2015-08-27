@@ -15,6 +15,11 @@ public class VolumeRendereActions {
 
 	public static class OpenVolumeRendererAction extends AbstractNamedAction{
 
+		/**
+		 * default version
+		 */
+		private static final long serialVersionUID = 1L;
+
 		private GLWindow window3D = null;
 		
 		private final BigDataViewer bdv;

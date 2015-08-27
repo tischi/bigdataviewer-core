@@ -20,6 +20,10 @@ import javax.swing.table.TableCellRenderer;
  */
 public class ColorCellEditor extends AbstractCellEditor implements TableCellEditor, TableCellRenderer{
 
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
 	private Color currentColor;
 	private JButton button;
 	

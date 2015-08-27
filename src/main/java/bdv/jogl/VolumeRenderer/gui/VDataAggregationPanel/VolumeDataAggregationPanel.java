@@ -18,6 +18,11 @@ import javax.swing.JRadioButton;
  */
 public class VolumeDataAggregationPanel extends JPanel {
 	
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private ButtonGroup aggregationGroup = new ButtonGroup();
 	
 	private List<JRadioButton> aggregationButtons = new LinkedList<JRadioButton>();

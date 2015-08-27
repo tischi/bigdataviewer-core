@@ -23,6 +23,11 @@ import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
  */
 public class TransferFunctionPanel1D extends JPanel {
 
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
 	
 	private final TransferFunctionWindowResizeHandler resizeHandler;

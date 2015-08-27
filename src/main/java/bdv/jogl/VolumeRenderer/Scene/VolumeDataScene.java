@@ -21,7 +21,6 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.MaximumVol
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.MinimumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;

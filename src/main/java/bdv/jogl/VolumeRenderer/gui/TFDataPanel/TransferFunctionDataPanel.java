@@ -1,26 +1,18 @@
 package bdv.jogl.VolumeRenderer.gui.TFDataPanel;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.EventObject;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
@@ -32,6 +24,11 @@ import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
  */
 public class TransferFunctionDataPanel extends JPanel {
 	
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private TransferFunction1D transferFunction;
 	
 	private JScrollPane pointTableScroller;

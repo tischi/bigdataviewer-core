@@ -27,6 +27,11 @@ import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
  */
 public class TransferFunctionContexMenu extends JPopupMenu{
 
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private final TransferFunctionPanel1D parent;
 
 	private Point colorPickPoint = null;
@@ -49,6 +54,11 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 	private void initActions(){
 		add(new AbstractAction("Insert function point") {
 
+			/**
+			 * default version
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Point functionPoint = transformWindowNormalSpace(colorPickPoint,parent.getSize());
@@ -57,6 +67,11 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 			}
 		});
 		add(new AbstractAction("Insert color") {
+
+			/**
+			 * default version
+			 */
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -73,6 +88,11 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 
 		add(new AbstractAction("Reset Points") {
 
+			/**
+			 * default version
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				parent.getTransferFunction().resetLine();
@@ -80,6 +100,11 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 		});
 
 		add(new AbstractAction("Reset colors") {
+
+			/**
+			 * default version
+			 */
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {

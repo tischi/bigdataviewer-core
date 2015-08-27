@@ -12,7 +12,6 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionListener;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;

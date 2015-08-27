@@ -11,7 +11,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
-import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions;
 import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.*;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
@@ -35,6 +34,11 @@ import com.jogamp.opengl.awt.GLCanvas;
  *
  */
 public class GLWindow extends JFrame {
+
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private final GLCanvas glCanvas;
 

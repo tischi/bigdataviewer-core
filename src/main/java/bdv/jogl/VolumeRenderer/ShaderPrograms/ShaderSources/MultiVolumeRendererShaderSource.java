@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvMinVolumeValue;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AverageVolumeAccumulator;

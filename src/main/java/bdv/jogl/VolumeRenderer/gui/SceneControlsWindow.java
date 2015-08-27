@@ -23,6 +23,11 @@ import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPa
  */
 public class SceneControlsWindow extends JFrame {
 	
+	/**
+	 * default version
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private TransferFunctionPanel1D tfpanel = null;
 	
 	private final JPanel mainPanel  = new JPanel();
