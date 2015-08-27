@@ -1,8 +1,9 @@
-package bdv.jogl.VolumeRenderer.TransferFunctions;
+package bdv.jogl.VolumeRenderer.TransferFunctions.sampler;
 
 import java.nio.FloatBuffer;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
 /**
  * Samples the Transfer function and creates the texture and defines the desampling

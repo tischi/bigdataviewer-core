@@ -24,8 +24,8 @@ import bdv.jogl.VolumeRenderer.FrameBufferRedirector;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
-import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.PreIntegrationSampler;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 public class PreIntegrationSamplerTest {

@@ -1,4 +1,6 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.interpreter;
+
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractShaderFunction;
 
 /**
  * defines syntax for GPU tf value desampler

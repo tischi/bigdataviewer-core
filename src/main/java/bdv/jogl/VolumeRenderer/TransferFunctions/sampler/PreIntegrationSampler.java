@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.TransferFunctions;
+package bdv.jogl.VolumeRenderer.TransferFunctions.sampler;
 
 import java.awt.Color;
 import java.nio.FloatBuffer;
@@ -7,7 +7,8 @@ import java.util.TreeMap;
 import com.jogamp.common.nio.Buffers;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.PreIntegrationInterpreter;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.interpreter.PreIntegrationInterpreter;
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 
 public class PreIntegrationSampler implements ITransferFunctionSampler {

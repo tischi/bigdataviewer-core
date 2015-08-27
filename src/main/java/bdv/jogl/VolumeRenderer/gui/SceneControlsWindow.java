@@ -8,9 +8,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
-import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.PreIntegrationSampler;
+import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.RegularSampler;
 import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;

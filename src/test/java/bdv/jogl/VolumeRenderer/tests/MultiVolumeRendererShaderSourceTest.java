@@ -19,10 +19,10 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.TransferFunctions.PreIntegrationSampler;
-import bdv.jogl.VolumeRenderer.TransferFunctions.RegularSampler;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.PreIntegrationSampler;
+import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.RegularSampler;
 
 public class MultiVolumeRendererShaderSourceTest {
 

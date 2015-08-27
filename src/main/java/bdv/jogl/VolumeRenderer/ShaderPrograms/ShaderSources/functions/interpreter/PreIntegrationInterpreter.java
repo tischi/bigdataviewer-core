@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.interpreter;
 
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 
