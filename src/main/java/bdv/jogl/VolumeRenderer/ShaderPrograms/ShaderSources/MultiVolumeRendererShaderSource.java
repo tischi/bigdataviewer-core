@@ -209,7 +209,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"      	color = "+transferFunctionCode.call(new String[]{"density","nextDensity","sample_step"})+";",
 				"      	color.a *= val_threshold * brightness;",
-				"      	fragmentColor.rgb = fragmentColor.rgb * (1.0 - color.a) + color.rgb * color.a;",
+				"      	fragmentColor = fragmentColor + (1.0 - fragmentColor.a)*color;",
 				"		density = nextDensity;",
 				"		for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",	
 				"			ray_poss[n] += ray_dirs[n] * sample_step;",
