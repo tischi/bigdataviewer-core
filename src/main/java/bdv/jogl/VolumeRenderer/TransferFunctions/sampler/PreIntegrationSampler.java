@@ -51,39 +51,39 @@ public class PreIntegrationSampler implements ITransferFunctionSampler {
 		TreeMap<Integer, Color> colorMap = transferFunction.getTexturColor();
 		//get Buffer last key is the highest number 
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
-		
-		buffer.put(new float[]{0,0,0,0});
 
 		//make samples
 		Integer intervalBegin = colorMap.firstKey();
 		float[] integral = {0,0,0,0};
+		buffer.put(integral.clone());
 		//iterate candidates
 		for(Integer intervalEnd: colorMap.keySet()){
 			if(intervalEnd == intervalBegin){
 				continue;
 			}
 
-			float[] intervalBeginColor = getNormalizedColor( colorMap.get(intervalBegin));
+			float[] intervalBeginColor = getNormalizedColor(colorMap.get(intervalBegin));
 			float[] intervalEndColor = getNormalizedColor(colorMap.get(intervalEnd));
 			float[] intervalColorGradient = {0,0,0,0};
 			
 			//forward difference
 			for(int dim = 0; dim < intervalColorGradient.length; dim++){
-				intervalColorGradient[dim] = (intervalEndColor[dim]-intervalBeginColor[dim])/(intervalEnd-intervalBegin);
+				intervalColorGradient[dim] = (intervalEndColor[dim]-intervalBeginColor[dim])/((float)(intervalEnd-intervalBegin));
 			}
 			
+			//get upper border of the integral
+			float[] sampleColor = intervalBeginColor.clone();
 			float[] formerSampleColor = intervalBeginColor.clone();
 		
 			//sample linear
 			for(float step = intervalBegin; step < intervalEnd; step+=sampleStep ){
 				
-				//get upper border of the integral
-				float[] sampleColor = intervalBeginColor.clone();
+				//increment color
 				for(int i =0; i< sampleColor.length; i++){
 					sampleColor[i]+= intervalColorGradient[i]*sampleStep;
 				}
 				
-				//alpha integral
+				//absorbation integral
 				integral[3] += calcAbsorbationIntegral(formerSampleColor[3], sampleColor[3], sampleStep);
 				
 				//color integral
