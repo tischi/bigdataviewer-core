@@ -7,6 +7,7 @@ import java.util.Set;
 
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetStepsToVolumeFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
@@ -22,13 +23,15 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 
 	private int maxNumberOfVolumes = 2;
-	
+
 	private final GetMaxStepsFunction stepsFunction = new GetMaxStepsFunction(); 
+
+	private final GetStepsToVolumeFunction stepsToVolume = new GetStepsToVolumeFunction();
 	
 	private IFunction transferFunctionCode;
-	
+
 	private AbstractVolumeAccumulator accumulator = new AverageVolumeAccumulator();
-	
+
 	private static final String svTextureCoordinate = "textureCoordinate";
 
 	//Vertex shader uniforms
@@ -147,9 +150,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"in vec3 "+svTextureCoordinate+"["+scvMaxNumberOfVolumes+"];",
 				"out vec4 fragmentColor;",
 				"",
-				
-		
-				};
+
+
+		};
 
 		String[] body ={
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
@@ -172,7 +175,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	float volumeNormalizeFactor = 1.f/ ("+suvMaxVolumeValue+"-"+suvMinVolumeValue+"+0.01);",
 				"",
 				"	//get rays of volumes",
-				"	int steps = "+9999+";",
+				"	int steps = "+Short.MAX_VALUE+";",
+				"	int startStep = "+Short.MAX_VALUE+";",	
 				"	vec3 ray_dirs["+scvMaxNumberOfVolumes+"];",	
 				"	vec3 ray_poss["+scvMaxNumberOfVolumes+"];",
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
@@ -185,6 +189,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"    	if(steps > csteps){",
 				"    		steps = csteps;",
 				"  		}",    
+				"		csteps = "+stepsToVolume.call(new String[]{"sample_step","ray_pos","ray_dir"})+";",
+				"    	if(startStep > csteps){",
+				"    		startStep = csteps;",
+				"  		}",  
 				"	}",
 				"   if(steps > samples){",
 				"   	steps = samples;",
@@ -193,7 +201,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	//multi ray casting",
 				" 	vec4 color;",
 				"  	float density = 0;//(texture("+suvVolumeTexture+"[n], ray_pos).r-"+suvMinVolumeValue+") *volumeNormalizeFactor;",
-				"  	for(int i = 0; i< steps; i++){",
+				"  	for(int i = startStep; i< steps; i++){",
 				"",
 				"      	// note:", 
 				"      	// - ray_dir * sample_step can be precomputed",
@@ -212,9 +220,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"			ray_poss[n] += ray_dirs[n] * sample_step;",
 				"		}",	
 				"   }",
-				"	fragmentColor = vec4 (fragmentColor.rgb,0.1);", 
-		"}"};
+				"}"
+		};
 		addCodeArrayToList(head, code);
+		addCodeArrayToList(stepsToVolume.declaration(), code);
 		addCodeArrayToList(stepsFunction.declaration(), code);
 		addCodeArrayToList(accumulator.declaration(), code);
 		addCodeArrayToList(transferFunctionCode.declaration(), code);
