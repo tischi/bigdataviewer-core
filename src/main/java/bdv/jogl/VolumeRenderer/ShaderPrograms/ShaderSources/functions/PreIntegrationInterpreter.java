@@ -7,7 +7,7 @@ public class PreIntegrationInterpreter extends AbstractTransferFunctionInterpret
 	@Override
 	public String[] declaration() {
 		String dec[] ={
-				"",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
 				"uniform sampler1D "+suvColorTexture+";",
 				"const float minValue = 0.00001f;",
 				"const float minValueHalf = minValue/2.f;",
