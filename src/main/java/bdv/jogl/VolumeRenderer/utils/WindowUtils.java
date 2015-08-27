@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
@@ -25,4 +26,14 @@ public class WindowUtils {
 		
 	}
 	
+	/**
+	 * Returns the color components normalized from 0 to 1
+	 * @param color Color to extract components
+	 * @return
+	 */
+	public static float[] getNormalizedColor(Color color){
+		float rgba[] = {0,0,0,(float)(color.getAlpha())/255.f};
+		color.getColorComponents(rgba);
+		return rgba;
+	}
 }
