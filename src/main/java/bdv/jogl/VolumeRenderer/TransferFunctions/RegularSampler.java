@@ -8,7 +8,7 @@ import com.jogamp.common.nio.Buffers;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.RegularTransferFunctionInterpreter;
-
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 /**
  * Samples transfer function texture regularly 
  * @author michael
@@ -29,7 +29,6 @@ public class RegularSampler implements ITransferFunctionSampler {
 		//get Buffer last key is the highest number 
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
 
-
 		//make samples
 		Integer latestMapIndex = colorMap.firstKey();
 		//iterate candidates
@@ -38,12 +37,10 @@ public class RegularSampler implements ITransferFunctionSampler {
 				continue;
 			}
 
-			float[] currentColor = {0,0,0,(float)(colorMap.get(latestMapIndex).getAlpha())/255.f};
-			float[] finalColor = {0,0,0,(float)(colorMap.get(currentMapIndex).getAlpha())/255.f};
+			float[] currentColor = getNormalizedColor(colorMap.get(latestMapIndex));
+			float[] finalColor = getNormalizedColor(colorMap.get(currentMapIndex));
 			float[] colorGradient = {0,0,0,0};
-			colorMap.get(latestMapIndex).getColorComponents(currentColor);
-			colorMap.get(currentMapIndex).getColorComponents(finalColor);
-
+			
 			//forward difference
 			for(int dim = 0; dim < colorGradient.length; dim++){
 				colorGradient[dim] = (finalColor[dim]-currentColor[dim])/(currentMapIndex-latestMapIndex);
