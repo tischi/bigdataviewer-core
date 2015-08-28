@@ -97,8 +97,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 
 	private String[] vertexShaderCode() {
 		String[] shaderCode ={
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"#version "+getShaderLanguageVersion(),
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"",
 				"const int "+scvMaxNumberOfVolumes+" = "+maxNumberOfVolumes+";",
 				"",
@@ -134,8 +134,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	private String[] fragmentShaderCode(){
 		List<String> code = new ArrayList<String>();
 		String[] head = {
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"#version "+getShaderLanguageVersion(),
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"const int "+scvMaxNumberOfVolumes+" = "+maxNumberOfVolumes+";",
 				"const int maxInt = "+Integer.MAX_VALUE+";",
 				"const float val_threshold =1;",
@@ -155,8 +155,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		};
 
 		String[] body ={
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions["+scvMaxNumberOfVolumes+"] ){",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"	float volumeValues["+scvMaxNumberOfVolumes+"];",
 				"	for(int i = 0; i < "+scvMaxNumberOfVolumes+"; i++){",
 				"		float value = texture("+suvVolumeTexture+"[i], positions[i]).r;",	
@@ -201,7 +201,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	//multi ray casting",
 				" 	vec4 color;",
 				"  	float density = 0;//(texture("+suvVolumeTexture+"[n], ray_pos).r-"+suvMinVolumeValue+") *volumeNormalizeFactor;",
-				"  	for(int i = startStep; i< steps; i++){",
+				//TODO find gpu killing bug of start steps
+				"  	for(int i = 0/*startStep*/; i< steps; i++){",
 				"",
 				"      	// note:", 
 				"      	// - ray_dir * sample_step can be precomputed",
