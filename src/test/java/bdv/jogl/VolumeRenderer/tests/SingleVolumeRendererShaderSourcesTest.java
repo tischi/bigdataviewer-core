@@ -77,6 +77,7 @@ public class SingleVolumeRendererShaderSourcesTest {
 		glcanvas = new GLCanvas();
 		
 		testWindow = new JFrame("test window mvr");
+		testWindow.setSize(100, 100);
 		testWindow.getContentPane().add(glcanvas);
 		
 	}

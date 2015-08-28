@@ -78,6 +78,7 @@ public class UnitCubeShaderSourceTest {
 		
 		testWindow = new JFrame("test window mvr");
 		testWindow.getContentPane().add(glcanvas);
+		testWindow.setSize(100, 100);
 		
 	}
 	

@@ -130,6 +130,7 @@ public class CameraTest {
 	public void sameLookAtAsGlutest() {
 
 		frame.getContentPane().add(canvas);
+		frame.setSize(100, 100);
 		frame.setVisible(true);
 
 		canvas.addGLEventListener(listener);
@@ -156,6 +157,7 @@ public class CameraTest {
 	@Test
 	public void similarPerspectiveAsGLUtest() {
 		frame.getContentPane().add(canvas);
+		frame.setSize(100, 100);
 		frame.setVisible(true);
 		canvas.addGLEventListener(listener);
 
