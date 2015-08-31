@@ -109,7 +109,7 @@ public class VolumeDataScene extends AbstractScene{
 
 		float[] center = volumeBoundingBox.getCenter();
 
-		float[] eye = {center[0],center[1],	center[2] - 3f * (volumeBoundingBox.getDepth())};
+		float[] eye = {center[0],center[1],	center[2] - 7f * (volumeBoundingBox.getDepth())};
 
 
 		camera2.setAlpha(45);
