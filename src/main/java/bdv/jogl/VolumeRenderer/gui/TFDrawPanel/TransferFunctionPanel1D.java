@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
+import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calculateDrawPoint;
 
 /**
  * Transfer function interaction similar to paraview
@@ -29,8 +30,6 @@ public class TransferFunctionPanel1D extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
-	
-	private final TransferFunctionWindowResizeHandler resizeHandler;
 
 	private final TransferFunctionPointInteractor pointInteractor = new TransferFunctionPointInteractor(this);
 
@@ -44,8 +43,6 @@ public class TransferFunctionPanel1D extends JPanel {
 		addMouseMotionListener(pointInteractor.getMouseMotionListener());
 
 		addMouseListener(pointInteractor.getMouseListener());
-		
-		addComponentListener(resizeHandler);
 	}
 	
 	/**
@@ -56,7 +53,7 @@ public class TransferFunctionPanel1D extends JPanel {
 		initWindow();
 		setTransferFunction(tf);
 		
-		resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),transferFunction);
+		//resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),transferFunction);
 
 		addControls();
 	}
@@ -110,8 +107,8 @@ public class TransferFunctionPanel1D extends JPanel {
 			if(currentPoint.equals( latestPoint)){
 				continue;
 			}
-			Point beginGradient = transformWindowNormalSpace(latestPoint, getSize());
-			Point endGradient = transformWindowNormalSpace(currentPoint, getSize());
+			Point beginGradient = transformWindowNormalSpace(calculateDrawPoint(latestPoint,transferFunction,getSize()), getSize());
+			Point endGradient = transformWindowNormalSpace(calculateDrawPoint(currentPoint,transferFunction,getSize()), getSize());
 			
 			//gradient
 			GradientPaint gradient = new GradientPaint(
@@ -134,6 +131,8 @@ public class TransferFunctionPanel1D extends JPanel {
 				pointRadius*2, pointRadius*2);
 	}
 
+
+	
 	private void paintLines(Graphics g){
 		TreeSet<Point> functionPoints = transferFunction.getFunctionPoints();
 		if(functionPoints.size() < 2){
@@ -151,8 +150,8 @@ public class TransferFunctionPanel1D extends JPanel {
 		
 
 			if(!currentPoint.equals( latestRenderedPoint) ){
-				Point a = transformWindowNormalSpace(latestRenderedPoint, getSize());
-				Point b = transformWindowNormalSpace(currentPoint, getSize());
+				Point a = transformWindowNormalSpace(calculateDrawPoint(latestRenderedPoint,transferFunction,getSize()), getSize());
+				Point b = transformWindowNormalSpace(calculateDrawPoint(currentPoint,transferFunction,getSize()), getSize());
 				
 				//print line
 				g2d.setStroke(new BasicStroke(5));
@@ -176,7 +175,7 @@ public class TransferFunctionPanel1D extends JPanel {
 				g2d.setColor(Color.gray);
 			}
 			
-			Point drawPoint = transformWindowNormalSpace(currentPoint, getSize());
+			Point drawPoint = transformWindowNormalSpace(calculateDrawPoint(currentPoint,transferFunction,getSize()), getSize());
 			drawPointIcon(g2d, drawPoint);
 			g2d.setColor(Color.black);
 		}	

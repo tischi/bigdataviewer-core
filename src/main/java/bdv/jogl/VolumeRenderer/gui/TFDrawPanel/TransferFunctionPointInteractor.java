@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -8,15 +9,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 
-
-
-
-
-
-
-
-
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
+import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calculateTransferFunctionPoint;
 
 /**
  * Delivers all direct point interactions on the Transfer function panel
@@ -47,7 +42,10 @@ public class TransferFunctionPointInteractor {
 				return;
 			}
 			
-			selectedPoint = e.getPoint();
+			TransferFunction1D tf = parent.getTransferFunction();
+			Dimension size = parent.getSize();
+			selectedPoint = transformWindowNormalSpace( e.getPoint(), size);
+			selectedPoint = calculateTransferFunctionPoint(selectedPoint, tf, size);
 		}
 		
 		@Override
@@ -55,8 +53,11 @@ public class TransferFunctionPointInteractor {
 			
 			//insert new point
 			if(e.getClickCount() ==2 && e.getButton() == MouseEvent.BUTTON1){
-				Point functionPoint = transformWindowNormalSpace(e.getPoint(), parent.getSize());
-				parent.getTransferFunction().addFunctionPoint(functionPoint);
+				Dimension size = parent.getSize();
+				TransferFunction1D tf = parent.getTransferFunction();
+				Point functionPoint = transformWindowNormalSpace(e.getPoint(), size);
+				functionPoint = calculateTransferFunctionPoint(functionPoint, tf, size);
+				tf.addFunctionPoint(functionPoint);
 				e.consume();
 			}
 		}
@@ -76,17 +77,20 @@ public class TransferFunctionPointInteractor {
 				return;
 			}			
 			
-			Point oldPoint = transformWindowNormalSpace(selectedPoint, parent.getSize());
+			Dimension size = parent.getSize();
+			TransferFunction1D tf = parent.getTransferFunction();
+			Point oldPoint = selectedPoint;
 			Point newPoint = transformWindowNormalSpace(query, parent.getSize());
+			newPoint = calculateTransferFunctionPoint(newPoint, tf, size);
 			
 			parent.getTransferFunction().updateFunctionPoint(oldPoint,newPoint);
-			selectedPoint = e.getPoint();
+			selectedPoint = newPoint;
 			e.consume();
 		}
 	}; 
 	
 	/**
-	 * @return the selectedPoint
+	 * @return the selectedPoint in transfer function space
 	 */
 	public Point getSelectedPoint() {
 		if(null == selectedPoint){

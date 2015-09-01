@@ -111,7 +111,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 	
 	private PreIntegrationSampler objectUnderTest =new PreIntegrationSampler();
 	
-	private TransferFunction1D testTransferFunction = new TransferFunction1D(200, 200);
+	private TransferFunction1D testTransferFunction = new TransferFunction1D();
 	
 	private float getAlpha(FloatBuffer texture, int begin, int end, float stepsize ){
 		

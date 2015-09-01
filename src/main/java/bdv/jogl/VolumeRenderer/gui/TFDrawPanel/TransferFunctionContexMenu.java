@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -12,6 +13,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calculateTransferFunctionPoint;
 
 
 
@@ -61,8 +64,11 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				TransferFunction1D tf = parent.getTransferFunction();
+				Dimension winSize = parent.getSize(); 
 				Point functionPoint = transformWindowNormalSpace(colorPickPoint,parent.getSize());
-				parent.getTransferFunction().addFunctionPoint(functionPoint);
+				functionPoint = calculateTransferFunctionPoint(functionPoint, tf, winSize);
+				tf.addFunctionPoint(functionPoint);
 
 			}
 		});
@@ -81,8 +87,10 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 				if(color == null){
 					return;
 				}
-
-				parent.getTransferFunction().setColor(new Point(colorPickPoint.x,0), color);
+				TransferFunction1D tf = parent.getTransferFunction();
+				Dimension winSize = parent.getSize();
+				Point colorPoint = calculateTransferFunctionPoint(new Point(colorPickPoint.x,0), tf, winSize);
+				tf.setColor(colorPoint, color);
 			}
 		});
 

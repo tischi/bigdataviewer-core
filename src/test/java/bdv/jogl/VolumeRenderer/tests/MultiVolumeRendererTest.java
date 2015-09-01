@@ -109,7 +109,7 @@ public class MultiVolumeRendererTest {
 
 	@Before
 	public void setUp(){
-		classUnderTest = new MultiVolumeRenderer(new TransferFunction1D(200, 200));
+		classUnderTest = new MultiVolumeRenderer(new TransferFunction1D());
 	}
 	
 	@Test

@@ -48,7 +48,7 @@ public class VolumeDataScene extends AbstractScene{
 
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
-	private final TransferFunction1D transferFunction = new TransferFunction1D(640, 100);
+	private final TransferFunction1D transferFunction = new TransferFunction1D();
 	
 	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer(transferFunction);
 

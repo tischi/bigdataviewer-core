@@ -47,7 +47,7 @@ public class MultiVolumeRendererShaderSourceTest {
 			GL gl = drawable.getGL();
 			GL gl2 = gl.getGL2();
 			MultiVolumeRendererShaderSource shaderSource = new MultiVolumeRendererShaderSource();
-			shaderSource.setTransferFunctionCode(new TransferFunction1D(0, 0).getTransferFunctionShaderCode());
+			shaderSource.setTransferFunctionCode(new TransferFunction1D().getTransferFunctionShaderCode());
 			boolean result = true;
 			for(ShaderCode code : shaderSource.getShaderCodes()){
 

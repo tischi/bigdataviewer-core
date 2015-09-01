@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.TransferFunctions;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -40,10 +41,12 @@ public class TransferFunction1D {
 	};
 
 	private Point maxOrdinates;
+	
+	private final Point minOrdinates = new Point(0,0);
 
-	private final TreeMap<Point,Color> colors;
+	private final TreeMap<Point,Color> colors = new TreeMap<Point, Color>(pointOrderXOperator);
 
-	private final TreeSet<Point > functionPoints;
+	private final TreeSet<Point > functionPoints = new TreeSet<Point>(pointOrderXOperator);;
 
 	private void fireSamplerChangedEventAll(){
 		for(TransferFunctionListener listener: transferFunctionListeners){
@@ -73,7 +76,7 @@ public class TransferFunction1D {
 
 	public void resetLine(){
 		functionPoints.clear();
-		functionPoints.add(new Point(0,0));
+		functionPoints.add(new Point(minOrdinates));
 		functionPoints.add(new Point(maxOrdinates));	
 
 		fireColorChangedEventAll();
@@ -81,26 +84,34 @@ public class TransferFunction1D {
 
 	public void resetColors(){
 		colors.clear();
-		colors.put(new Point(0,0), Color.BLUE);
-		colors.put(new Point(maxOrdinates.x/2,0), Color.WHITE);
-		colors.put(new Point(maxOrdinates.x,0),Color.RED);
+		colors.put(new Point(minOrdinates), Color.BLUE);
+		colors.put(new Point(maxOrdinates.x/2,minOrdinates.y), Color.WHITE);
+		colors.put(new Point(maxOrdinates.x,minOrdinates.y),Color.RED);
 
 		fireColorChangedEventAll();
 	}
 
 
-	public TransferFunction1D(int maxX, int maxY) {
-		colors = new TreeMap<Point, Color>(pointOrderXOperator);
-		functionPoints = new  TreeSet<Point>(pointOrderXOperator);
-
-		maxOrdinates = new Point(maxX, maxY);
+	private void init( Point maxOrdinates){
+		this.maxOrdinates = maxOrdinates;
 
 		
 		resetColors();
 		resetLine();
 		setSampler( new PreIntegrationSampler());
 	}
+	
+	public TransferFunction1D(float maxVolume,  float maxTau) {
+		Double maxV = Math.ceil(maxVolume);
+		Double maxT = Math.ceil(maxTau);
+		init(new Point(maxV.intValue(),maxT.intValue()));
+	}
 
+	public TransferFunction1D(){
+		init(new Point(256,200));
+	}
+	
+	
 	/**
 	 * @return the colors
 	 */
@@ -380,5 +391,39 @@ public class TransferFunction1D {
 	public void setSampler(ITransferFunctionSampler sampler) {
 		this.sampler = sampler;
 		fireSamplerChangedEventAll();
+	}
+	
+	/**
+	 * Calculates the draw point of a transfer function  coordinate in window space
+	 * @param transferFunctionPoint
+	 * @param transferFunction
+	 * @param drawAreaSize
+	 * @return
+	 */
+	public static Point calculateDrawPoint(Point transferFunctionPoint, 
+			TransferFunction1D transferFunction,
+			Dimension drawAreaSize){
+		float xyScale[] = {(float)(drawAreaSize.getWidth()/ transferFunction.getMaxOrdinates().getX()),
+				(float)(drawAreaSize.getHeight()/transferFunction.getMaxOrdinates().getY())};
+		Point drawPoint = new Point((int)Math.round(transferFunctionPoint.getX() * xyScale[0]),
+				(int)Math.round(transferFunctionPoint.getY() * xyScale[1]));
+		return drawPoint;
+	}
+	
+	/**
+	 * Calculates the transfer function point from a given window space point 
+	 * @param windowSpacePoint
+	 * @param transferFunction
+	 * @param drawAreaSize
+	 * @return
+	 */
+	public static Point calculateTransferFunctionPoint(Point windowSpacePoint, 
+			TransferFunction1D transferFunction,
+			Dimension drawAreaSize){
+		float xyScale[] = {(float)(transferFunction.getMaxOrdinates().getX()/drawAreaSize.getWidth()),
+				(float)(transferFunction.getMaxOrdinates().getY()/drawAreaSize.getHeight())};
+		Point drawPoint = new Point((int)Math.round(windowSpacePoint.getX() * xyScale[0]),
+				(int)Math.round(windowSpacePoint.getY() * xyScale[1]));
+		return drawPoint;
 	}
 }

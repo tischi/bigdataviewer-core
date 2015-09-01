@@ -34,7 +34,7 @@ public class SimpleVolumeRendererTest {
 	private float[] volumeData = {1,2,3,
 			4,5,6};
 
-	private TransferFunction1D testtf = new TransferFunction1D(100, 100);
+	private TransferFunction1D testtf = new TransferFunction1D();
 	
 	private SimpleVolumeRenderer objectUnderTest = new SimpleVolumeRenderer();
 
