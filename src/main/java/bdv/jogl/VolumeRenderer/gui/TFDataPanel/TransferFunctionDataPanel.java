@@ -2,7 +2,7 @@ package bdv.jogl.VolumeRenderer.gui.TFDataPanel;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -59,12 +59,12 @@ public class TransferFunctionDataPanel extends JPanel {
 	
 	private void updateFunctionPoints() {
 		
-		final TreeSet<Point> functionPoints = transferFunction.getFunctionPoints();
+		final TreeSet<Point2D.Float> functionPoints = transferFunction.getFunctionPoints();
 		
 		DefaultTableModel model = new DefaultTableModel(new String[]{"Transfer function points"},0);
 		
-		for(Point point: functionPoints){
-			model.addRow(new Point[]{point});
+		for(Point2D.Float point: functionPoints){
+			model.addRow(new Point2D.Float[]{point});
 		}
 		pointTable.setModel(model);
 		model.addTableModelListener(new TableModelListener() {
@@ -74,8 +74,8 @@ public class TransferFunctionDataPanel extends JPanel {
 				if(e.getType() == TableModelEvent.UPDATE){
 					//points changed TODO
 					if(e.getColumn() == 0){
-						Point[] newPoints = new Point[functionPoints.size()];
-						Point[] oldPoints = new Point[functionPoints.size()];
+						Point2D.Float[] newPoints = new Point2D.Float[functionPoints.size()];
+						Point2D.Float[] oldPoints = new Point2D.Float[functionPoints.size()];
 						
 						functionPoints.toArray(newPoints);
 						transferFunction.getFunctionPoints().toArray(oldPoints);
@@ -93,10 +93,10 @@ public class TransferFunctionDataPanel extends JPanel {
 
 	private void updateColors() {
 		
-		final TreeMap<Point, Color> colors = transferFunction.getColors();
+		final TreeMap<Point2D.Float, Color> colors = transferFunction.getColors();
 
 		final DefaultTableModel model =new DefaultTableModel(new String[]{"Color position","Colors"},0);
-		for(Point position: colors.keySet()){
+		for(Point2D.Float position: colors.keySet()){
 			Color color = colors.get(position);
 			model.addRow(new Object[]{position,color});
 			
@@ -113,7 +113,7 @@ public class TransferFunctionDataPanel extends JPanel {
 					//color changed
 					if(e.getColumn() == 1){
 						int row = e.getFirstRow();
-						Point colorPosition = (Point) model.getValueAt(row, 0);
+						Point2D.Float colorPosition = (Point2D.Float) model.getValueAt(row, 0);
 						Color newColor = (Color) model.getValueAt(e.getFirstRow(), 1); 
 						transferFunction.setColor(colorPosition, newColor);
 						
@@ -121,8 +121,8 @@ public class TransferFunctionDataPanel extends JPanel {
 					
 					//points changed TODO
 					if(e.getColumn() == 0){
-						Point[] newPoints = new Point[colors.size()];
-						Point[] oldPoints = new Point[colors.size()];
+						Point2D.Float[] newPoints = new Point2D.Float[colors.size()];
+						Point2D.Float[] oldPoints = new Point2D.Float[colors.size()];
 						
 						colors.keySet().toArray(newPoints);
 						transferFunction.getColors().keySet().toArray(oldPoints);

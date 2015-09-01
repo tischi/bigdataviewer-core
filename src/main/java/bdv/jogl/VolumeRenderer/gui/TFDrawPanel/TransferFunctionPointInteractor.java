@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Point2D;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
@@ -22,7 +23,7 @@ public class TransferFunctionPointInteractor {
 
 	private final TransferFunctionPanel1D parent;
 	
-	private Point selectedPoint = null;
+	private Point2D.Float selectedPoint = null;
 	
 	private final MouseListener mouseListener = new MouseAdapter() {
 		
@@ -44,8 +45,8 @@ public class TransferFunctionPointInteractor {
 			
 			TransferFunction1D tf = parent.getTransferFunction();
 			Dimension size = parent.getSize();
-			selectedPoint = transformWindowNormalSpace( e.getPoint(), size);
-			selectedPoint = calculateTransferFunctionPoint(selectedPoint, tf, size);
+			Point windowPoint = transformWindowNormalSpace( e.getPoint(), size);
+			selectedPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
 		}
 		
 		@Override
@@ -55,8 +56,8 @@ public class TransferFunctionPointInteractor {
 			if(e.getClickCount() ==2 && e.getButton() == MouseEvent.BUTTON1){
 				Dimension size = parent.getSize();
 				TransferFunction1D tf = parent.getTransferFunction();
-				Point functionPoint = transformWindowNormalSpace(e.getPoint(), size);
-				functionPoint = calculateTransferFunctionPoint(functionPoint, tf, size);
+				Point windowPoint = transformWindowNormalSpace(e.getPoint(), size);
+				Point2D.Float functionPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
 				tf.addFunctionPoint(functionPoint);
 				e.consume();
 			}
@@ -79,9 +80,9 @@ public class TransferFunctionPointInteractor {
 			
 			Dimension size = parent.getSize();
 			TransferFunction1D tf = parent.getTransferFunction();
-			Point oldPoint = selectedPoint;
-			Point newPoint = transformWindowNormalSpace(query, parent.getSize());
-			newPoint = calculateTransferFunctionPoint(newPoint, tf, size);
+			Point2D.Float oldPoint = selectedPoint;
+			Point windowPoint = transformWindowNormalSpace(query, parent.getSize());
+			Point2D.Float newPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
 			
 			parent.getTransferFunction().updateFunctionPoint(oldPoint,newPoint);
 			selectedPoint = newPoint;
@@ -92,11 +93,11 @@ public class TransferFunctionPointInteractor {
 	/**
 	 * @return the selectedPoint in transfer function space
 	 */
-	public Point getSelectedPoint() {
+	public Point2D.Float getSelectedPoint() {
 		if(null == selectedPoint){
 			return null;
 		}
-		return new Point(selectedPoint);
+		return new Point2D.Float(selectedPoint.x,selectedPoint.y);
 	}
 
 

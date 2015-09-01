@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Point2D;
 
 import javax.swing.AbstractAction;
 import javax.swing.JColorChooser;
@@ -66,8 +67,8 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 			public void actionPerformed(ActionEvent arg0) {
 				TransferFunction1D tf = parent.getTransferFunction();
 				Dimension winSize = parent.getSize(); 
-				Point functionPoint = transformWindowNormalSpace(colorPickPoint,parent.getSize());
-				functionPoint = calculateTransferFunctionPoint(functionPoint, tf, winSize);
+				Point windowPoint = transformWindowNormalSpace(colorPickPoint,parent.getSize());
+				Point2D.Float functionPoint = calculateTransferFunctionPoint(windowPoint, tf, winSize);
 				tf.addFunctionPoint(functionPoint);
 
 			}
@@ -89,7 +90,7 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 				}
 				TransferFunction1D tf = parent.getTransferFunction();
 				Dimension winSize = parent.getSize();
-				Point colorPoint = calculateTransferFunctionPoint(new Point(colorPickPoint.x,0), tf, winSize);
+				Point2D.Float colorPoint = calculateTransferFunctionPoint(new Point(colorPickPoint.x,0), tf, winSize);
 				tf.setColor(colorPoint, color);
 			}
 		});

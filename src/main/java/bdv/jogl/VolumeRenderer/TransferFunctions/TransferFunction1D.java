@@ -3,6 +3,7 @@ package bdv.jogl.VolumeRenderer.TransferFunctions;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,38 +27,38 @@ public class TransferFunction1D {
 	private List<TransferFunctionListener> transferFunctionListeners = new ArrayList<TransferFunctionListener>();
 
 	private ITransferFunctionSampler sampler; 
-	
+
 	//order points first by x then by y
-	private final Comparator<Point> pointOrderXOperator = new Comparator<Point>() {
+	private final Comparator<Point2D.Float> pointOrderXOperator = new Comparator<Point2D.Float>() {
 
 		@Override
-		public int compare(Point a, Point b) {
+		public int compare(Point2D.Float a, Point2D.Float b) {
 			//same x
 			if(a.x == b.x){
-				return a.y-b.y;
+				return (int)Math.signum(a.y-b.y);
 			}
-			return a.x-b.x;
+			return (int)Math.signum(a.x-b.x);
 		}
 	};
 
-	private Point maxOrdinates;
-	
-	private final Point minOrdinates = new Point(0,0);
+	private Point2D.Float maxOrdinates;
 
-	private final TreeMap<Point,Color> colors = new TreeMap<Point, Color>(pointOrderXOperator);
+	private final Point2D.Float minOrdinates = new Point2D.Float(0,0);
 
-	private final TreeSet<Point > functionPoints = new TreeSet<Point>(pointOrderXOperator);;
+	private final TreeMap<Point2D.Float,Color> colors = new TreeMap<Point2D.Float, Color>(pointOrderXOperator);
+
+	private final TreeSet<Point2D.Float> functionPoints = new TreeSet<Point2D.Float>(pointOrderXOperator);;
 
 	private void fireSamplerChangedEventAll(){
 		for(TransferFunctionListener listener: transferFunctionListeners){
 			fireSamplerChangedEvent(listener);
 		}
 	}
-	
+
 	private void fireSamplerChangedEvent(final TransferFunctionListener l){
 		l.samplerChanged(this);
 	}
-	
+
 	/**
 	 * Calls all event methods on listener using the current data state
 	 * @param listener
@@ -76,47 +77,47 @@ public class TransferFunction1D {
 
 	public void resetLine(){
 		functionPoints.clear();
-		functionPoints.add(new Point(minOrdinates));
-		functionPoints.add(new Point(maxOrdinates));	
+		functionPoints.add(new Point2D.Float(minOrdinates.x,minOrdinates.y));
+		functionPoints.add(new Point2D.Float(maxOrdinates.x, maxOrdinates.y));	
 
 		fireColorChangedEventAll();
 	}
 
 	public void resetColors(){
 		colors.clear();
-		colors.put(new Point(minOrdinates), Color.BLUE);
-		colors.put(new Point(maxOrdinates.x/2,minOrdinates.y), Color.WHITE);
-		colors.put(new Point(maxOrdinates.x,minOrdinates.y),Color.RED);
+		colors.put(new Point2D.Float(minOrdinates.x, minOrdinates.y), Color.BLUE);
+		colors.put(new Point2D.Float(maxOrdinates.x/2,minOrdinates.y), Color.WHITE);
+		colors.put(new Point2D.Float(maxOrdinates.x,minOrdinates.y),Color.RED);
 
 		fireColorChangedEventAll();
 	}
 
 
-	private void init( Point maxOrdinates){
+	private void init( Point2D.Float maxOrdinates){
 		this.maxOrdinates = maxOrdinates;
 
-		
+
 		resetColors();
 		resetLine();
 		setSampler( new PreIntegrationSampler());
 	}
-	
+
 	public TransferFunction1D(float maxVolume,  float maxTau) {
 		Double maxV = Math.ceil(maxVolume);
 		Double maxT = Math.ceil(maxTau);
-		init(new Point(maxV.intValue(),maxT.intValue()));
+		init(new Point2D.Float(maxV.intValue(),maxT.intValue()));
 	}
 
 	public TransferFunction1D(){
-		init(new Point(256,200));
+		init(new Point2D.Float(256,200));
 	}
-	
-	
+
+
 	/**
 	 * @return the colors
 	 */
-	public TreeMap<Point, Color> getColors() {
-		return new TreeMap<Point, Color>(colors);
+	public TreeMap<Point2D.Float, Color> getColors() {
+		return new TreeMap<Point2D.Float, Color>(colors);
 	}
 
 	/**
@@ -124,7 +125,7 @@ public class TransferFunction1D {
 	 * @param point Position on the panel area.
 	 * @param color Color to be set.
 	 */
-	public void setColor(final Point point, final Color color){
+	public void setColor(final Point2D.Float point, final Color color){
 		colors.put(point, color);
 
 		fireColorChangedEventAll();
@@ -135,12 +136,12 @@ public class TransferFunction1D {
 	 * @param oldPoint Old point in the panel
 	 * @param newPoint New position of the old point instance
 	 */
-	public void updateFunctionPoint(Point oldPoint, Point newPoint) {
+	public void updateFunctionPoint(Point2D.Float oldPoint, Point2D.Float newPoint) {
 
-		Point ceil= functionPoints.ceiling(oldPoint);
-		Point dragPoint = ceil;
+		Point2D.Float ceil= functionPoints.ceiling(oldPoint);
+		Point2D.Float dragPoint = ceil;
 		if(ceil.x!= oldPoint.x){
-			Point low= functionPoints.lower(oldPoint);			
+			Point2D.Float low= functionPoints.lower(oldPoint);			
 			dragPoint = (oldPoint.x -low.x < ceil.x - oldPoint.x)?low:ceil;
 		}
 		//begin and end x must not be altered
@@ -159,15 +160,15 @@ public class TransferFunction1D {
 	/**
 	 * @return the functionPoints
 	 */
-	public TreeSet<Point> getFunctionPoints() {
-		return new TreeSet<Point>(functionPoints);
+	public TreeSet<Point2D.Float> getFunctionPoints() {
+		return new TreeSet<Point2D.Float>(functionPoints);
 	}
 
 	/**
 	 * Function to add points to the transfer Function
 	 * @param point Point to be added on the panel area
 	 */
-	public void addFunctionPoint(final Point point) {
+	public void addFunctionPoint(final Point2D.Float point) {
 		if(functionPoints.contains(point)){
 			return;
 		}
@@ -190,16 +191,16 @@ public class TransferFunction1D {
 	/**
 	 * @return the maxOrdinates
 	 */
-	public Point getMaxOrdinates() {
+	public Point2D.Float getMaxOrdinates() {
 		return maxOrdinates;
 	}
 
 	/**
 	 * @param maxOrdinates the maxOrdinates to set
 	 */
-	public void setMaxOrdinates(Point maxOrdinates) {
+	public void setMaxOrdinates(Point2D.Float maxOrdinates) {
 
-		Point oldMax = new Point(this.maxOrdinates);
+		Point2D.Float oldMax = new Point2D.Float(this.maxOrdinates.x,this.maxOrdinates.y);
 
 		this.maxOrdinates = maxOrdinates;
 
@@ -211,38 +212,38 @@ public class TransferFunction1D {
 	/**
 	 * rescales the transfer function from 0 to max ordinate in each dim 
 	 */
-	private void rescale(Point oldMax){
+	private void rescale(Point2D.Float oldMax){
 		float [] scaleFactors = {(float)maxOrdinates.x/(float)oldMax.x, 
 				(float)maxOrdinates.y/(float)oldMax.y };
 
 		//scale color points
-		TreeMap<Point, Color> newColorMap = new TreeMap<Point, Color>(pointOrderXOperator);
-		for(Point position:colors.keySet()){
+		TreeMap<Point2D.Float, Color> newColorMap = new TreeMap<Point2D.Float, Color>(pointOrderXOperator);
+		for(Point2D.Float position:colors.keySet()){
 			int newX = (int)Math.round(scaleFactors[0]*position.getX());
 			int newY = (int)Math.round(scaleFactors[1]*position.getY());
 			Color color = colors.get(position);
-			newColorMap.put(new Point(newX,newY),color);
+			newColorMap.put(new Point2D.Float(newX,newY),color);
 		}
 		colors.clear();
 		colors.putAll(newColorMap);
 
 		//scale function Points
-		TreeSet<Point> newFunctionPoints = new TreeSet<Point>(pointOrderXOperator);
-		for(Point functionPoint:functionPoints){
+		TreeSet<Point2D.Float> newFunctionPoints = new TreeSet<Point2D.Float>(pointOrderXOperator);
+		for(Point2D.Float functionPoint:functionPoints){
 			int newX = (int)Math.round(scaleFactors[0]*functionPoint.getX());
 			int newY = (int)Math.round(scaleFactors[1]*functionPoint.getY());
-			newFunctionPoints.add(new Point(newX, newY));
+			newFunctionPoints.add(new Point2D.Float(newX, newY));
 		}
 		functionPoints.clear();
 		functionPoints.addAll(newFunctionPoints);
 	}
 
-	private Color getColorComponent(Point index){
+	private Color getColorComponent(Point2D.Float index){
 		float [] result = {0,0,0};
 
 
 		//get RGB
-		Point nextIndex = colors.ceilingKey(index);
+		Point2D.Float nextIndex = colors.ceilingKey(index);
 		if(nextIndex == null){
 			return colors.lastEntry().getValue();
 		}
@@ -250,7 +251,7 @@ public class TransferFunction1D {
 		if(nextIndex == index){
 			return colors.get(index);
 		}
-		Point previousIndex = colors.lowerKey(index);
+		Point2D.Float previousIndex = colors.lowerKey(index);
 		float colorDiff = nextIndex.x-previousIndex.x;
 		float colorOffset = index.x - previousIndex.x;
 
@@ -269,7 +270,7 @@ public class TransferFunction1D {
 	}
 
 
-	private float getNormalizedAlphaValue(int unNormalizedValue){
+	private float getNormalizedAlphaValue(float unNormalizedValue){
 		float normFactor = 1f/ (float)getMaxOrdinates().y;
 
 		float calculatedValue =  unNormalizedValue*normFactor;
@@ -278,15 +279,15 @@ public class TransferFunction1D {
 
 	}
 
-	private float getAlpha (Point index){
+	private float getAlpha (Point2D.Float index){
 		//get alpha
-		Point nextIndex = functionPoints.ceiling(index);
+		Point2D.Float nextIndex = functionPoints.ceiling(index);
 		float nextAlpha = getNormalizedAlphaValue(nextIndex.y);
 
 		if(nextIndex.x == index.x){
 			return nextAlpha;
 		}
-		Point previousIndex = functionPoints.lower(index);
+		Point2D.Float previousIndex = functionPoints.lower(index);
 		float prevAlpha = getNormalizedAlphaValue(previousIndex.y);
 
 		float colorDiff = nextIndex.x-previousIndex.x;
@@ -297,7 +298,7 @@ public class TransferFunction1D {
 
 	} 
 
-	private Color getColorForXOrdinateInObjectTransferSpace(Point index){
+	private Color getColorForXOrdinateInObjectTransferSpace(Point2D.Float index){
 
 		float [] result = {0,0,0,0};
 
@@ -323,9 +324,9 @@ public class TransferFunction1D {
 
 		Color currentColor = null;
 		//get colors from gradient
-		for(Point index : colors.keySet()){
+		for(Point2D.Float index : colors.keySet()){
 
-			if(returnColors.containsKey(index.x)){
+			if(returnColors.containsKey((int)index.x)){
 				continue;
 			}
 
@@ -334,13 +335,14 @@ public class TransferFunction1D {
 				continue;
 			}
 
-			returnColors.put(index.x, currentColor);
+			//TODO
+			returnColors.put((int)index.x, currentColor);
 		}
 
 		//get colors from line
-		for(Point index : functionPoints){
+		for(Point2D.Float index : functionPoints){
 
-			if(returnColors.containsKey(index.x)){
+			if(returnColors.containsKey((int)index.x)){
 				continue;
 			}
 
@@ -348,7 +350,9 @@ public class TransferFunction1D {
 			if(currentColor == null){
 				continue;
 			}
-			returnColors.put(index.x, currentColor);
+
+			//TODO
+			returnColors.put((int)index.x, currentColor);
 		}
 
 		return returnColors;
@@ -359,7 +363,7 @@ public class TransferFunction1D {
 	 * @param oldPoint
 	 * @param newPoint
 	 */
-	public void moveColor(Point oldPoint, Point newPoint) {
+	public void moveColor(Point2D.Float oldPoint, Point2D.Float newPoint) {
 		Color color = colors.get(oldPoint);
 		if(color == null){
 			return;
@@ -373,7 +377,7 @@ public class TransferFunction1D {
 	public FloatBuffer getTexture(){
 		return sampler.sample(this, 1);
 	}
-	
+
 	public IFunction getTransferFunctionShaderCode(){
 		return sampler.getShaderCode();
 	}
@@ -392,7 +396,7 @@ public class TransferFunction1D {
 		this.sampler = sampler;
 		fireSamplerChangedEventAll();
 	}
-	
+
 	/**
 	 * Calculates the draw point of a transfer function  coordinate in window space
 	 * @param transferFunctionPoint
@@ -400,7 +404,7 @@ public class TransferFunction1D {
 	 * @param drawAreaSize
 	 * @return
 	 */
-	public static Point calculateDrawPoint(Point transferFunctionPoint, 
+	public static Point calculateDrawPoint(Point2D.Float transferFunctionPoint, 
 			TransferFunction1D transferFunction,
 			Dimension drawAreaSize){
 		float xyScale[] = {(float)(drawAreaSize.getWidth()/ transferFunction.getMaxOrdinates().getX()),
@@ -409,7 +413,7 @@ public class TransferFunction1D {
 				(int)Math.round(transferFunctionPoint.getY() * xyScale[1]));
 		return drawPoint;
 	}
-	
+
 	/**
 	 * Calculates the transfer function point from a given window space point 
 	 * @param windowSpacePoint
@@ -417,12 +421,12 @@ public class TransferFunction1D {
 	 * @param drawAreaSize
 	 * @return
 	 */
-	public static Point calculateTransferFunctionPoint(Point windowSpacePoint, 
+	public static Point2D.Float calculateTransferFunctionPoint(Point windowSpacePoint, 
 			TransferFunction1D transferFunction,
 			Dimension drawAreaSize){
 		float xyScale[] = {(float)(transferFunction.getMaxOrdinates().getX()/drawAreaSize.getWidth()),
 				(float)(transferFunction.getMaxOrdinates().getY()/drawAreaSize.getHeight())};
-		Point drawPoint = new Point((int)Math.round(windowSpacePoint.getX() * xyScale[0]),
+		Point2D.Float drawPoint = new Point2D.Float((int)Math.round(windowSpacePoint.getX() * xyScale[0]),
 				(int)Math.round(windowSpacePoint.getY() * xyScale[1]));
 		return drawPoint;
 	}

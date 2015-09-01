@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.Point2D;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -92,7 +93,7 @@ public class TransferFunctionPanel1D extends JPanel {
 	private void paintSkala(Graphics g){
 		//paint gradient image
 		//error check
-		TreeMap<Point, Color> colors = transferFunction.getColors();
+		TreeMap<Point2D.Float, Color> colors = transferFunction.getColors();
 		if(colors.size() < 2){
 			return;
 		}
@@ -101,8 +102,8 @@ public class TransferFunctionPanel1D extends JPanel {
 		Graphics2D painter = (Graphics2D) g;
 
 
-		Point latestPoint = colors.firstKey();
-		for(Point currentPoint: colors.keySet()){
+		Point2D.Float latestPoint = colors.firstKey();
+		for(Point2D.Float currentPoint: colors.keySet()){
 			//skip first iteration
 			if(currentPoint.equals( latestPoint)){
 				continue;
@@ -134,7 +135,7 @@ public class TransferFunctionPanel1D extends JPanel {
 
 	
 	private void paintLines(Graphics g){
-		TreeSet<Point> functionPoints = transferFunction.getFunctionPoints();
+		TreeSet<Point2D.Float> functionPoints = transferFunction.getFunctionPoints();
 		if(functionPoints.size() < 2){
 			return;
 		}
@@ -145,8 +146,8 @@ public class TransferFunctionPanel1D extends JPanel {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
 		//draw line and points
-		Point latestRenderedPoint = functionPoints.first();
-		for( Point currentPoint: functionPoints){
+		Point2D.Float latestRenderedPoint = functionPoints.first();
+		for( Point2D.Float currentPoint: functionPoints){
 		
 
 			if(!currentPoint.equals( latestRenderedPoint) ){
@@ -168,7 +169,7 @@ public class TransferFunctionPanel1D extends JPanel {
 		//print points	
 		Graphics2D g2d = (Graphics2D) g;	
 		
-		for( Point currentPoint: transferFunction.getFunctionPoints()){
+		for( Point2D.Float currentPoint: transferFunction.getFunctionPoints()){
 			
 			//TODO
 			if(currentPoint.equals(pointInteractor.getSelectedPoint())){

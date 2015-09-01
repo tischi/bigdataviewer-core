@@ -40,6 +40,7 @@ public class ColorCellEditor extends AbstractCellEditor implements TableCellEdit
 				if(color == null){
 					return;
 				}
+				
 				currentColor = color;
 				button.setBackground(currentColor);  
 				fireEditingStopped(); 
