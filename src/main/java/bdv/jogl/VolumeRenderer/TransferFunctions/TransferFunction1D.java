@@ -109,7 +109,7 @@ public class TransferFunction1D {
 	}
 
 	public TransferFunction1D(){
-		init(new Point2D.Float(256,200));
+		init(new Point2D.Float(256,1.f));
 	}
 
 
@@ -407,8 +407,8 @@ public class TransferFunction1D {
 	public static Point calculateDrawPoint(Point2D.Float transferFunctionPoint, 
 			TransferFunction1D transferFunction,
 			Dimension drawAreaSize){
-		float xyScale[] = {(float)(drawAreaSize.getWidth()/ transferFunction.getMaxOrdinates().getX()),
-				(float)(drawAreaSize.getHeight()/transferFunction.getMaxOrdinates().getY())};
+		float xyScale[] = {(float)drawAreaSize.getWidth()/ transferFunction.getMaxOrdinates().x,
+				(float)drawAreaSize.getHeight()/transferFunction.getMaxOrdinates().y};
 		Point drawPoint = new Point((int)Math.round(transferFunctionPoint.getX() * xyScale[0]),
 				(int)Math.round(transferFunctionPoint.getY() * xyScale[1]));
 		return drawPoint;
@@ -424,10 +424,10 @@ public class TransferFunction1D {
 	public static Point2D.Float calculateTransferFunctionPoint(Point windowSpacePoint, 
 			TransferFunction1D transferFunction,
 			Dimension drawAreaSize){
-		float xyScale[] = {(float)(transferFunction.getMaxOrdinates().getX()/drawAreaSize.getWidth()),
-				(float)(transferFunction.getMaxOrdinates().getY()/drawAreaSize.getHeight())};
-		Point2D.Float drawPoint = new Point2D.Float((int)Math.round(windowSpacePoint.getX() * xyScale[0]),
-				(int)Math.round(windowSpacePoint.getY() * xyScale[1]));
-		return drawPoint;
+		float xyScale[] = {transferFunction.getMaxOrdinates().x/(float)drawAreaSize.getWidth(),
+				transferFunction.getMaxOrdinates().y/(float)drawAreaSize.getHeight()};
+		Point2D.Float functionPoint = new Point2D.Float((float)windowSpacePoint.getX() * xyScale[0],
+				(float)windowSpacePoint.getY() * xyScale[1]);
+		return functionPoint;
 	}
 }
