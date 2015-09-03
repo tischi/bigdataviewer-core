@@ -15,6 +15,7 @@ import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionPanel1D;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPanel;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 
 /**
  * Class for providing tf scene controls
@@ -43,14 +44,13 @@ public class SceneControlsWindow extends JFrame {
 	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
 	
 	
-	
-	public SceneControlsWindow(final TransferFunction1D tf,final AggregatorManager agm){
+	public SceneControlsWindow(final TransferFunction1D tf,final AggregatorManager agm, final VolumeDataManager dataManager){
 		transferFunction = tf;
-		createTFWindow(tf,agm);
+		createTFWindow(tf,agm,dataManager);
 	}
 	
-	private void createTFWindow(final TransferFunction1D tf,final AggregatorManager agm){
-		tfpanel = new TransferFunctionPanel1D(tf);
+	private void createTFWindow(final TransferFunction1D tf,final AggregatorManager agm,final VolumeDataManager dataManager){
+		tfpanel = new TransferFunctionPanel1D(tf,dataManager);
 		tfDataPanel = new TransferFunctionDataPanel(tf);
 		aggregationPanel = new VolumeDataAggregationPanel(agm);
 

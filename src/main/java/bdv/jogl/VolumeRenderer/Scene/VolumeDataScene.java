@@ -26,6 +26,7 @@ import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
 import bdv.viewer.state.SourceState;
@@ -221,7 +222,7 @@ public class VolumeDataScene extends AbstractScene{
 			}
 		});
 		
-		controls =new SceneControlsWindow(transferFunction,aggm);
+		controls =new SceneControlsWindow(transferFunction,aggm, new VolumeDataManager());
 	}
 
 

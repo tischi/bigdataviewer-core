@@ -8,6 +8,10 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -15,8 +19,11 @@ import javax.swing.JPanel;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
 import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calculateDrawPoint;
+import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.getColorOfVolume;
 
 /**
  * Transfer function interaction similar to paraview
@@ -29,7 +36,9 @@ public class TransferFunctionPanel1D extends JPanel {
 	 * default version
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
+	private VolumeDataManager volumeDataManager = null;
+	
 	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
 
 	private final TransferFunctionPointInteractor pointInteractor = new TransferFunctionPointInteractor(this);
@@ -49,10 +58,11 @@ public class TransferFunctionPanel1D extends JPanel {
 	/**
 	 * constructor
 	 */
-	public TransferFunctionPanel1D(final TransferFunction1D tf){
+	public TransferFunctionPanel1D(final TransferFunction1D tf, final VolumeDataManager dataManager){
 
 		initWindow();
 		setTransferFunction(tf);
+		setVolumeDataManager(dataManager);
 		
 		//resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),transferFunction);
 
@@ -88,7 +98,13 @@ public class TransferFunctionPanel1D extends JPanel {
 		});
 	}
 
-	
+	public VolumeDataManager getVolumeDataManager() {
+		return volumeDataManager;
+	}
+
+	public void setVolumeDataManager(VolumeDataManager volumeDataManager) {
+		this.volumeDataManager = volumeDataManager;
+	}
 
 	private void paintSkala(Graphics g){
 		//paint gradient image
@@ -182,6 +198,36 @@ public class TransferFunctionPanel1D extends JPanel {
 		}	
 	}
 
+	private void paintDistributions(Graphics g) {
+		
+		Set<Integer> volumeKeys = volumeDataManager.getVolumeKeys();
+		float xyScale [] = new float[]{
+				(float)getWidth()/volumeDataManager.getGlobalMaxVolumeValue(),
+				(float)getHeight()/(float)volumeDataManager.getGlobalMaxOccurance() 
+		};
+		int maxIntX = (int)Math.ceil(volumeDataManager.getGlobalMaxVolumeValue()); 
+		
+		//iterate volumes to draw //TODO distribution
+		/*for(Integer i : volumeKeys){
+			Color lineColor = getColorOfVolume(i);
+			VolumeDataBlock data = volumeDataManager.getVolume(i);
+			TreeMap<Float,Integer> distribution = data.getValueDistribution();
+			
+			//zero x
+			float latestX = (distribution.get(0)==null)?0: distribution.get(0);
+			latestX *= xyScale[0];
+					
+			//sample
+			for(int sample = 0; sample < maxIntX; sample++ ){
+				
+			}
+			
+			
+			
+			
+		}*/
+	} 
+	
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -191,5 +237,9 @@ public class TransferFunctionPanel1D extends JPanel {
 		paintLines(g);
 		
 		paintPoints(g);
-	} 
+		
+		paintDistributions(g);
+	}
+
+
 }

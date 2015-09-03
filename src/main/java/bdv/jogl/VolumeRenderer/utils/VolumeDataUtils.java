@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -7,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
+
+import javax.naming.spi.DirStateFactory;
 
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
@@ -21,6 +25,13 @@ import net.imglib2.view.Views;
  */
 public class VolumeDataUtils {
 	
+	private static Color volumeColor[] = new Color[]{
+		Color.GREEN,
+		Color.YELLOW,
+		Color.CYAN,
+		Color.BLUE
+		
+	};
 
 	
 	/**
@@ -36,7 +47,9 @@ public class VolumeDataUtils {
 
 		float[] block = new float[maxX.intValue()*maxY.intValue()*maxZ.intValue()];
 
-
+		VolumeDataBlock data = new VolumeDataBlock();
+		TreeMap<Float, Integer> distr = data.getValueDistribution();
+		int maxOcc =0;
 		// copy values 
 		int i = 0;
 		float minValue = Float.MAX_VALUE;
@@ -47,19 +60,29 @@ public class VolumeDataUtils {
 				for(int x = 0; x < maxX.intValue(); x++ ){
 					short value = (short)values.next().get();
 					block[i++] = value ;
+					
+					//update local distribution
+					if(!distr.containsKey((float)value)){
+						distr.put((float)value,0);
+					}
+					Integer curOcc= distr.get((float) value);
+					curOcc++;
+					distr.put((float)value,curOcc);
+					maxOcc = Math.max(curOcc, maxOcc);
 					minValue = Math.min(minValue, value);
 					maxValue = Math.max(maxValue, value);
 				}
 			}
 		}
 		
-		VolumeDataBlock data = new VolumeDataBlock();
+		
 		tmp.dimensions( data.dimensions);
 		tmp.min(data.minPoint);
 		tmp.max(data.maxPoint);
 		data.maxValue = maxValue;
 		data.minValue = minValue;
 		data.data = block;
+		data.maxOccurance = maxOcc;
 		return data;
 	}
 
@@ -161,4 +184,7 @@ public class VolumeDataUtils {
 		paraWriter.close();
 	}
 
+	public static Color getColorOfVolume(int i){
+		return volumeColor[i%volumeColor.length];
+	}
 }
