@@ -17,6 +17,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxDifferenceAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MinimumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
@@ -208,6 +209,7 @@ public class VolumeDataScene extends AbstractScene{
 		acc.add(avg);
 		acc.add(new MaximumVolumeAccumulator());
 		acc.add(new MinimumVolumeAccumulator());
+		acc.add(new MaxDifferenceAccumulator());
 		AggregatorManager aggm = new AggregatorManager(acc);
 		aggm.setActiveAcumulator(avg.getFunctionName());
 		aggm.addListener(new IVolumeAggregationListener() {
