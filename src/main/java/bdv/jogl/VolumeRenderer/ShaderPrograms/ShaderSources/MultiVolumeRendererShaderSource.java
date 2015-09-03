@@ -138,6 +138,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
 				"const int "+scvMaxNumberOfVolumes+" = "+maxNumberOfVolumes+";",
 				"const int maxInt = "+Integer.MAX_VALUE+";",
+				"const float gamma = 20.0;",
 				"",
 				"uniform int "+suvActiveVolumes+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvMaxVolumeValue+";",
@@ -226,6 +227,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"			ray_poss[n] += ray_dirs[n] * sample_step;",
 				"		}",	
 				"   }",
+				"	fragmentColor.rgb *= gamma;",
 				"}"
 		};
 		addCodeArrayToList(head, code);
