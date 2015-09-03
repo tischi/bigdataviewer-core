@@ -15,7 +15,7 @@ public class RegularTransferFunctionInterpreter extends AbstractTransferFunction
 				"",
 				"vec4 "+getFunctionName()+"(float vbegin, float vend, float distance){",
 				"	vec4 color = texture("+suvColorTexture+",vbegin);",
-				"	color.a = 1-exp(-color.a /*distance*/ );",	
+				"	color.a = 1.0 - exp(-color.a * distance );",	
 				"	return color;",
 				"}",
 				""
