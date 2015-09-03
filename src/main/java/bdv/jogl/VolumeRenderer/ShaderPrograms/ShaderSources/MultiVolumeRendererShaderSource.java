@@ -155,8 +155,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		};
 
 		String[] body ={
-				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions["+scvMaxNumberOfVolumes+"] ){",
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
+				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions["+scvMaxNumberOfVolumes+"] ){",
 				"	float volumeValues["+scvMaxNumberOfVolumes+"];",
 				"	for(int i = 0; i < "+scvMaxNumberOfVolumes+"; i++){",
 				"		float value = texture("+suvVolumeTexture+"[i], positions[i]).r;",	
@@ -169,10 +169,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"{",	
 				"	const int samples = 256;",
 				"	float sample_step ="+suvMaxDiagonalLength+"/float(samples);",
-				"	const float brightness = 250.0f;",
 				"",	
-				"	fragmentColor = vec4(0.0, 0.0, 0.0, 0.0);",
-				"	float volumeNormalizeFactor = 1.f/ ("+suvMaxVolumeValue+"-"+suvMinVolumeValue+"+0.01);",
+				"	fragmentColor = vec4(0.0);",
+				"	float volumeNormalizeFactor = 1.0/ ("+suvMaxVolumeValue+"-"+suvMinVolumeValue+"+0.01);",
 				"",
 				"	//get rays of volumes",
 				"	int steps = "+Short.MAX_VALUE+";",
