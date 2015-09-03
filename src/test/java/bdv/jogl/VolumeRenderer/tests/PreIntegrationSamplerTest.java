@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.nio.FloatBuffer;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +26,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.PreIntegrationSampler;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 
 public class PreIntegrationSamplerTest {
 
@@ -43,6 +43,8 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 	private SimpleScene testScene = new SimpleScene();
 	
 	private BlockingQueue<Boolean> sync = new ArrayBlockingQueue<Boolean>(1);
+	
+	private VolumeDataManager dataManager = new VolumeDataManager();
 	
 	private GLEventListener renderListener =  new GLEventListener() {
 
@@ -187,8 +189,8 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 	
 	private void initTestWindow(){
 		testTransferFunction.setSampler(objectUnderTest);
-		
-		testVolumeRenderer = new MultiVolumeRenderer(testTransferFunction);
+		dataManager = new VolumeDataManager();
+		testVolumeRenderer = new MultiVolumeRenderer(testTransferFunction, dataManager);
 		renderCanvas.addGLEventListener(renderListener);
 		
 		testWindow.setSize(100, 100);
@@ -224,11 +226,10 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 		blocks[1].dimensions = testdim.clone();
 		blocks[1].localTransformation = loc2;
 	
-		Map<Integer,VolumeDataBlock> dataBlocks = testVolumeRenderer.getVolumeDataMap();
 	
 		
-		dataBlocks.put(0, blocks[0]);
-		dataBlocks.put(1, blocks[1]);
+		dataManager.setVolume(0, blocks[0]);
+		dataManager.setVolume(1, blocks[1]);
 			
 		testWindow.setVisible(true);
 		

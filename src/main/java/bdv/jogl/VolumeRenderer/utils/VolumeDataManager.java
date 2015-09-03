@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,10 +27,10 @@ public class VolumeDataManager {
 			
 			globalMaxOccurance = Math.max(globalMaxOccurance, data.getMaxOccurance());
 			
-			Float cmax =data.getValueDistribution().lastKey();
-			if(cmax == null){
+			if(data.getValueDistribution().isEmpty()){
 				continue;
 			}
+			Float cmax =data.getValueDistribution().lastKey();
 			globalMaxVolume = Math.max(globalMaxVolume,cmax.floatValue());
 		}
 	}
@@ -58,5 +59,14 @@ public class VolumeDataManager {
 	
 	public float getGlobalMaxOccurance() {
 		return globalMaxOccurance;
+	}
+
+	public Collection<VolumeDataBlock> getVolumes() {
+		return volumes.values();
+	}
+
+	public void removeVolumeByIndex(int i) {
+		volumes.remove(i);
+		
 	}
 }

@@ -13,6 +13,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererS
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
@@ -35,7 +36,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
-	private final Map<Integer,VolumeDataBlock> dataValues = new HashMap<Integer, VolumeDataBlock>();
+	private VolumeDataManager dataManager;
 
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
 
@@ -63,7 +64,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		setNeedsRebuild(flag);
 		isColorUpdateable = flag;
 		isEyeUpdateable = flag;
-		for(VolumeDataBlock data: dataValues.values()){
+		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
 		shaderCodes.clear();
@@ -73,7 +74,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 	} 
 	
-	public MultiVolumeRenderer(TransferFunction1D tf){
+	private void setVolumeDataManager(VolumeDataManager manager){
+		dataManager = manager;
+	}
+	public MultiVolumeRenderer(TransferFunction1D tf, VolumeDataManager manager){
+		setVolumeDataManager(manager);
 		setTransferFunction(tf);
 		for(ShaderCode code:sources.getShaderCodes()){
 			shaderCodes.add(code);
@@ -98,10 +103,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		for(int i =0; i< maxNumVolumes;i++){
 			int fieldOffset = 3*i;
-			if(!getVolumeDataMap().containsKey(i)){
+			if(!dataManager.getVolumeKeys().contains(i)){
 				break;
 			}
-			VolumeDataBlock data = getVolumeDataMap().get(i);
+			VolumeDataBlock data = dataManager.getVolume(i);
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
 
 			modelViewMatrixInverse.multMatrix(copyMatrix(data.localTransformation));
@@ -160,7 +165,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 		//cube transform in texture space to get the maximum extend
-		for(VolumeDataBlock data: getVolumeDataMap().values()){
+		for(VolumeDataBlock data: dataManager.getVolumes()){
 			float[][] coordsInTextureSpace = new float[2][4];
 
 			Matrix4 textureTransformation = copyMatrix(data.localTransformation);
@@ -185,7 +190,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		activeBuffers.rewind();
 		for(int i = 0; i<sources.getMaxNumberOfVolumes();i++){
 			int active; 
-			if(getVolumeDataMap().containsKey(i)){
+			if(dataManager.getVolumeKeys().contains(i)){
 				active=1;
 			}else{
 				active=0;
@@ -199,8 +204,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private void updateLocalTransformationInverse(GL2 gl2) {
-		for(Integer index: getVolumeDataMap().keySet()){
-			VolumeDataBlock data = getVolumeDataMap().get(index);
+		for(Integer index: dataManager.getVolumeKeys()){
+			VolumeDataBlock data = dataManager.getVolume(index);
 			if(!data.needsUpdate()){
 				continue;
 			}
@@ -225,8 +230,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				};
 
 
-		for(int index: getVolumeDataMap().keySet()){
-			VolumeDataBlock data = getVolumeDataMap().get(index);
+		for(int index: dataManager.getVolumeKeys()){
+			VolumeDataBlock data = dataManager.getVolume(index);
 			
 			AABBox box = getAABBOfTransformedBox(data.dimensions, data.localTransformation);
 			
@@ -250,8 +255,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float max = Float.MIN_VALUE;
 		boolean somethingUpdated = false;
 
-		for(Integer i : getVolumeDataMap().keySet()){
-			VolumeDataBlock data = getVolumeDataMap().get(i);
+		for(Integer i : dataManager.getVolumeKeys()){
+			VolumeDataBlock data = dataManager.getVolume(i);
 
 			min = Math.min(min, data.minValue);
 			max = Math.max(max, data.maxValue);
@@ -316,14 +321,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
 		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-	}
-
-	/**
-	 * Return the map of volume data with a user specific index.
-	 * @return
-	 */
-	public final Map<Integer, VolumeDataBlock> getVolumeDataMap() {
-		return dataValues;
 	}
 
 	@Override

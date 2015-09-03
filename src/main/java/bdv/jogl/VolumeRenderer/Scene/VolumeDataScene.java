@@ -52,7 +52,9 @@ public class VolumeDataScene extends AbstractScene{
 
 	private final TransferFunction1D transferFunction = new TransferFunction1D();
 	
-	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer(transferFunction);
+	private final VolumeDataManager dataManager = new VolumeDataManager();
+	
+	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer(transferFunction,dataManager);
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 
@@ -222,7 +224,7 @@ public class VolumeDataScene extends AbstractScene{
 			}
 		});
 		
-		controls =new SceneControlsWindow(transferFunction,aggm, new VolumeDataManager());
+		controls =new SceneControlsWindow(transferFunction,aggm, dataManager);
 	}
 
 
@@ -290,7 +292,7 @@ public class VolumeDataScene extends AbstractScene{
 			}
 
 			if(latestRenderTimePoint != currentTimepoint || 
-					!multiVolumeRenderer.getVolumeDataMap().containsKey(i)){
+					!dataManager.getVolumeKeys().contains(i)){
 				/*float[] values = VolumeDataUtils.getDataBlock(ssource);
 			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
 			if(1==1)
@@ -309,7 +311,7 @@ public class VolumeDataScene extends AbstractScene{
 						currentActiveSource = i;
 					}
 				}else{
-					multiVolumeRenderer.getVolumeDataMap().put(i, data);		
+					dataManager.setVolume(i, data);		
 				}
 			}
 		}

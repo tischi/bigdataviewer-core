@@ -3,7 +3,6 @@ package bdv.jogl.VolumeRenderer.tests;
 import static org.junit.Assert.*;
 
 import java.awt.Color;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +25,7 @@ import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 
 public class MultiVolumeRendererTest {
 	
@@ -40,6 +40,8 @@ public class MultiVolumeRendererTest {
 	private float[][][] result;
 	
 	private SimpleScene testScene = new SimpleScene();
+	
+	private VolumeDataManager dataManager = new VolumeDataManager();
 	
 	private BlockingQueue<Boolean> sync = new ArrayBlockingQueue<Boolean>(1);
 	
@@ -109,33 +111,11 @@ public class MultiVolumeRendererTest {
 
 	@Before
 	public void setUp(){
-		classUnderTest = new MultiVolumeRenderer(new TransferFunction1D());
+		dataManager = new VolumeDataManager();
+		classUnderTest = new MultiVolumeRenderer(new TransferFunction1D(), dataManager);
 	}
 	
-	@Test
-	public void dataAddingTest() {
-		
-		Map<Integer,VolumeDataBlock> data = classUnderTest.getVolumeDataMap();
-		
-		assertNotEquals(null, data);
-		data.put(0,new VolumeDataBlock());
-		assertEquals(1, classUnderTest.getVolumeDataMap().size());
 
-		data.put(1,new VolumeDataBlock());
-		assertEquals(2, classUnderTest.getVolumeDataMap().size());
-		
-
-		data.remove(0);
-		assertEquals(1, classUnderTest.getVolumeDataMap().size());
-		assertEquals(null,classUnderTest.getVolumeDataMap().get(0));
-		assertNotEquals(null, classUnderTest.getVolumeDataMap().get(1));
-		
-		data.put(0,new VolumeDataBlock());
-		assertEquals(2, classUnderTest.getVolumeDataMap().size());
-		assertNotEquals(null, classUnderTest.getVolumeDataMap().get(0));
-		assertNotEquals(null, classUnderTest.getVolumeDataMap().get(1));
-		
-	}
 
 	private void initTestWindow(){
 		
@@ -174,10 +154,9 @@ public class MultiVolumeRendererTest {
 		blocks[1].dimensions = testdim.clone();
 		blocks[1].localTransformation = loc2;
 	
-		Map<Integer,VolumeDataBlock> dataBlocks = classUnderTest.getVolumeDataMap();
 		
-		dataBlocks.put(0, blocks[0]);
-		dataBlocks.put(1, blocks[1]);
+		dataManager.setVolume(0, blocks[0]);
+		dataManager.setVolume(1, blocks[1]);
 			
 		testWindow.setVisible(true);
 		
