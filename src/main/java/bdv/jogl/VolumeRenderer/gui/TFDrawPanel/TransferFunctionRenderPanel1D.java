@@ -27,7 +27,7 @@ import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.getColorOfVolume;
  * @author michael
  *
  */
-public class TransferFunctionPanel1D extends JPanel {
+public class TransferFunctionRenderPanel1D extends JPanel {
 
 	/**
 	 * default version
@@ -57,7 +57,7 @@ public class TransferFunctionPanel1D extends JPanel {
 	/**
 	 * constructor
 	 */
-	public TransferFunctionPanel1D(final TransferFunction1D tf, final VolumeDataManager dataManager){
+	public TransferFunctionRenderPanel1D(final TransferFunction1D tf, final VolumeDataManager dataManager){
 
 		initWindow();
 		setTransferFunction(tf);
@@ -103,6 +103,7 @@ public class TransferFunctionPanel1D extends JPanel {
 
 	public void setLogscaleDistribution(boolean logscale) {
 		this.logscale = logscale;
+		repaint();
 	}
 
 	public VolumeDataManager getVolumeDataManager() {
@@ -241,7 +242,7 @@ public class TransferFunctionPanel1D extends JPanel {
 				Point drawPoint = new Point((int)coord[0],(int)coord[1]);
 				drawPoint = transformWindowNormalSpace(drawPoint, getSize());
 				g2d.setColor(volumeColor);
-				g2d.drawRect(drawPoint.x, drawPoint.y, 3,3);
+				g2d.drawRect(drawPoint.x, drawPoint.y, 1,1);
 			}
 		}
 	} 

@@ -21,7 +21,7 @@ import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calcu
  */
 public class TransferFunctionPointInteractor {
 
-	private final TransferFunctionPanel1D parent;
+	private final TransferFunctionRenderPanel1D parent;
 	
 	private Point2D.Float selectedPoint = null;
 	
@@ -70,10 +70,9 @@ public class TransferFunctionPointInteractor {
 		public void mouseDragged(MouseEvent e) {
 			Point query = e.getPoint();
 			Rectangle drawArea = parent.getVisibleRect();
-			if(!drawArea.contains(e.getPoint())){
-				query.setLocation(Math.min(drawArea.getMaxX(),Math.max(drawArea.getMinX(), query.getX())),
-						Math.min(drawArea.getMaxY(),Math.max(drawArea.getMinY(), query.getY())));
-			}
+				query.setLocation(Math.min(drawArea.getWidth()-1.0,Math.max(drawArea.getMinX(), query.getX())),
+						Math.min(drawArea.getHeight()-1.0,Math.max(drawArea.getMinY(), query.getY())));
+			
 			if(selectedPoint == null && e.getButton() != MouseEvent.BUTTON1){
 				return;
 			}			
@@ -117,7 +116,7 @@ public class TransferFunctionPointInteractor {
 	}
 
 
-	public TransferFunctionPointInteractor(final TransferFunctionPanel1D parent){
+	public TransferFunctionPointInteractor(final TransferFunctionRenderPanel1D parent){
 		this.parent = parent;
 	}
 }

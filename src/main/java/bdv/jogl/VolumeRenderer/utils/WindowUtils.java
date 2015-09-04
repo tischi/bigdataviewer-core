@@ -22,10 +22,10 @@ public class WindowUtils {
 	public static Point transformWindowNormalSpace(final Point pointInNormalSpace, 
 			final Dimension windowSize){
 		return new Point(pointInNormalSpace.x,
-				(windowSize.height- pointInNormalSpace.y));
-		
+				(windowSize.height-1)- pointInNormalSpace.y);
+
 	}
-	
+
 	/**
 	 * Returns the color components normalized from 0 to 1
 	 * @param color Color to extract components

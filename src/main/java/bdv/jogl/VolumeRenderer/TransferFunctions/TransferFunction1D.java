@@ -49,6 +49,19 @@ public class TransferFunction1D {
 
 	private final TreeSet<Point2D.Float> functionPoints = new TreeSet<Point2D.Float>(pointOrderXOperator);;
 
+	private boolean isPointValid(Point2D.Float point){
+		//min
+		if(point.x < minOrdinates.x || point.y < minOrdinates.y ){
+			return false;
+		}
+		
+		//max
+		if(point.x > maxOrdinates.x || point.y > maxOrdinates.y ){
+			return false;
+		}
+		return true;
+	}
+	
 	private void fireSamplerChangedEventAll(){
 		for(TransferFunctionListener listener: transferFunctionListeners){
 			fireSamplerChangedEvent(listener);
@@ -126,6 +139,10 @@ public class TransferFunction1D {
 	 * @param color Color to be set.
 	 */
 	public void setColor(final Point2D.Float point, final Color color){
+		if(!isPointValid(point)){
+			throw new IndexOutOfBoundsException("Point: "+point+" was not in tf space");
+		}
+		
 		colors.put(point, color);
 
 		fireColorChangedEventAll();
@@ -137,7 +154,10 @@ public class TransferFunction1D {
 	 * @param newPoint New position of the old point instance
 	 */
 	public void updateFunctionPoint(Point2D.Float oldPoint, Point2D.Float newPoint) {
-
+		if(!isPointValid(newPoint)){
+			throw new IndexOutOfBoundsException("Point: "+newPoint+" was not in tf space");
+		}
+		
 		Point2D.Float ceil= functionPoints.ceiling(oldPoint);
 		Point2D.Float dragPoint = ceil;
 		if(ceil.x!= oldPoint.x){
@@ -163,12 +183,16 @@ public class TransferFunction1D {
 	public TreeSet<Point2D.Float> getFunctionPoints() {
 		return new TreeSet<Point2D.Float>(functionPoints);
 	}
-
+	
 	/**
 	 * Function to add points to the transfer Function
 	 * @param point Point to be added on the panel area
 	 */
 	public void addFunctionPoint(final Point2D.Float point) {
+		if(!isPointValid(point)){
+			throw new IndexOutOfBoundsException("Point: "+point+" was not in tf space");
+		}
+		
 		if(functionPoints.contains(point)){
 			return;
 		}
@@ -295,7 +319,6 @@ public class TransferFunction1D {
 
 		float m = (nextAlpha - prevAlpha)/colorDiff;
 		return m* colorOffset + prevAlpha;
-
 	} 
 
 	private Color getColorForXOrdinateInObjectTransferSpace(Point2D.Float index){
@@ -364,9 +387,14 @@ public class TransferFunction1D {
 	 * @param newPoint
 	 */
 	public void moveColor(Point2D.Float oldPoint, Point2D.Float newPoint) {
+		
 		Color color = colors.get(oldPoint);
 		if(color == null){
 			return;
+		}
+		
+		if(!isPointValid(newPoint)){
+			throw new IndexOutOfBoundsException("Point: "+newPoint+" was not in tf space");
 		}
 
 		colors.remove(oldPoint);
@@ -407,8 +435,8 @@ public class TransferFunction1D {
 	public static Point calculateDrawPoint(Point2D.Float transferFunctionPoint, 
 			TransferFunction1D transferFunction,
 			Dimension drawAreaSize){
-		float xyScale[] = {(float)drawAreaSize.getWidth()/ transferFunction.getMaxOrdinates().x,
-				(float)drawAreaSize.getHeight()/transferFunction.getMaxOrdinates().y};
+		float xyScale[] = {(float)(drawAreaSize.getWidth()-1)/ transferFunction.getMaxOrdinates().x,
+				(float)(drawAreaSize.getHeight()-1)/transferFunction.getMaxOrdinates().y};
 		Point drawPoint = new Point((int)Math.round(transferFunctionPoint.getX() * xyScale[0]),
 				(int)Math.round(transferFunctionPoint.getY() * xyScale[1]));
 		return drawPoint;
@@ -424,8 +452,8 @@ public class TransferFunction1D {
 	public static Point2D.Float calculateTransferFunctionPoint(Point windowSpacePoint, 
 			TransferFunction1D transferFunction,
 			Dimension drawAreaSize){
-		float xyScale[] = {transferFunction.getMaxOrdinates().x/(float)drawAreaSize.getWidth(),
-				transferFunction.getMaxOrdinates().y/(float)drawAreaSize.getHeight()};
+		float xyScale[] = {transferFunction.getMaxOrdinates().x/(float)(drawAreaSize.getWidth()-1),
+				transferFunction.getMaxOrdinates().y/(float)(drawAreaSize.getHeight()-1)};
 		Point2D.Float functionPoint = new Point2D.Float((float)windowSpacePoint.getX() * xyScale[0],
 				(float)windowSpacePoint.getY() * xyScale[1]);
 		return functionPoint;

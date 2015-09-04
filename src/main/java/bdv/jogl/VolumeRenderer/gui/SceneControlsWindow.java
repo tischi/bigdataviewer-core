@@ -12,7 +12,7 @@ import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.PreIntegrationSampler;
 import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.RegularSampler;
 import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
-import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionPanel1D;
+import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionDrawPanel;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPanel;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -29,7 +29,7 @@ public class SceneControlsWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private TransferFunctionPanel1D tfpanel = null;
+	private TransferFunctionDrawPanel tfpanel = null;
 	
 	private final JPanel mainPanel  = new JPanel();
 	
@@ -50,7 +50,7 @@ public class SceneControlsWindow extends JFrame {
 	}
 	
 	private void createTFWindow(final TransferFunction1D tf,final AggregatorManager agm,final VolumeDataManager dataManager){
-		tfpanel = new TransferFunctionPanel1D(tf,dataManager);
+		tfpanel = new TransferFunctionDrawPanel(tf,dataManager);
 		tfDataPanel = new TransferFunctionDataPanel(tf);
 		aggregationPanel = new VolumeDataAggregationPanel(agm);
 

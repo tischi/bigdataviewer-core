@@ -36,7 +36,7 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private final TransferFunctionPanel1D parent;
+	private final TransferFunctionRenderPanel1D parent;
 
 	private Point colorPickPoint = null;
 	
@@ -122,7 +122,7 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 		});
 	}
 
-	public TransferFunctionContexMenu(final TransferFunctionPanel1D parent){
+	public TransferFunctionContexMenu(final TransferFunctionRenderPanel1D parent){
 		this.parent = parent;
 
 		initActions();
