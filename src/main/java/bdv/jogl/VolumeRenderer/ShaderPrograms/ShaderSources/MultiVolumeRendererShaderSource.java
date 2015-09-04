@@ -203,7 +203,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	//multi ray casting",
 				"  	float density = 0.0;",
 				//TODO find gpu killing bug of start steps
-				"  	for(int i = startStep; i< steps; i++){",
+				"  	for(int i = 0; i< steps; i++){",
 				"",
 				"      	// note:", 
 				"      	// - ray_dir * sample_step can be precomputed",
