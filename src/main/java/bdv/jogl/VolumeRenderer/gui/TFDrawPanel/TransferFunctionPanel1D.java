@@ -8,9 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -46,6 +43,8 @@ public class TransferFunctionPanel1D extends JPanel {
 	private TransferFunction1D transferFunction;
 	
 	private final int pointRadius = 10;
+
+	private boolean logscale = true;
 
 	private void addControls(){
 		addMouseListener(contextMenue.getMouseListener());
@@ -96,6 +95,14 @@ public class TransferFunctionPanel1D extends JPanel {
 				repaint();
 			}
 		});
+	}
+
+	public boolean isLogscaleDistribution() {
+		return logscale;
+	}
+
+	public void setLogscaleDistribution(boolean logscale) {
+		this.logscale = logscale;
 	}
 
 	public VolumeDataManager getVolumeDataManager() {
@@ -198,34 +205,45 @@ public class TransferFunctionPanel1D extends JPanel {
 		}	
 	}
 
+	
+	
 	private void paintDistributions(Graphics g) {
-		
+		Graphics2D g2d = (Graphics2D) g;	
 		Set<Integer> volumeKeys = volumeDataManager.getVolumeKeys();
-		float xyScale [] = new float[]{
-				(float)getWidth()/volumeDataManager.getGlobalMaxVolumeValue(),
-				(float)getHeight()/(float)volumeDataManager.getGlobalMaxOccurance() 
-		};
-		int maxIntX = (int)Math.ceil(volumeDataManager.getGlobalMaxVolumeValue()); 
 		
-		//iterate volumes to draw //TODO distribution
-		/*for(Integer i : volumeKeys){
-			Color lineColor = getColorOfVolume(i);
+		float maxYValue =volumeDataManager.getGlobalMaxOccurance();
+		float maxXValue = volumeDataManager.getGlobalMaxVolumeValue();
+		if(logscale){
+			maxYValue = (float) Math.log10(maxYValue);
+		}
+		float xyScale [] = new float[]{
+				(float)getWidth()/maxXValue,
+				(float)getHeight()/maxYValue 
+		};
+		
+		//iterate volumes to draw 
+		for(Integer i : volumeKeys){
+			Color volumeColor = getColorOfVolume(i);
 			VolumeDataBlock data = volumeDataManager.getVolume(i);
 			TreeMap<Float,Integer> distribution = data.getValueDistribution();
-			
-			//zero x
-			float latestX = (distribution.get(0)==null)?0: distribution.get(0);
-			latestX *= xyScale[0];
 					
 			//sample
-			for(int sample = 0; sample < maxIntX; sample++ ){
-				
+			for(Float volume: distribution.keySet()){
+				Integer occurance = distribution.get(volume);
+				float coord[]={volume,occurance};
+				if(logscale ){
+					coord[1] = (float) Math.log10(coord[1]); 
+				}
+					for(int j =0; j< coord.length;j++){
+						coord[j]*=xyScale[j];
+					}
+				 
+				Point drawPoint = new Point((int)coord[0],(int)coord[1]);
+				drawPoint = transformWindowNormalSpace(drawPoint, getSize());
+				g2d.setColor(volumeColor);
+				g2d.drawRect(drawPoint.x, drawPoint.y, 3,3);
 			}
-			
-			
-			
-			
-		}*/
+		}
 	} 
 	
 	@Override
@@ -233,12 +251,14 @@ public class TransferFunctionPanel1D extends JPanel {
 		super.paint(g);
 
 		paintSkala(g);
-
+		
+		paintDistributions(g);
+		
 		paintLines(g);
 		
 		paintPoints(g);
 		
-		paintDistributions(g);
+
 	}
 
 
