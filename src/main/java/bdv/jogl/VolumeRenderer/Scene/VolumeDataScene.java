@@ -1,6 +1,5 @@
 package bdv.jogl.VolumeRenderer.Scene;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -131,7 +130,11 @@ public class VolumeDataScene extends AbstractScene{
 		return source.getSpimSource().getNumMipmapLevels()-1;
 	}
 
-
+	private void initBlending(GL2 gl2){
+		gl2.glEnable(GL2.GL_BLEND);
+		gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+	}
+	
 	/**
 	 * initializes the scene once
 	 * @param gl2
@@ -140,10 +143,9 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
 
-		int numberOfSources = bigDataViewer.getViewer().getState().getSources().size();
+		initBlending(gl2);
+		
 		int currentRenderTimePoint = bigDataViewer.getViewer().getState().getCurrentTimepoint();
-		float colorLinearFactor = 1.f/numberOfSources;
-		float r =0, g=1,b=1 ;
 		float[][] minMaxDimensions = {
 				{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE},
 				{Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE}
@@ -168,9 +170,7 @@ public class VolumeDataScene extends AbstractScene{
 			addSceneElement(cubeShader);
 			cubeShader.init(gl2);
 			cubeShader.setRenderWireframe(true);
-			cubeShader.setColor(new Color(r,g,b,1));
-			r+=colorLinearFactor;
-			b-=colorLinearFactor;
+			cubeShader.setColor(getColorOfVolume(j));
 
 			if(!source.isCurrent()){
 				continue;
@@ -223,7 +223,12 @@ public class VolumeDataScene extends AbstractScene{
 				fireNeedUpdateAll();
 			}
 		});
-		
+		if(!single){
+			addSceneElement(multiVolumeRenderer);
+			multiVolumeRenderer.setTransferFunction(transferFunction);
+			multiVolumeRenderer.init(gl2);
+			initBoundingVolumeCube(gl2);
+		}
 		controls =new SceneControlsWindow(transferFunction,aggm, dataManager);
 	}
 
@@ -241,7 +246,6 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param gl2
 	 */
 	protected void renderSpecial(GL2 gl2){
-
 		ViewerState state = bigDataViewer.getViewer().getState();
 
 		List<SourceState<?>> sources = state.getSources();
@@ -249,10 +253,10 @@ public class VolumeDataScene extends AbstractScene{
 		int currentTimepoint = state.getCurrentTimepoint();
 
 		int i =-1;
-
+		final float offsetFactor = 1.01f;
 
 		for(SourceState<?> source : sources){
-
+			
 			i++;
 			UnitCube cubeShader = volumeBorders.get(i);
 
@@ -273,7 +277,7 @@ public class VolumeDataScene extends AbstractScene{
 			tmp.dimensions(dim);	
 			Matrix4 scale = new Matrix4();
 			scale.loadIdentity();
-			scale.scale(dim[0], dim[1], dim[2]);
+			scale.scale((float)(dim[0])*offsetFactor, (float)(dim[1])*offsetFactor, (float)(dim[2])*offsetFactor);
 
 
 

@@ -150,7 +150,7 @@ public abstract class AbstractScene {
 
 		gl2.glEnable(GL2.GL_DEPTH_TEST);
 		
-		gl2.glDepthFunc(GL2.GL_LESS);
+		gl2.glDepthFunc(GL2.GL_LEQUAL);
 		
 
 		
