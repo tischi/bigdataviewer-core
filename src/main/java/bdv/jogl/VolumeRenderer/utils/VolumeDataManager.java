@@ -1,7 +1,9 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +20,18 @@ public class VolumeDataManager {
 	private float globalMaxVolume = 0;
 	
 	private int globalMaxOccurance = 0;
+	
+	private List<IVolumeDataManagerListener> listeners = new ArrayList<IVolumeDataManagerListener>();
+	
+	private void fireUpdateData(IVolumeDataManagerListener l){
+		l.updatedData();
+	}
+	
+	private void fireAllUpdateData(){
+		for(IVolumeDataManagerListener l:listeners){
+			fireUpdateData(l);
+		}
+	}
 	
 	private void updateGlobals(){
 		globalMaxVolume = 0;
@@ -55,6 +69,7 @@ public class VolumeDataManager {
 	public void setVolume(Integer i, VolumeDataBlock data){
 		volumes.put(i, data);
 		updateGlobals();
+		fireAllUpdateData();
 	}
 	
 	public float getGlobalMaxOccurance() {
@@ -67,6 +82,9 @@ public class VolumeDataManager {
 
 	public void removeVolumeByIndex(int i) {
 		volumes.remove(i);
-		
+	}
+	
+	public void addVolumeDataManagerListener(IVolumeDataManagerListener l ){
+		listeners.add(l);
 	}
 }

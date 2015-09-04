@@ -26,11 +26,13 @@ import net.imglib2.view.Views;
 public class VolumeDataUtils {
 	
 	private static Color volumeColor[] = new Color[]{
-		Color.GREEN,
+		
 		Color.YELLOW,
 		Color.CYAN,
-		Color.BLUE
-		
+		Color.DARK_GRAY,
+		Color.BLUE,
+		Color.GREEN,
+		Color.BLACK,
 	};
 
 	

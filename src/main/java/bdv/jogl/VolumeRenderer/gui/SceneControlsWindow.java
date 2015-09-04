@@ -63,9 +63,10 @@ public class SceneControlsWindow extends JFrame {
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(tfpanel);
-		mainPanel.add(usePreIntegration);
 		mainPanel.add(advancedCheck);
 		mainPanel.add(tfDataPanel);
+		mainPanel.add(usePreIntegration);
+		
 		mainPanel.add(aggregationPanel);
 		tfDataPanel.setVisible(advancedCheck.isSelected());
 		

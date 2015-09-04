@@ -29,13 +29,15 @@ public class TransferFunctionDrawPanel extends JPanel {
 
 	private final GridBagLayout layout = new GridBagLayout(); 
 	
-	private final Axis yTauAxis = new Axis("y",AxisType.YAXIS);
+	private final Axis yTauAxis = new Axis("Tau",AxisType.YAXIS);
 	
-	private final Axis yDistributionAxis = new Axis("y2", AxisType.YAXIS);
+	private final Axis yDistributionAxis = new Axis("Count", AxisType.YAXIS);
 	
-	private final Axis xAxis = new Axis("x",AxisType.XAXIS);
+	private final Axis xAxis = new Axis("Volume values",AxisType.XAXIS);
 	
 	private final VolumeDataManager dataManager;
+	
+	private final VolumeLegend legend;
 	
 	private JCheckBox logarithmicOccuranceCheck = new JCheckBox("Logarithmic distribution");
 	
@@ -46,6 +48,7 @@ public class TransferFunctionDrawPanel extends JPanel {
 	 */
 	public TransferFunctionDrawPanel(final TransferFunction1D tf, final VolumeDataManager dataManager){
 		this.dataManager = dataManager;
+		this.legend = new VolumeLegend(dataManager);
 		logarithmicOccuranceCheck.setSelected(true);
 		
 		renderPanel = new TransferFunctionRenderPanel1D(tf, dataManager);
@@ -56,6 +59,7 @@ public class TransferFunctionDrawPanel extends JPanel {
 	
 	private void initUI(){
 		setLayout(layout);
+		yTauAxis.setLeftAxis(true);
 		//render area + axis
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
@@ -67,6 +71,11 @@ public class TransferFunctionDrawPanel extends JPanel {
 		c.gridx =2;
 		c.gridy = 0;
 		add(yDistributionAxis,c);
+		
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = 3;
+		c.gridy = 0;
+		add(legend,c);
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx =1;
@@ -82,7 +91,7 @@ public class TransferFunctionDrawPanel extends JPanel {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx =0;
 		c.gridy = 2;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		add(logarithmicOccuranceCheck,c);
 	}
 

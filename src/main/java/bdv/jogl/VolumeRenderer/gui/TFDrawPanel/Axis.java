@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.JPanel;
 
@@ -19,6 +20,8 @@ public class Axis extends JPanel {
 		YAXIS
 	};
 	
+	private int vMargin = 5;
+	
 	private final AxisType type;
 	
 	private final String axisName;
@@ -27,14 +30,22 @@ public class Axis extends JPanel {
 	
 	private float max = 1;
 	
-	private String minString = ""+min;
+	private boolean leftAxis = false;
 	
-	private String maxString = ""+max;
+	private String minAxisString = ""+min;
+	
+	private String maxAxisString = ""+max;
 	
 	public Axis(String name, AxisType type){
 		this.axisName = name;
 		this.type = type;
+		updateToolTip();
 		updateSize();
+
+	}
+	
+	private void updateToolTip(){
+		setToolTipText(axisName+ " values form: "+min+ " to "+ max);
 	}
 	
 	private void updateSize(){
@@ -42,9 +53,10 @@ public class Axis extends JPanel {
 		Dimension minSize = new Dimension();
 		if(type == AxisType.XAXIS){
 			minSize = getMinimumSize();
+			minSize.setSize(minSize.width, metrics.getHeight()+vMargin);
 		}else{
-			int widthMax = metrics.stringWidth(maxString);
-			int widthMin = metrics.stringWidth(minString);
+			int widthMax = metrics.stringWidth(maxAxisString);
+			int widthMin = metrics.stringWidth(minAxisString);
 			minSize = new Dimension(Math.max(widthMax, widthMin), getMinimumSize().height);
 		}
 		setMinimumSize(minSize);
@@ -64,33 +76,76 @@ public class Axis extends JPanel {
 		miny = getHeight()-1;
 		
 		if(type == AxisType.XAXIS){
-			maxx = getWidth()-1 - metrics.stringWidth(maxString);
-			maxy = getHeight()-1;
+			maxx = getWidth()-1 - metrics.stringWidth(maxAxisString);
+			maxy = metrics.getHeight();
 		}else{
 			maxx = 0;
 			maxy = 0 + metrics.getHeight();
 		}
 		
 		//draw min in lower area
-		g.drawChars(minString.toCharArray(), 0,  minString.length(), minx, miny);
-		g.drawChars(maxString.toCharArray(), 0,  maxString.length(), maxx, maxy);
+		g.drawChars(minAxisString.toCharArray(), 0,  minAxisString.length(), minx, miny);
+		g.drawChars(maxAxisString.toCharArray(), 0,  maxAxisString.length(), maxx, maxy);
 	}
 	
 	public void setMax(float max) {
 		this.max = max;
-		maxString = ""+max;
+		maxAxisString = ""+max;
+		updateToolTip();
 		updateSize();
 	}
 	
 	public void setMin(float min) {
 		this.min = min;
-		minString = ""+min;
+		minAxisString = ""+min;
+		updateToolTip();
 		updateSize();
 	}
 	
+	public boolean isLeftAxis() {
+		return leftAxis;
+	}
+
+	public void setLeftAxis(boolean leftAxis) {
+		this.leftAxis = leftAxis;
+	}
+
+	private void drawName(Graphics2D g2) {
+		FontMetrics fontMetrics = getFontMetrics(getFont());
+		int strWidth = fontMetrics.stringWidth(axisName);
+		
+		if(type == AxisType.XAXIS){
+			g2.drawChars(axisName.toCharArray(), 0, axisName.length(), getWidth()/2 - strWidth/2, getHeight()-1);
+		}else{
+			
+			AffineTransform rot = new AffineTransform();
+			//foot of text is at axis
+			if(isLeftAxis()){
+				rot.setToRotation(Math.toRadians(270));
+				g2.setTransform(rot);
+				g2.drawChars(axisName.toCharArray(), 0,axisName.length(),-getLocation().y -getHeight()/2- strWidth/2 ,getLocation().x +getWidth()- vMargin);
+				
+			}else{
+				rot.setToRotation(Math.toRadians(90));
+				g2.setTransform(rot);
+				g2.drawChars(axisName.toCharArray(), 0,axisName.length(), getHeight()/2 - strWidth/2, -vMargin);
+				
+			}
+			//reset painter
+			rot.setToIdentity();
+			g2.setTransform(rot);
+		}
+	}
 	@Override
 	public void paint(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
+		
+		g2.setFont(getFont());
+		
 		drawMinMax(g2);
+		
+		drawName(g2);
 	}
+
+
 }
