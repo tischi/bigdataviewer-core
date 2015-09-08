@@ -9,7 +9,7 @@ public class PreIntegrationInterpreter extends AbstractTransferFunctionInterpret
 		String dec[] ={
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
 				"uniform sampler1D "+suvColorTexture+";",
-				"const float minValue = 0.00001;",
+				"const float minValue = 0.00000001;",
 				"const float minValueHalf = minValue/2.0;",
 				"",
 				"vec4 "+getFunctionName()+"(float vbegin, float vend, float distance){",
