@@ -62,6 +62,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 		int[] oldFrontBack={GL2.GL_FILL,GL2.GL_FILL};
 		
 		if(isRenderWireframe()){
+			gl2.glDisable(GL2.GL_DEPTH_TEST);
 			gl2.glGetIntegerv(GL2.GL_POLYGON_MODE, oldFrontBack,0);
 			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
 		}
