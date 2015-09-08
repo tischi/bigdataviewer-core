@@ -26,9 +26,9 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 
 	private Point2D.Float currentPoint;
 
-	private final JSpinner xSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
+	private final JSpinner xSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1000.0, 0.01));
 
-	private final JSpinner ySpinner = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
+	private final JSpinner ySpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1000.0, 0.01));
 
 	private final JPanel editorPanel = new JPanel();
 
@@ -55,7 +55,7 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 				if(currentPoint == null){
 					return;
 				}
-				currentPoint.x = (Integer)xSpinner.getValue();
+				currentPoint.x =((Number)(xSpinner.getValue())).floatValue();
 				fireEditingStopped();
 			}
 		});
@@ -67,7 +67,7 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 				if(currentPoint == null){
 					return;
 				}
-				currentPoint.y = (Integer)ySpinner.getValue();
+				currentPoint.y = ((Number)(ySpinner.getValue())).floatValue();
 				fireEditingStopped();
 			}
 		});
