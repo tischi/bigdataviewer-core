@@ -132,7 +132,6 @@ public abstract class AbstractScene {
 
 		//subclass stuff
 		disposeSpecial(gl2);
-		sceneElements.clear();
 	}
 
 
