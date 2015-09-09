@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.nio.FloatBuffer;
 
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource.*;
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
@@ -19,6 +20,8 @@ public class UnitCube extends AbstractShaderSceneElement{
 
 	private boolean renderWireframe = false;
 	
+	private boolean colorNeedsUpdate = true;
+	
 	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
@@ -31,7 +34,12 @@ public class UnitCube extends AbstractShaderSceneElement{
 	};
 	
 	protected void updateShaderAttributesSubClass(GL2 gl2){
-		gl2.glUniform4f(getLocation(suvColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
+		if(!colorNeedsUpdate){
+			return;
+		}
+		float[] rgba = getNormalizedColor(color);
+		gl2.glUniform4fv(getLocation(suvColor),1,rgba,0);
+		colorNeedsUpdate = false;
 	}
 
 	
@@ -93,8 +101,13 @@ public class UnitCube extends AbstractShaderSceneElement{
 	 */
 	public void setColor(Color color) {
 		this.color = color;
+		this.colorNeedsUpdate = true;
 	}
 
+	@Override
+	protected void disposeSubClass(GL2 gl2) {
+		colorNeedsUpdate = true;
+	};
 	
 	protected int getVertexBufferSize(){
 		return coordinates.length * Buffers.SIZEOF_FLOAT;

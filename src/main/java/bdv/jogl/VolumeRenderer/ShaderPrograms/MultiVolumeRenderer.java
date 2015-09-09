@@ -61,7 +61,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 	
 	private void setAllUpdate(boolean flag){
-		setNeedsRebuild(flag);
+
 		isColorUpdateable = flag;
 		isEyeUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
@@ -81,6 +81,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			@Override
 			public void sourceCodeChanged() {
+				setNeedsRebuild(true);
 				setAllUpdate(true);
 				
 			}
@@ -381,6 +382,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			@Override
 			public void samplerChanged(TransferFunction1D transferFunction1D) {
+				setNeedsRebuild(true);
 				setAllUpdate(true);
 			}
 		});
@@ -401,5 +403,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(Texture texture: volumeTextureMap.values() ){
 			texture.delete(gl2);
 		}
+		setAllUpdate(true);
 	}
 }
