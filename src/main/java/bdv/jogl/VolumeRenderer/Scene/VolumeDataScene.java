@@ -223,12 +223,6 @@ public class VolumeDataScene extends AbstractScene{
 				fireNeedUpdateAll();
 			}
 		});
-		if(!single){
-			addSceneElement(multiVolumeRenderer);
-			multiVolumeRenderer.setTransferFunction(transferFunction);
-			multiVolumeRenderer.init(gl2);
-			initBoundingVolumeCube(gl2);
-		}
 		controls =new SceneControlsWindow(transferFunction,aggm, dataManager);
 	}
 
