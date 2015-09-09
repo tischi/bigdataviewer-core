@@ -63,8 +63,6 @@ public class VolumeDataScene extends AbstractScene{
 
 	//private UnitCube boundingVolume =new UnitCube();
 
-
-
 	private SceneControlsWindow controls;
 
 	private final boolean single = false;
@@ -102,6 +100,8 @@ public class VolumeDataScene extends AbstractScene{
 				fireNeedUpdateAll();
 			}
 		});
+		
+		
 	}
 
 	/**
@@ -129,11 +129,6 @@ public class VolumeDataScene extends AbstractScene{
 	private int getMidmapLevel(final SourceState<?> source){
 		return source.getSpimSource().getNumMipmapLevels()-1;
 	}
-
-	private void initBlending(GL2 gl2){
-		gl2.glEnable(GL2.GL_BLEND);
-		gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
-	}
 	
 	/**
 	 * initializes the scene once
@@ -142,8 +137,6 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param height
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
-
-		initBlending(gl2);
 		
 		int currentRenderTimePoint = bigDataViewer.getViewer().getState().getCurrentTimepoint();
 		float[][] minMaxDimensions = {
