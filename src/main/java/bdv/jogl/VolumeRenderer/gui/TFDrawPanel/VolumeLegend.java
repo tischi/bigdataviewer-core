@@ -2,6 +2,8 @@ package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,19 +22,20 @@ public class VolumeLegend extends JPanel {
 
 	private final VolumeDataManager dataManager;
 	
+	private final Map<Integer,JLabel> idLabelMap = new HashMap<Integer, JLabel>(); 
+	
 	public VolumeLegend(final VolumeDataManager m){
 		this.dataManager = m;
 		initLegend();
 		initListener();
-		updateLegend();
 	}
 	
 	private void initListener() {
 		dataManager.addVolumeDataManagerListener(new IVolumeDataManagerListener() {
 			
 			@Override
-			public void updatedData() {
-				updateLegend();
+			public void addedData(Integer id) {
+				updateLegend(id);
 				repaint();
 			}
 		});
@@ -43,13 +46,15 @@ public class VolumeLegend extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
-	private void updateLegend() {
-		removeAll();
-		for(Integer index : dataManager.getVolumeKeys()){
-			Color volumeColor = getColorOfVolume(index);
-			JLabel tmp = new JLabel("Volume: "+index);
+	private void updateLegend(Integer id) {
+			if(idLabelMap.containsKey(id)){
+				return;
+			}
+			Color volumeColor = getColorOfVolume(id);
+			JLabel tmp = new JLabel("Volume: "+id);
 			tmp.setForeground(volumeColor);
+			idLabelMap.put(id, tmp);
 			add(tmp);
-		}
+	
 	}
 }

@@ -23,13 +23,13 @@ public class VolumeDataManager {
 	
 	private List<IVolumeDataManagerListener> listeners = new ArrayList<IVolumeDataManagerListener>();
 	
-	private void fireUpdateData(IVolumeDataManagerListener l){
-		l.updatedData();
+	private void fireAddedData(Integer i,IVolumeDataManagerListener l){
+		l.addedData(i);
 	}
 	
-	private void fireAllUpdateData(){
+	private void fireAllAddedData(Integer i){
 		for(IVolumeDataManagerListener l:listeners){
-			fireUpdateData(l);
+			fireAddedData(i,l);
 		}
 	}
 	
@@ -69,7 +69,7 @@ public class VolumeDataManager {
 	public void setVolume(Integer i, VolumeDataBlock data){
 		volumes.put(i, data);
 		updateGlobals();
-		fireAllUpdateData();
+		fireAllAddedData(i);
 	}
 	
 	public float getGlobalMaxOccurance() {
