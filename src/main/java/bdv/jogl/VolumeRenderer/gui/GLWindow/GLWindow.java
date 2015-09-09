@@ -2,7 +2,6 @@ package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 
 import javax.swing.JFrame;
-import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
 import bdv.jogl.VolumeRenderer.Scene.SceneEventListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
@@ -58,9 +57,16 @@ public class GLWindow extends JFrame {
 	}
 
 	/**
+	 * @return the glCanvas
+	 */
+	public GLCanvas getGlCanvas() {
+		return glCanvas;
+	}
+
+	/**
 	 * constructor
 	 */
-	public GLWindow(final VolumeDataScene scene, final BigDataViewer bdv){		
+	public GLWindow(final VolumeDataScene scene){		
 		// create render area
 		GLProfile glprofile = GLProfile.getDefault();
 		GLCapabilities glcapabilities = new GLCapabilities( glprofile );

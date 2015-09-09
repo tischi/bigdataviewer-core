@@ -155,8 +155,8 @@ public class MultiVolumeRendererTest {
 		blocks[1].localTransformation = loc2;
 	
 		
-		dataManager.setVolume(0, blocks[0]);
-		dataManager.setVolume(1, blocks[1]);
+		dataManager.setVolume(0,0, blocks[0]);
+		dataManager.setVolume(1,0, blocks[1]);
 			
 		testWindow.setVisible(true);
 		

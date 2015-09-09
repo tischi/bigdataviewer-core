@@ -14,10 +14,10 @@ public class VolumeDataManagerTest {
 	public void dataAddingTest() {
 		
 	
-		manager.setVolume(0,new VolumeDataBlock());
+		manager.setVolume(0,0,new VolumeDataBlock());
 		assertEquals(1, manager.getVolumes().size());
 
-		manager.setVolume(1,new VolumeDataBlock());
+		manager.setVolume(1,0,new VolumeDataBlock());
 		assertEquals(2, manager.getVolumes().size());
 		
 		manager.removeVolumeByIndex(0);
@@ -25,7 +25,7 @@ public class VolumeDataManagerTest {
 		assertEquals(null,manager.getVolume(0));
 		assertNotEquals(null, manager.getVolume(1));
 		
-		manager.setVolume(0,new VolumeDataBlock());
+		manager.setVolume(0,0,new VolumeDataBlock());
 		assertEquals(2, manager.getVolumes().size());
 		assertNotEquals(null, manager.getVolume(0));
 		assertNotEquals(null, manager.getVolume(1));

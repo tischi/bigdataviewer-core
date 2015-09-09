@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
+import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
@@ -112,6 +113,19 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 
 	public void setVolumeDataManager(VolumeDataManager volumeDataManager) {
 		this.volumeDataManager = volumeDataManager;
+		volumeDataManager.addVolumeDataManagerListener(new IVolumeDataManagerListener() {
+			
+			@Override
+			public void dataUpdated(Integer i) {
+				repaint();
+			}
+			
+			@Override
+			public void addedData(Integer i) {
+				repaint();
+				
+			}
+		});
 	}
 
 	private void paintSkala(Graphics g){

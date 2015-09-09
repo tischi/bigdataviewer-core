@@ -72,7 +72,6 @@ public class SceneControlsWindow extends JFrame {
 		
 		getContentPane().add(mainPanel);
 		pack();
-		setVisible(true);
 	}
 
 	private void initUsePreIntegration() {

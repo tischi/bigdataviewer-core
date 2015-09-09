@@ -11,4 +11,7 @@ public interface IVolumeDataManagerListener {
 	 * generic callback if some data changed within the data manager
 	 */
 	public void addedData(Integer i);
+	
+	
+	public void dataUpdated(Integer i);
 }

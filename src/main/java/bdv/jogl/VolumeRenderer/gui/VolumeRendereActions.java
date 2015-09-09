@@ -21,15 +21,19 @@ public class VolumeRendereActions {
 
 		private final GLWindow window3D;
 		
-		public OpenVolumeRendererAction(final String name, final GLWindow win3d ) {
+		private final SceneControlsWindow controls;
+		
+		public OpenVolumeRendererAction(final String name, final GLWindow win3d, SceneControlsWindow controls ) {
 			super(name);
 			window3D = win3d;
+			this.controls = controls;
 		}
 		
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			window3D.setVisible(true);
+			controls.setVisible(true);
 		}
 	}
 	

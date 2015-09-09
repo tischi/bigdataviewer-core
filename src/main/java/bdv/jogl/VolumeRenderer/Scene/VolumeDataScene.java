@@ -1,38 +1,23 @@
 package bdv.jogl.VolumeRenderer.Scene;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import net.imglib2.IterableInterval;
+import java.util.HashMap;
+
+import java.util.Map;
+
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.view.Views;
+
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.SimpleVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxDifferenceAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MinimumVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
-import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
-import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
-import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
-import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
 import bdv.viewer.state.SourceState;
-import bdv.viewer.state.ViewerState;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 
 import com.jogamp.opengl.GL2;
@@ -50,48 +35,34 @@ public class VolumeDataScene extends AbstractScene{
 
 	private Map<Integer,UnitCube> volumeBorders = new HashMap<Integer, UnitCube>();
 
-	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
-
-	private final TransferFunction1D transferFunction = new TransferFunction1D();
-	
 	private VolumeDataManager dataManager;
 	
 	private final MultiVolumeRenderer multiVolumeRenderer;
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 
-	private int latestRenderTimePoint = -1;
 
-	private int currentActiveSource = -1;
 
 	//private UnitCube boundingVolume =new UnitCube();
 
-	private SceneControlsWindow controls;
 
-	private final boolean single = false;
-
-	private void cleanUpSceneElements(){
-		//	volumeBorders.clear();
-		volumeRenderes.clear();
-	}
 
 	@Override
 	protected void disposeSpecial(GL2 gl2) {
-		controls.destroyTFWindow();
-		controls = null;
-		cleanUpSceneElements();
-		
-		multiVolumeRenderer.disposeGL(gl2);
-
 	}
 
-	private void addNewCubeBorderShader(Integer id, final VolumeDataBlock data){
+	private void addNewCubeBorderShader(Integer id){
 		UnitCube cubeShader = new UnitCube();
 		volumeBorders.put(id,cubeShader);
 		addSceneElement(cubeShader);
 		cubeShader.setRenderWireframe(true);
 		cubeShader.setColor(getColorOfVolume(id));
 		
+
+	}
+	
+	private void updateCubeBorderShader(Integer id, final VolumeDataBlock data){
+		UnitCube cubeShader = volumeBorders.get(id);
 		Matrix4 modelMatrix = getNewIdentityMatrix();
 		modelMatrix.multMatrix(copyMatrix(data.localTransformation));
 		long dim[] = data.dimensions.clone();
@@ -104,14 +75,18 @@ public class VolumeDataScene extends AbstractScene{
 	private void setDataManager(final VolumeDataManager manager){
 		dataManager = manager;
 		
-		dataManager.addVolumeDataManagerListener(new IVolumeDataManagerListener() {
+		dataManager.addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
 			
 			@Override
 			public void addedData(Integer id) {
 				//add cubes
-				addNewCubeBorderShader(id, dataManager.getVolume(id));
-				
-				
+				addNewCubeBorderShader(id);
+			}
+			
+			@Override 
+			public void dataUpdated(Integer id) {
+				updateCubeBorderShader(id, dataManager.getVolume(id));
+				fireNeedUpdateAll();
 			}
 		});
 	}
@@ -120,28 +95,13 @@ public class VolumeDataScene extends AbstractScene{
 	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
 
 
-	public VolumeDataScene(BigDataViewer bdv){
+	public VolumeDataScene(BigDataViewer bdv, VolumeDataManager dataManager, MultiVolumeRenderer renderer){
 		
 		bigDataViewer = bdv;
-		setDataManager(new VolumeDataManager());
-		multiVolumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
+		setDataManager(dataManager);
+		multiVolumeRenderer = renderer;
+		
 		addSceneElement(multiVolumeRenderer);
-		multiVolumeRenderer.setTransferFunction(transferFunction);
-		transferFunction.addTransferFunctionListener( new TransferFunctionAdapter() {
-
-			@Override
-			public void colorChanged(final TransferFunction1D function) {
-
-				//trigger scene update
-				fireNeedUpdateAll();
-			}
-			
-			@Override
-			public void samplerChanged(TransferFunction1D transferFunction1D) {
-				fireNeedUpdateAll();
-			}
-		});
-
 		
 	}
 
@@ -185,31 +145,16 @@ public class VolumeDataScene extends AbstractScene{
 				{Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE}
 				};
 
-		int j =-1;
 
-		if(!single){
-			//multiVolumeRenderer.init(gl2);
+
 			initBoundingVolumeCube(gl2);
-		}
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
-
-
-			j++;
-
 
 			if(!source.isCurrent()){
 				continue;
 			}
-			currentActiveSource = j;
-
 			//create vRenderer
-			if(single ){
-				SimpleVolumeRenderer vRenderer = new SimpleVolumeRenderer();
-				vRenderer.setTransferFunction(transferFunction);
-				volumeRenderes.add(vRenderer);
-				addSceneElement(vRenderer);
-				vRenderer.init(gl2);
-			}
+	
 
 			int midMapLevel = getMidmapLevel(source);
 			AffineTransform3D sourceTransformation = new AffineTransform3D();
@@ -229,26 +174,6 @@ public class VolumeDataScene extends AbstractScene{
 		}
 		AABBox volumeBoundingBox = new AABBox(minMaxDimensions[0],minMaxDimensions[1]);
 		initLocalCamera(camera, width, height, volumeBoundingBox);
-
-		
-		//window
-		Set<AbstractVolumeAccumulator> acc =  new HashSet<AbstractVolumeAccumulator>();
-		AverageVolumeAccumulator avg = new AverageVolumeAccumulator();
-		acc.add(avg);
-		acc.add(new MaximumVolumeAccumulator());
-		acc.add(new MinimumVolumeAccumulator());
-		acc.add(new MaxDifferenceAccumulator());
-		AggregatorManager aggm = new AggregatorManager(acc);
-		aggm.setActiveAcumulator(avg.getFunctionName());
-		aggm.addListener(new IVolumeAggregationListener() {
-			
-			@Override
-			public void aggregationChanged(AbstractVolumeAccumulator acc) {
-				multiVolumeRenderer.getSource().setAccumulator(acc);
-				fireNeedUpdateAll();
-			}
-		});
-		controls =new SceneControlsWindow(transferFunction,aggm, dataManager);
 	}
 
 
@@ -265,87 +190,7 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param gl2
 	 */
 	protected void renderSpecial(GL2 gl2){
-		ViewerState state = bigDataViewer.getViewer().getState();
 
-		List<SourceState<?>> sources = state.getSources();
-
-		int currentTimepoint = state.getCurrentTimepoint();
-
-		int i =-1;
-		final float offsetFactor = 1.01f;
-
-		for(SourceState<?> source : sources){
-			
-			i++;
-	
-
-			//block transform
-			int midMapLevel = getMidmapLevel(source);
-			AffineTransform3D sourceTransform3D = new AffineTransform3D();
-			source.getSpimSource().getSourceTransform(currentTimepoint, midMapLevel, sourceTransform3D);
-			Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
-
-
-			//block size
-			RandomAccessibleInterval<?> ssource = source.getSpimSource().getSource(currentTimepoint, midMapLevel);
-			long[] min =  new long[3];
-			long[] dim =  new long[3];
-			ssource.min(min);
-
-			IterableInterval<?> tmp = Views.flatIterable(ssource);
-			tmp.dimensions(dim);	
-			Matrix4 scale = new Matrix4();
-			scale.loadIdentity();
-			scale.scale((float)(dim[0])*offsetFactor, (float)(dim[1])*offsetFactor, (float)(dim[2])*offsetFactor);
-
-
-
-			Matrix4 modelMatrix = getNewIdentityMatrix();
-			modelMatrix=copyMatrix(globalModelTransformation);
-			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
-			modelMatrix.multMatrix(copyMatrix(scale));	
-			//cubeShader.setModelTransformation(modelMatrix);
-
-
-			//no inactive sources
-			if(single){
-				if(!source.isCurrent()){
-					continue;
-				}
-			}
-
-			if(latestRenderTimePoint != currentTimepoint || 
-					!dataManager.getVolumeKeys().contains(i)){
-				/*float[] values = VolumeDataUtils.getDataBlock(ssource);
-			VolumeDataUtils.writeParaviewFile(values, dim,"parafile");
-			if(1==1)
-				throw new NullPointerException();*/
-			
-				VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(currentTimepoint, midMapLevel));
-
-
-
-
-				data.localTransformation =sourceTransformation;
-				if(single){
-					volumeRenderes.get(0).setModelTransformation(modelMatrix);
-					if( i == currentActiveSource){
-						volumeRenderes.get(0).setData(data);	
-						currentActiveSource = i;
-					}
-				}else{
-					dataManager.setVolume(i, data);		
-				}
-			}
-		}
-		latestRenderTimePoint = currentTimepoint;
-		if(!single){
-			multiVolumeRenderer.setModelTransformation(globalModelTransformation);
-			/*	multiVolumeRenderer.update(gl2);
-			Matrix4 model = copyMatrix(multiVolumeRenderer.getModelTransformation());
-			model.multMatrix(multiVolumeRenderer.getDrawCubeTransformation());
-			boundingVolume.setModelTransformation(model);*/
-		}
 	}
 
 

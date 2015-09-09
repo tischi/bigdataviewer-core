@@ -17,9 +17,13 @@ public class VolumeDataManager {
 
 	private final Map<Integer, VolumeDataBlock> volumes = new HashMap<Integer, VolumeDataBlock>();
 	
+	private final Map<Integer, Integer> timestamps = new HashMap<Integer, Integer>();
+	
 	private float globalMaxVolume = 0;
 	
 	private int globalMaxOccurance = 0;
+	
+	private int currentTime = -1;
 	
 	private List<IVolumeDataManagerListener> listeners = new ArrayList<IVolumeDataManagerListener>();
 	
@@ -50,6 +54,13 @@ public class VolumeDataManager {
 	}
 	
 	/**
+	 * @return the currentTime
+	 */
+	public int getCurrentTime() {
+		return currentTime;
+	}
+
+	/**
 	 * Returns the maximal volume value of the currently stored volume values
 	 * @return
 	 */
@@ -66,12 +77,38 @@ public class VolumeDataManager {
 	}
 
  
-	public void setVolume(Integer i, VolumeDataBlock data){
+	public void setVolume(Integer i, int time , VolumeDataBlock data){
+		if(time != this.currentTime){
+			currentTime = time;
+		}
+		boolean sameTime = (timestamps.containsKey(i))?(timestamps.get(i) == time):false;
+		boolean contained = volumes.containsKey(i);
+		if(sameTime){
+			if(contained){
+				return;
+			}
+		}
+		
 		volumes.put(i, data);
+		timestamps.put(i, time);
 		updateGlobals();
-		fireAllAddedData(i);
+		
+		if(!contained){
+			fireAllAddedData(i);
+		}	
+		fireAllUpdatedData(i);
 	}
 	
+	private void fireAllUpdatedData(Integer i) {
+		for(IVolumeDataManagerListener listener : listeners){
+			fireUpdatedData(i,listener);
+		}
+	}
+
+	private void fireUpdatedData(int i,IVolumeDataManagerListener listener) {
+		listener.dataUpdated(i);
+	}
+
 	public float getGlobalMaxOccurance() {
 		return globalMaxOccurance;
 	}
@@ -86,5 +123,9 @@ public class VolumeDataManager {
 	
 	public void addVolumeDataManagerListener(IVolumeDataManagerListener l ){
 		listeners.add(l);
+		for(int i: volumes.keySet()){
+			fireAddedData(i, l);
+			fireUpdatedData(i, l);
+		}
 	}
 }

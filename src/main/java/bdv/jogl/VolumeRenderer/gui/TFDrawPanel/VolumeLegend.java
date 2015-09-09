@@ -9,8 +9,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.getColorOfVolume;
 public class VolumeLegend extends JPanel {
 
@@ -30,7 +30,7 @@ public class VolumeLegend extends JPanel {
 	}
 	
 	private void initListener() {
-		dataManager.addVolumeDataManagerListener(new IVolumeDataManagerListener() {
+		dataManager.addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
 			
 			@Override
 			public void addedData(Integer id) {
