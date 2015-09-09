@@ -36,7 +36,14 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	private VertexAttribute position;
 	
 	private boolean needsRebuild = false;
+	
+	private boolean viewNeedsUpdate = true;
+	
+	private boolean projectionNeedsUpdate = true;
+	
+	private boolean modelNeedsUpdate = true;
 
+	private boolean needsInit = true;
 
 	/**
 	 * @param needsRebuild the needsRebuild to set
@@ -49,7 +56,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param projection the projection to set
 	 */
 	public void setProjection(final Matrix4 projection) {
+		if(this.projection.equals(projection)){
+			return;
+		}
 		this.projection = MatrixUtils.copyMatrix(projection);
+		this.projectionNeedsUpdate = true;
 	}
 
 	/**
@@ -63,7 +74,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param view the view to set
 	 */
 	public void setView(final Matrix4 view) {
+		if(this.view.equals(view)){
+			return;
+		}
 		this.view = MatrixUtils.copyMatrix(view);
+		this.viewNeedsUpdate = true;
 	}
 
 	/**
@@ -86,6 +101,11 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		for(ShaderCode code: getSource().getShaderCodes()){
 			code.destroy(gl2);
 		}
+		
+		modelNeedsUpdate = true;
+		viewNeedsUpdate = true;
+		projectionNeedsUpdate = true;
+		needsRebuild = true;
 	}
 	
 	/**
@@ -109,6 +129,8 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		generateVertexBuffer(gl);
 
 		updateVertexBuffer(gl);
+		
+		needsInit = false;
 	}
 
 	/**
@@ -119,6 +141,10 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 			disposeGL(gl);
 			init(gl);
 			needsRebuild = false;
+		}
+		
+		if(needsInit){
+			init(gl);
 		}
 		
 		updateShaderAttributes(gl);
@@ -199,9 +225,20 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		shaderProgram.useProgram(gl2, true);
 
 		//memcopy
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvProjectionMatrix), 1, false, projection.getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvViewMatrix), 1, false, view.getMatrix(),0);
-		gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvModelMatrix), 1, false, modelTransformations.getMatrix(),0);
+		if(projectionNeedsUpdate){
+			gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvProjectionMatrix), 1, false, projection.getMatrix(),0);
+			projectionNeedsUpdate = false;
+		}
+		
+		if(viewNeedsUpdate){
+			gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvViewMatrix), 1, false, view.getMatrix(),0);
+			viewNeedsUpdate = false;
+		}
+		
+		if(modelNeedsUpdate){
+			gl2.glUniformMatrix4fv(shaderVariableMapping.get(suvModelMatrix), 1, false, modelTransformations.getMatrix(),0);
+			modelNeedsUpdate = false;
+		}
 		updateShaderAttributesSubClass(gl2);
 
 		shaderProgram.useProgram(gl2, false);
@@ -240,7 +277,6 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param gl2
 	 */
 	private void initProgram(GL2 gl2){
-
 		//create program id 
 		shaderProgram.init(gl2);
 
@@ -318,6 +354,10 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param modelTransformations the modelTransformations to set
 	 */
 	public void setModelTransformation(final Matrix4 modelTransformations) {
+		if(this.modelTransformations.equals(modelTransformations)){
+			return;
+		}
 		this.modelTransformations = MatrixUtils.copyMatrix(modelTransformations);
+		this.modelNeedsUpdate = true;
 	}
 }
