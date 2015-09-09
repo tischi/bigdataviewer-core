@@ -5,6 +5,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.OpenVolumeRendererAction;
 
@@ -17,7 +18,9 @@ public class VolumeRendererExtension {
 
 	private final BigDataViewer bdv;
 	
-	//private GLWindow glWindow;
+	private final GLWindow glWindow;
+	
+	private final VolumeDataScene dataScene;
 	
 	private final static String preferedMenuName = "Tools";
 
@@ -31,7 +34,9 @@ public class VolumeRendererExtension {
 		
 		this.bdv = bdv;
 		
-		/*this.glWindow =*/ createAndConnect3DView(this.bdv);
+		dataScene = new VolumeDataScene(bdv);
+		glWindow = new GLWindow(dataScene,bdv);
+		createAndConnect3DView(this.bdv);
 	}
 	
 	/**
@@ -59,7 +64,9 @@ public class VolumeRendererExtension {
 		}
 
 		//add open action for 3D view
-		Action open3DViewAction = new OpenVolumeRendererAction(actionName, bdv);
+	
+		glWindow.setBigDataViewer(bdv);
+		Action open3DViewAction = new OpenVolumeRendererAction(actionName, glWindow);
 		preferedMenu.add(open3DViewAction);
 		preferedMenu.updateUI();
 
@@ -69,6 +76,6 @@ public class VolumeRendererExtension {
 	 * clears the context
 	 */
 	public void delete(){
-		//glWindow.dispose();
+		glWindow.dispose();
 	}
 }

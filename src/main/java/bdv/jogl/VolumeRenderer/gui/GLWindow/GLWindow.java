@@ -3,15 +3,9 @@ package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.LinkedList;
-import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 
-import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.*;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
@@ -44,18 +38,12 @@ public class GLWindow extends JFrame {
 
 	private BigDataViewer bigDataViewer;
 
-	private List<VolumeDataScene> scenes = new LinkedList<VolumeDataScene>();
+	private VolumeDataScene renderScene;
 
-	/**
-	 * @return the bigDataViewer
-	 */
-	public BigDataViewer getBigDataViewer() {
-		return bigDataViewer;
-	}
 
-	private void createScene(){
-		VolumeDataScene scene =  new VolumeDataScene(bigDataViewer);
-		scene.addSceneEventListener(new SceneEventListener() {
+	private void adaptScene(){
+		
+		renderScene.addSceneEventListener(new SceneEventListener() {
 			
 			@Override
 			public void needsUpdate() {
@@ -63,13 +51,11 @@ public class GLWindow extends JFrame {
 				
 			}
 		});
-		CameraUpdater cUpdater = new CameraUpdater(scene.getCamera());
+		CameraUpdater cUpdater = new CameraUpdater(renderScene.getCamera());
 		glCanvas.addMouseListener(cUpdater.getMouseListener());
 		glCanvas.addMouseMotionListener(cUpdater.getMouseMotionListener());
 		glCanvas.addMouseWheelListener(cUpdater.getMouseWheelListener());
-		scenes.clear();
-		scenes.add(scene);
-		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(scene));
+		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(renderScene));
 	}
 
 	/**
@@ -103,9 +89,17 @@ public class GLWindow extends JFrame {
 
 
 	/**
+	 * @param scenes the scenes to set
+	 */
+	public void setScene(VolumeDataScene scenes) {
+		this.renderScene = scenes;
+		adaptScene();
+	}
+
+	/**
 	 * constructor
 	 */
-	public GLWindow(){
+	public GLWindow(final VolumeDataScene scene, final BigDataViewer bdv){		
 		// create render area
 		GLProfile glprofile = GLProfile.getDefault();
 		GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -120,10 +114,9 @@ public class GLWindow extends JFrame {
 				GL gl = drawable.getGL();
 				GL2 gl2 = gl.getGL2();
 
-				//resizes all available scenes
-				for(VolumeDataScene scene: scenes){
-					scene.resize(gl2, x, y, width, height);;
-				}
+				//resizes available scene
+			    renderScene.resize(gl2, x, y, width, height);;
+				
 			}
 
 			/**
@@ -136,12 +129,8 @@ public class GLWindow extends JFrame {
 				//gl =drawable.setGL(new TraceGL2(drawable.getGL().getGL2(), System.err));
 				GL2 gl2 = gl.getGL2();
 
-				createScene();
-
-				//init all available scenes
-				for(VolumeDataScene scene: scenes){
-					scene.init(gl2, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
-				}
+				//init available scene
+				renderScene.init(gl2, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 			}
 
 			@Override
@@ -149,12 +138,8 @@ public class GLWindow extends JFrame {
 				GL gl = drawable.getGL();
 				GL2 gl2 = gl.getGL2();
 
-				//disposes all available scenes
-
-				for(VolumeDataScene scene: scenes){
-					scene.dispose(gl2);
-				}
-				scenes.clear();
+				//disposes available scene
+				renderScene.dispose(gl2);
 			}
 
 
@@ -165,13 +150,14 @@ public class GLWindow extends JFrame {
 				GL gl = drawable.getGL();
 				GL2 gl2 = gl.getGL2();
 
-				//renders all available scenes
-				for(VolumeDataScene scene: scenes){
-					scene.render(gl2);
-				}
+				//renders available scene
+				renderScene.render(gl2);
+
 			}
 		});
 		initWindowElements();
+		setBigDataViewer(bdv);
+		setScene(scene);
 	}
 
 	/**
