@@ -70,8 +70,8 @@ public class TransferFunctionPointInteractor {
 		public void mouseDragged(MouseEvent e) {
 			Point query = e.getPoint();
 			Rectangle drawArea = parent.getVisibleRect();
-				query.setLocation(Math.min(drawArea.getWidth()-1.0,Math.max(drawArea.getMinX(), query.getX())),
-						Math.min(drawArea.getHeight()-1.0,Math.max(drawArea.getMinY(), query.getY())));
+				query.setLocation(Math.min(drawArea.x + drawArea.getWidth()-1.0,Math.max(drawArea.x, query.getX())),
+						Math.min(drawArea.y + drawArea.getHeight()-1.0,Math.max(drawArea.y, query.getY())));
 			
 			if(selectedPoint == null && e.getButton() != MouseEvent.BUTTON1){
 				return;

@@ -72,7 +72,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 		setSize(640, 100);
 		setPreferredSize(getSize());
 		setMinimumSize(getSize());
-		setMaximumSize(getSize());
+		//setMaximumSize(getSize());
 	}
 
 	

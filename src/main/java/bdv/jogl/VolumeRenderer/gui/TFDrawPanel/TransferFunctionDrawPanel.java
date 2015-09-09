@@ -1,13 +1,16 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.Axis.AxisType;
@@ -27,7 +30,9 @@ public class TransferFunctionDrawPanel extends JPanel {
 	
 	private final TransferFunctionRenderPanel1D renderPanel;
 
-	private final GridBagLayout layout = new GridBagLayout(); 
+	private final GridBagLayout raaalayout = new GridBagLayout();
+	
+	private final BoxLayout mainLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 	
 	private final Axis yTauAxis = new Axis("Tau",AxisType.YAXIS);
 	
@@ -36,6 +41,10 @@ public class TransferFunctionDrawPanel extends JPanel {
 	private final Axis xAxis = new Axis("Volume values",AxisType.XAXIS);
 	
 	private final VolumeDataManager dataManager;
+	
+	private final JPanel renderAndAxisArea= new JPanel();
+	
+	private final JScrollPane scrollArea = new JScrollPane(renderAndAxisArea);
 	
 	private final VolumeLegend legend;
 	
@@ -58,40 +67,42 @@ public class TransferFunctionDrawPanel extends JPanel {
 	}
 	
 	private void initUI(){
-		setLayout(layout);
+		setLayout(mainLayout);
+		
+		renderAndAxisArea.setLayout(raaalayout);
+		
 		yTauAxis.setLeftAxis(true);
 		//render area + axis
 		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = GridBagConstraints.VERTICAL;
 		c.gridx =0;
 		c.gridy = 0;
-		add(yTauAxis,c);
+		renderAndAxisArea.add(yTauAxis,c);
 		
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = GridBagConstraints.VERTICAL;
 		c.gridx =2;
 		c.gridy = 0;
-		add(yDistributionAxis,c);
-		
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 3;
-		c.gridy = 0;
-		add(legend,c);
+		renderAndAxisArea.add(yDistributionAxis,c);
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx =1;
 		c.gridy = 1;
-		add(xAxis,c);
+		renderAndAxisArea.add(xAxis,c);
 		
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.gridx =1;
 		c.gridy = 0;
-		add(renderPanel,c);
+		renderAndAxisArea.add(renderPanel,c);
+		//renderAndAxisArea.setPreferredSize(new Dimension(2000,180));
+		
+		
+		scrollArea.setPreferredSize(new Dimension(700,200));
+		
+		add(scrollArea);
+		add(legend);
+		
 		
 		//controls
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx =0;
-		c.gridy = 2;
-		c.gridwidth = 4;
 		add(logarithmicOccuranceCheck,c);
 	}
 
