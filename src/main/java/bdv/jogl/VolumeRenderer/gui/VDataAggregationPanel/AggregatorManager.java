@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.Set;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxDifferenceAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MinimumVolumeAccumulator;
 
 /**
  * Stores aggregators and calls listeners
@@ -35,15 +39,15 @@ public class AggregatorManager {
 		accumulators.put(a.getFunctionName(), a);
 	}
 	
-	public AggregatorManager(Set<AbstractVolumeAccumulator> accumulators){
-		boolean first = true;
-		for (AbstractVolumeAccumulator a : accumulators){
-			if(first){
-				setActiveAcumulator(a.getFunctionName());
-				first=false;
-			}
-			addAccumulator(a);
-		}
+	
+	
+	public AggregatorManager(){
+		AverageVolumeAccumulator avg = new AverageVolumeAccumulator();
+		addAccumulator(avg);
+		addAccumulator(new MaximumVolumeAccumulator());
+		addAccumulator(new MinimumVolumeAccumulator());
+		addAccumulator(new MaxDifferenceAccumulator());
+		setActiveAcumulator(avg.getFunctionName());
 	}
 	
 	/**

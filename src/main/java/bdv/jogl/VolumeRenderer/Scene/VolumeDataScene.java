@@ -10,7 +10,6 @@ import net.imglib2.realtransform.AffineTransform3D;
 
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Camera;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -36,16 +35,10 @@ public class VolumeDataScene extends AbstractScene{
 	private Map<Integer,UnitCube> volumeBorders = new HashMap<Integer, UnitCube>();
 
 	private VolumeDataManager dataManager;
-	
-	private final MultiVolumeRenderer multiVolumeRenderer;
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 
-
-
 	//private UnitCube boundingVolume =new UnitCube();
-
-
 
 	@Override
 	protected void disposeSpecial(GL2 gl2) {
@@ -95,14 +88,11 @@ public class VolumeDataScene extends AbstractScene{
 	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
 
 
-	public VolumeDataScene(BigDataViewer bdv, VolumeDataManager dataManager, MultiVolumeRenderer renderer){
+	public VolumeDataScene(BigDataViewer bdv, VolumeDataManager dataManager, ISceneElements renderer){
 		
 		bigDataViewer = bdv;
 		setDataManager(dataManager);
-		multiVolumeRenderer = renderer;
-		
-		addSceneElement(multiVolumeRenderer);
-		
+		addSceneElement(renderer);
 	}
 
 	/**
