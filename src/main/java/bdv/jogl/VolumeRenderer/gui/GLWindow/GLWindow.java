@@ -10,6 +10,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.SceneGlobalTransformationListener;
+import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
 import bdv.jogl.VolumeRenderer.Scene.SceneEventListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
@@ -38,7 +39,7 @@ public class GLWindow extends JFrame {
 
 	private BigDataViewer bigDataViewer;
 
-	private VolumeDataScene renderScene;
+	private AbstractScene renderScene;
 
 
 	private void adaptScene(){
@@ -55,7 +56,6 @@ public class GLWindow extends JFrame {
 		glCanvas.addMouseListener(cUpdater.getMouseListener());
 		glCanvas.addMouseMotionListener(cUpdater.getMouseMotionListener());
 		glCanvas.addMouseWheelListener(cUpdater.getMouseWheelListener());
-		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(renderScene));
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class GLWindow extends JFrame {
 	/**
 	 * @param scenes the scenes to set
 	 */
-	public void setScene(VolumeDataScene scenes) {
+	public void setScene(AbstractScene scenes) {
 		this.renderScene = scenes;
 		adaptScene();
 	}

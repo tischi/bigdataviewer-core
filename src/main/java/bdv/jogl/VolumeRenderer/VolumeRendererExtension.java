@@ -35,6 +35,7 @@ public class VolumeRendererExtension {
 		this.bdv = bdv;
 		
 		dataScene = new VolumeDataScene(bdv);
+		this.bdv.getViewer().addTransformListener(new SceneGlobalTransformationListener(dataScene));
 		glWindow = new GLWindow(dataScene,bdv);
 		createAndConnect3DView(this.bdv);
 	}
