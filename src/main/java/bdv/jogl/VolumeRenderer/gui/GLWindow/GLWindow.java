@@ -46,11 +46,6 @@ public class GLWindow extends JFrame {
 
 	private List<VolumeDataScene> scenes = new LinkedList<VolumeDataScene>();
 
-	private final static String preferedMenuName = "Tools";
-
-	private final static String actionName = "3D Volume";
-
-
 	/**
 	 * @return the bigDataViewer
 	 */
@@ -75,31 +70,6 @@ public class GLWindow extends JFrame {
 		scenes.clear();
 		scenes.add(scene);
 		this.bigDataViewer.getViewer().addTransformListener(new SceneGlobalTransformationListener(scene));
-	}
-
-	public static void addVolumeRendererMenuActions(final BigDataViewer bdv){
-		JMenuBar menuBar = bdv.getViewerFrame().getJMenuBar();
-
-
-		JMenu preferedMenu = null;
-
-		//find Tools menu
-		for(int i = 0; i < menuBar.getMenuCount(); i++){
-			JMenu currentMenu = menuBar.getMenu(i);
-			if(currentMenu.getText().equals(preferedMenuName)){
-				preferedMenu = currentMenu;
-			}
-		}
-
-		//create if not exists
-		if(preferedMenu == null){
-			preferedMenu = new JMenu(preferedMenuName);
-		}
-
-		//add open action for 3D view
-		Action open3DViewAction = new OpenVolumeRendererAction(actionName, bdv);
-		preferedMenu.add(open3DViewAction);
-		preferedMenu.updateUI();
 	}
 
 	/**
@@ -202,19 +172,6 @@ public class GLWindow extends JFrame {
 			}
 		});
 		initWindowElements();
-	}
-
-
-	/**
-	 * creates a GLWidget and connects it to the viewer 
-	 * @param parent The BigDataViewer to connect to
-	 * @return The new created GLWidget
-	 */
-	public static GLWindow createAndConnect3DView(BigDataViewer parent){
-		GLWindow window = new GLWindow();
-		window.setBigDataViewer(parent);
-		window.setVisible(true);
-		return window;
 	}
 
 	/**

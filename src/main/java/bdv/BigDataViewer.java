@@ -37,7 +37,7 @@ import org.jdom2.output.XMLOutputter;
 import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterConsole;
 import bdv.img.cache.Cache;
-import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
+import bdv.jogl.VolumeRenderer.VolumeRendererExtension;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.WrapBasicImgLoader;
 import bdv.spimdata.XmlIoSpimDataMinimal;
@@ -699,7 +699,7 @@ public class BigDataViewer
 		{
 			System.setProperty( "apple.laf.useScreenMenuBar", "true" );
 			BigDataViewer bdv = open( fn, new File( fn ).getName(), new ProgressWriterConsole() );
-			GLWindow.addVolumeRendererMenuActions(bdv);
+			new VolumeRendererExtension(bdv);
 		}
 		catch ( final Exception e )
 		{
