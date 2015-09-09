@@ -1,8 +1,10 @@
 package bdv.jogl.VolumeRenderer.Scene;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.imglib2.IterableInterval;
@@ -24,6 +26,7 @@ import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
+import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
@@ -45,15 +48,15 @@ public class VolumeDataScene extends AbstractScene{
 
 	private BigDataViewer bigDataViewer;
 
-	private List<UnitCube> volumeBorders = new ArrayList<UnitCube>();
+	private Map<Integer,UnitCube> volumeBorders = new HashMap<Integer, UnitCube>();
 
 	private List<SimpleVolumeRenderer> volumeRenderes = new ArrayList<SimpleVolumeRenderer>();
 
 	private final TransferFunction1D transferFunction = new TransferFunction1D();
 	
-	private final VolumeDataManager dataManager = new VolumeDataManager();
+	private VolumeDataManager dataManager;
 	
-	private final MultiVolumeRenderer multiVolumeRenderer = new MultiVolumeRenderer(transferFunction,dataManager);
+	private final MultiVolumeRenderer multiVolumeRenderer;
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 
@@ -82,12 +85,48 @@ public class VolumeDataScene extends AbstractScene{
 
 	}
 
+	private void addNewCubeBorderShader(Integer id, final VolumeDataBlock data){
+		UnitCube cubeShader = new UnitCube();
+		volumeBorders.put(id,cubeShader);
+		addSceneElement(cubeShader);
+		cubeShader.setRenderWireframe(true);
+		cubeShader.setColor(getColorOfVolume(id));
+		
+		Matrix4 modelMatrix = getNewIdentityMatrix();
+		modelMatrix.multMatrix(copyMatrix(data.localTransformation));
+		long dim[] = data.dimensions.clone();
+		modelMatrix.scale(dim[0], dim[1], dim[2]);	
+		cubeShader.setProjection(getCamera().getProjectionMatix());
+		cubeShader.setView(getCamera().getViewMatrix());
+		cubeShader.setModelTransformation(modelMatrix);
+	}
+	
+	private void setDataManager(final VolumeDataManager manager){
+		dataManager = manager;
+		
+		dataManager.addVolumeDataManagerListener(new IVolumeDataManagerListener() {
+			
+			@Override
+			public void addedData(Integer id) {
+				//add cubes
+				addNewCubeBorderShader(id, dataManager.getVolume(id));
+				
+				
+			}
+		});
+	}
+	
 	@Override
 	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
 
 
 	public VolumeDataScene(BigDataViewer bdv){
+		
 		bigDataViewer = bdv;
+		setDataManager(new VolumeDataManager());
+		multiVolumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
+		addSceneElement(multiVolumeRenderer);
+		multiVolumeRenderer.setTransferFunction(transferFunction);
 		transferFunction.addTransferFunctionListener( new TransferFunctionAdapter() {
 
 			@Override
@@ -102,7 +141,7 @@ public class VolumeDataScene extends AbstractScene{
 				fireNeedUpdateAll();
 			}
 		});
-		
+
 		
 	}
 
@@ -149,9 +188,7 @@ public class VolumeDataScene extends AbstractScene{
 		int j =-1;
 
 		if(!single){
-			addSceneElement(multiVolumeRenderer);
-			multiVolumeRenderer.setTransferFunction(transferFunction);
-			multiVolumeRenderer.init(gl2);
+			//multiVolumeRenderer.init(gl2);
 			initBoundingVolumeCube(gl2);
 		}
 		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
@@ -159,13 +196,6 @@ public class VolumeDataScene extends AbstractScene{
 
 			j++;
 
-			//create borders
-			UnitCube cubeShader = new UnitCube();
-			volumeBorders.add(cubeShader);
-			addSceneElement(cubeShader);
-			cubeShader.init(gl2);
-			cubeShader.setRenderWireframe(true);
-			cubeShader.setColor(getColorOfVolume(j));
 
 			if(!source.isCurrent()){
 				continue;
@@ -247,7 +277,7 @@ public class VolumeDataScene extends AbstractScene{
 		for(SourceState<?> source : sources){
 			
 			i++;
-			UnitCube cubeShader = volumeBorders.get(i);
+	
 
 			//block transform
 			int midMapLevel = getMidmapLevel(source);
@@ -274,7 +304,7 @@ public class VolumeDataScene extends AbstractScene{
 			modelMatrix=copyMatrix(globalModelTransformation);
 			modelMatrix.multMatrix(copyMatrix(sourceTransformation));
 			modelMatrix.multMatrix(copyMatrix(scale));	
-			cubeShader.setModelTransformation(modelMatrix);
+			//cubeShader.setModelTransformation(modelMatrix);
 
 
 			//no inactive sources
