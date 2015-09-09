@@ -15,7 +15,6 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
-import com.jogamp.opengl.util.glsl.ShaderCode;
 
 
 /**
@@ -41,17 +40,11 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private SingleVolumeRendererShaderSources source = new SingleVolumeRendererShaderSources();
 	
-
-	/**
-	 * constructor 
-	 */
-	public SimpleVolumeRenderer(){
-		for(ShaderCode code :source.getShaderCodes()){
-			shaderCodes.add(code);
-		}
+	@Override
+	protected SingleVolumeRendererShaderSources getSource() {
+		return source;
+	};
 	
-	}
-
 	/**
 	 * Updates color data
 	 * @param newData

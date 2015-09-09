@@ -24,7 +24,6 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.math.geom.AABBox;
-import com.jogamp.opengl.util.glsl.ShaderCode;
 
 
 /**
@@ -56,6 +55,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 * returns the source
 	 * @return
 	 */
+	@Override
 	public MultiVolumeRendererShaderSource getSource(){
 		return sources;
 	}
@@ -67,11 +67,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
-		shaderCodes.clear();
 		sources.setTransferFunctionCode(tf.getTransferFunctionShaderCode());
-		for(ShaderCode code:sources.getShaderCodes()){
-			shaderCodes.add(code);
-		}
 	} 
 	
 	private void setVolumeDataManager(VolumeDataManager manager){
@@ -80,9 +76,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public MultiVolumeRenderer(TransferFunction1D tf, VolumeDataManager manager){
 		setVolumeDataManager(manager);
 		setTransferFunction(tf);
-		for(ShaderCode code:sources.getShaderCodes()){
-			shaderCodes.add(code);
-		}
+
 		sources.addSourceListener(new ISourceListener() {
 			
 			@Override

@@ -1,7 +1,6 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.Map;
 

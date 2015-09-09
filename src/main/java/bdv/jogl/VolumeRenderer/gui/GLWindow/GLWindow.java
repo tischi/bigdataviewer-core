@@ -1,15 +1,8 @@
 package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 import javax.swing.JFrame;
-
-import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
-import bdv.jogl.VolumeRenderer.SceneGlobalTransformationListener;
 import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
 import bdv.jogl.VolumeRenderer.Scene.SceneEventListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
@@ -37,8 +30,6 @@ public class GLWindow extends JFrame {
 
 	private final GLCanvas glCanvas;
 
-	private BigDataViewer bigDataViewer;
-
 	private AbstractScene renderScene;
 
 
@@ -57,37 +48,7 @@ public class GLWindow extends JFrame {
 		glCanvas.addMouseMotionListener(cUpdater.getMouseMotionListener());
 		glCanvas.addMouseWheelListener(cUpdater.getMouseWheelListener());
 	}
-
-	/**
-	 * @param bigDataViewer the bigDataViewer to set
-	 */
-	public void setBigDataViewer(BigDataViewer bigDataViewer) {
-
-		this.bigDataViewer = bigDataViewer;
-
-		this.bigDataViewer.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
-
-			@Override
-			public void transformChanged(AffineTransform3D transform) {
-
-				glCanvas.repaint();
-
-			}
-		});
-
-		//close listener
-		this.bigDataViewer.getViewerFrame().addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowClosing(WindowEvent e) {
-				glCanvas.destroy();
-				dispose();
-			}
-		});
-
-	}
-
-
+	
 	/**
 	 * @param scenes the scenes to set
 	 */
@@ -156,7 +117,6 @@ public class GLWindow extends JFrame {
 			}
 		});
 		initWindowElements();
-		setBigDataViewer(bdv);
 		setScene(scene);
 	}
 

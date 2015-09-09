@@ -1,9 +1,14 @@
 package bdv.jogl.VolumeRenderer;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
+import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.ui.TransformListener;
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
@@ -65,8 +70,24 @@ public class VolumeRendererExtension {
 		}
 
 		//add open action for 3D view
-	
-		glWindow.setBigDataViewer(bdv);
+		this.bdv.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
+
+			@Override
+			public void transformChanged(AffineTransform3D transform) {
+
+				glWindow.repaint();
+
+			}
+		});
+
+		//close listener
+		this.bdv.getViewerFrame().addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				glWindow.dispose();
+			}
+		});
 		Action open3DViewAction = new OpenVolumeRendererAction(actionName, glWindow);
 		preferedMenu.add(open3DViewAction);
 		preferedMenu.updateUI();

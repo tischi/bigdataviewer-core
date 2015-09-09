@@ -77,6 +77,8 @@ public class VolumeDataScene extends AbstractScene{
 		controls.destroyTFWindow();
 		controls = null;
 		cleanUpSceneElements();
+		
+		multiVolumeRenderer.disposeGL(gl2);
 
 	}
 

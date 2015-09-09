@@ -9,7 +9,6 @@ import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.util.glsl.ShaderCode;
 
 /**
  * class to render a cube in gl
@@ -26,11 +25,10 @@ public class UnitCube extends AbstractShaderSceneElement{
 	
 	private UnitCubeShaderSource source = new UnitCubeShaderSource();
 
-	public UnitCube(){
-		for(ShaderCode code: source.getShaderCodes()){
-			shaderCodes.add(code);
-		}
-	}
+	@Override
+	protected UnitCubeShaderSource getSource() {
+		return source;
+	};
 	
 	protected void updateShaderAttributesSubClass(GL2 gl2){
 		gl2.glUniform4f(getLocation(suvColor), color.getRed()/255,color.getGreen()/255,color.getBlue()/255,color.getAlpha()/255);
