@@ -13,7 +13,9 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererS
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
+import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
@@ -72,6 +74,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	
 	private void setVolumeDataManager(VolumeDataManager manager){
 		dataManager = manager;
+		this.dataManager.addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
+			
+			@Override
+			public void addedData(Integer i) {
+				sources.setMaxNumberOfVolumes(dataManager.getVolumeKeys().size());
+			}
+		});
+		
 	}
 	public MultiVolumeRenderer(TransferFunction1D tf, VolumeDataManager manager){
 		setVolumeDataManager(manager);
