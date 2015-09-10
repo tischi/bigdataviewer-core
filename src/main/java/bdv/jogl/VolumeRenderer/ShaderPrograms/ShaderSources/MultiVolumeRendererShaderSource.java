@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeInterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetStepsToVolumeFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.TransparentVolumeinterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
 
@@ -31,6 +33,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	private IFunction transferFunctionCode;
 
 	private AbstractVolumeAccumulator accumulator = new AverageVolumeAccumulator();
+	
+	private AbstractVolumeInterpreter interpreter = new TransparentVolumeinterpreter(); 
 
 	private static final String svTextureCoordinate = "textureCoordinate";
 
@@ -40,6 +44,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String suvTextureTransformationInverse ="inTextureTransformationInverse";
 
 	//Fragment shader uniforms 
+	public static final String suvIsoValue = "inIsoValue";
+	
 	public static final String suvActiveVolumes = "inActiveVolumes";
 
 	public static final String suvVolumeTexture = "inVolumeTexture";
@@ -55,6 +61,15 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String suvMaxDiagonalLength = "inMaxDiagonalLength";
 
 	public static final String scvMaxNumberOfVolumes = "maxNumberOfVolumes";
+	
+	public static final String sgvNormIsoValue = "normIsoValue";
+	
+	public static final String scvMinDelta = "minDelta";
+	
+	public static final String sgvRayPositions = "ray_poss";
+	
+	public static final String sgvRayDirections = "ray_dirs";
+	
 	/**
 	 * @return the maxNumberOfVolumes
 	 */
@@ -139,6 +154,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"const int "+scvMaxNumberOfVolumes+" = "+maxNumberOfVolumes+";",
 				"const int maxInt = "+Integer.MAX_VALUE+";",
 				"const float gamma = 20.0;",
+				"const float "+scvMinDelta+" = 0.00001;",
 				"",
 				"uniform int "+suvActiveVolumes+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvMaxVolumeValue+";",
@@ -146,6 +162,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec3 "+suvEyePosition+"["+scvMaxNumberOfVolumes+"];",
 				"uniform sampler3D "+suvVolumeTexture+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvMaxDiagonalLength+" ;",
+				"uniform float "+suvIsoValue+";",
+				"float "+sgvNormIsoValue+";",
+				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
+				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",
 				"",
 				"in vec3 "+svTextureCoordinate+"["+scvMaxNumberOfVolumes+"];",
 				"out vec4 fragmentColor;",
@@ -172,17 +192,16 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",	
 				"	fragmentColor = vec4(0.0);",
 				"	float volumeNormalizeFactor = 1.0/ ("+suvMaxVolumeValue+");",
-				"",
+				"	"+sgvNormIsoValue+"="+suvIsoValue+"*volumeNormalizeFactor;",
 				"	//get rays of volumes",
 				"	int steps = 0;",
 				"	int startStep = "+Short.MAX_VALUE+";",	
-				"	vec3 ray_dirs["+scvMaxNumberOfVolumes+"];",	
-				"	vec3 ray_poss["+scvMaxNumberOfVolumes+"];",
+
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
 				"    	vec3 ray_dir = normalize("+svTextureCoordinate+"[n] - "+suvEyePosition+"[n] );",
 				"    	vec3 ray_pos = "+svTextureCoordinate+"[n]; // the current ray position",
-				"		ray_dirs[n] = ray_dir;",
-				"		ray_poss[n] = ray_pos;",
+				"		"+sgvRayDirections+"[n] = ray_dir;",
+				"		"+sgvRayPositions+"[n] = ray_pos;",
 				"",   
 				"    	int csteps = "+stepsFunction.call(new String[]{"sample_step","ray_pos","ray_dir"})+";",
 				"    	if(steps < csteps){",
@@ -211,23 +230,24 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"      	// break out if ray reached the end of the cube.",
 				"		float nextDensity = 0.0;",
-				"		float densities["+scvMaxNumberOfVolumes+"] = getVolumeValues(ray_poss);",
+				"		float densities["+scvMaxNumberOfVolumes+"] = getVolumeValues("+sgvRayPositions+");",
 				"		nextDensity = "+accumulator.call(new String[]{"densities"})+";",		
 				"      	nextDensity *= volumeNormalizeFactor;",
 				"",
 				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity","sample_step"})+";",
 				"		color.rgb = color.a * color.rgb;",
-				"      	vec4 c_out =  fragmentColor + (1.0 - fragmentColor.a)*color;",
-		/*		"		if(c_out.a > 1.0){",
-				"			break;",
-				"		}",*/	
+				"      	vec4 c_out =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
 				"		fragmentColor = c_out;",
+				"		if(c_out.a +"+scvMinDelta+" >= 1.0){",
+				"			break;",
+				"		}",	
 				"		density = nextDensity;",
 				"		for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",	
-				"			ray_poss[n] += ray_dirs[n] * sample_step;",
+				"			"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n] * sample_step;",
 				"		}",	
 				"   }",
 				"	fragmentColor.rgb *= gamma;",
+				"	fragmentColor = max(vec4(0.0),min(fragmentColor, vec4(1.0)));",
 				"}"
 		};
 		addCodeArrayToList(head, code);
@@ -235,6 +255,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		addCodeArrayToList(stepsFunction.declaration(), code);
 		addCodeArrayToList(accumulator.declaration(), code);
 		addCodeArrayToList(transferFunctionCode.declaration(), code);
+		addCodeArrayToList(interpreter.declaration(), code);
 		addCodeArrayToList(body, code);
 		String[] codeArray = new String[code.size()];
 		code.toArray(codeArray);
@@ -249,6 +270,13 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		}
 		this.accumulator = a1;
 		notifySourceCodeChanged();
+	}
+
+
+	public void setVolumeInterpreter(AbstractVolumeInterpreter volumeInterpreter) {
+		this.interpreter = volumeInterpreter;
+		notifySourceCodeChanged();
+		
 	}
 
 }

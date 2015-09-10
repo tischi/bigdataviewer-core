@@ -48,7 +48,7 @@ public class VolumeRendererExtension {
 	private SceneControlsWindow controls;
 
 	private void createControlWindow(){
-		controls =new SceneControlsWindow(transferFunction,aggManager, dataManager);
+		controls =new SceneControlsWindow(transferFunction,aggManager, dataManager, volumeRenderer,glWindow);
 	}
 
 	public VolumeRendererExtension(final BigDataViewer bdv){

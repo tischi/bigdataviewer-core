@@ -7,13 +7,13 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
-import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
@@ -39,6 +39,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private VolumeDataManager dataManager;
 
+	private float isoSurfaceValue = 0;
+	
+	private boolean isIsoSurfaceValueUpdatable= true;
+	
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
 
 	private TransferFunction1D tf;
@@ -50,7 +54,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isEyeUpdateable = true;
 
 	private Matrix4 drawCubeTransformation = getNewIdentityMatrix();
-
+	
 	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
 
 	/**
@@ -66,6 +70,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		isColorUpdateable = flag;
 		isEyeUpdateable = flag;
+		isIsoSurfaceValueUpdatable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -147,6 +152,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		updateLocalTransformationInverse(gl2);
 
+		updateIsoValue(gl2);
+		
 		boolean update = updateTextureData(gl2);
 		if(update){
 			updateGlobalScale(gl2);
@@ -254,6 +261,15 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		gl2.glUniformMatrix4fv(getLocation(suvDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
 	}
 
+	private void updateIsoValue(GL2 gl2){
+		if(!isIsoSurfaceValueUpdatable){
+			return;
+		}
+		gl2.glUniform1f(getLocation(suvIsoValue), isoSurfaceValue);
+		GLErrorHandler.assertGL(gl2);
+		isIsoSurfaceValueUpdatable = false;
+	}
+	
 	private boolean updateTextureData(GL2 gl2){
 
 		float min = Float.MAX_VALUE;
@@ -307,7 +323,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvMaxVolumeValue,
 				suvVolumeTexture,
 				suvColorTexture,
-				suvMaxDiagonalLength});
+				suvMaxDiagonalLength,
+				suvIsoValue});
 
 		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
@@ -414,5 +431,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			texture.delete(gl2);
 		}
 		setAllUpdate(true);
+	}
+
+	public void setIsoSurface(float floatValue) {
+		this.isoSurfaceValue = floatValue;
+		
+		isIsoSurfaceValueUpdatable = true;
+		
 	}
 }
