@@ -70,6 +70,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String sgvRayDirections = "ray_dirs";
 	
+	public static final String sgvVolumeNormalizeFactor = "volumeNormalizeFactor";
+	
+	public static final String sgvSampleSize = "sample_step";
+	
 	/**
 	 * @return the maxNumberOfVolumes
 	 */
@@ -166,6 +170,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",
+				"float "+sgvVolumeNormalizeFactor+";",
+				"float "+sgvSampleSize+";",
 				"",
 				"in vec3 "+svTextureCoordinate+"["+scvMaxNumberOfVolumes+"];",
 				"out vec4 fragmentColor;",
@@ -188,11 +194,11 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"void main(void)",
 				"{",	
 				"	const int samples = 256;",
-				"	float sample_step ="+suvMaxDiagonalLength+"/float(samples);",
+				"	float "+sgvSampleSize+" ="+suvMaxDiagonalLength+"/float(samples);",
 				"",	
 				"	fragmentColor = vec4(0.0);",
-				"	float volumeNormalizeFactor = 1.0/ ("+suvMaxVolumeValue+");",
-				"	"+sgvNormIsoValue+"="+suvIsoValue+"*volumeNormalizeFactor;",
+				"	"+sgvVolumeNormalizeFactor+" = 1.0/ ("+suvMaxVolumeValue+");",
+				"	"+sgvNormIsoValue+"="+suvIsoValue+"*"+sgvVolumeNormalizeFactor+";",
 				"	//get rays of volumes",
 				"	int steps = 0;",
 				"	int startStep = "+Short.MAX_VALUE+";",	
@@ -203,11 +209,11 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		"+sgvRayDirections+"[n] = ray_dir;",
 				"		"+sgvRayPositions+"[n] = ray_pos;",
 				"",   
-				"    	int csteps = "+stepsFunction.call(new String[]{"sample_step","ray_pos","ray_dir"})+";",
+				"    	int csteps = "+stepsFunction.call(new String[]{""+sgvSampleSize+"","ray_pos","ray_dir"})+";",
 				"    	if(steps < csteps){",
 				"    		steps = csteps;",
 				"  		}",    
-				"		csteps = "+stepsToVolume.call(new String[]{"sample_step","ray_pos","ray_dir"})+";",
+				"		csteps = "+stepsToVolume.call(new String[]{""+sgvSampleSize+"","ray_pos","ray_dir"})+";",
 				"    	if(startStep > csteps){",
 				"    		startStep = csteps;",
 				"  		}",  
@@ -225,16 +231,16 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"  	for(int i = 0; i< steps; i++){",
 				"",
 				"      	// note:", 
-				"      	// - ray_dir * sample_step can be precomputed",
+				"      	// - ray_dir * "+sgvSampleSize+" can be precomputed",
 				"      	// - we assume the volume has a cube-like shape",
 				"",
 				"      	// break out if ray reached the end of the cube.",
 				"		float nextDensity = 0.0;",
 				"		float densities["+scvMaxNumberOfVolumes+"] = getVolumeValues("+sgvRayPositions+");",
 				"		nextDensity = "+accumulator.call(new String[]{"densities"})+";",		
-				"      	nextDensity *= volumeNormalizeFactor;",
+				"      	nextDensity *= "+sgvVolumeNormalizeFactor+";",
 				"",
-				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity","sample_step"})+";",
+				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity",sgvSampleSize})+";",
 				"      	vec4 c_out =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
 				"		fragmentColor = c_out;",
 				"		if(c_out.a +"+scvMinDelta+" >= 1.0){",
@@ -242,7 +248,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		}",	
 				"		density = nextDensity;",
 				"		for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",	
-				"			"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n] * sample_step;",
+				"			"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n] * "+sgvSampleSize+";",
 				"		}",	
 				"   }",
 				//"	fragmentColor.rgb *= gamma;",
