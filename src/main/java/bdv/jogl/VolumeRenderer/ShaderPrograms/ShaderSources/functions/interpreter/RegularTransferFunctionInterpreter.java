@@ -14,8 +14,11 @@ public class RegularTransferFunctionInterpreter extends AbstractTransferFunction
 				"uniform sampler1D "+suvColorTexture+";",
 				"",
 				"vec4 "+getFunctionName()+"(float vbegin, float vend, float distance){",
-				"	vec4 color = texture("+suvColorTexture+",vbegin);",
-				"	color.a = 1.0 - exp(-color.a * distance );",	
+				"	vec4 color = texture("+suvColorTexture+",vend) ;",
+				"	float tau = color.a;",
+				"	float alpha = 1.0 - exp(-tau*distance);",
+				"	color *= tau;",
+				"	color.a = alpha;",
 				"	return color;",
 				"}",
 				""

@@ -235,7 +235,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"      	nextDensity *= volumeNormalizeFactor;",
 				"",
 				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity","sample_step"})+";",
-				"		color.rgb = color.a * color.rgb;",
 				"      	vec4 c_out =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
 				"		fragmentColor = c_out;",
 				"		if(c_out.a +"+scvMinDelta+" >= 1.0){",
@@ -246,7 +245,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"			"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n] * sample_step;",
 				"		}",	
 				"   }",
-				"	fragmentColor.rgb *= gamma;",
+				//"	fragmentColor.rgb *= gamma;",
 				"	fragmentColor = max(vec4(0.0),min(fragmentColor, vec4(1.0)));",
 				"}"
 		};
