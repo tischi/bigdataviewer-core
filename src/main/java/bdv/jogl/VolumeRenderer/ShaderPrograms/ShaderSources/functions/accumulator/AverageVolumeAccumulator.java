@@ -13,11 +13,19 @@ public class AverageVolumeAccumulator extends AbstractVolumeAccumulator {
 		String[] dec= new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
-				"	float density = 0;",		
+				"	float density = 0.0;",
+				"	int count =0;",
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
+				"		if(densities[n]< 0.0){",
+				"			continue;",
+				"		}",
 				"		density += densities[n];",
+				"		count++;",
 				"	}",
-				"	density/="+scvMaxNumberOfVolumes+";",
+				"	if(count == 0 ){",
+				"		return 0.0;",
+				"	}",	
+				"	density/=float(count);",
 				"	return density;",	
 				"}"
 		};

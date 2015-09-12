@@ -13,11 +13,9 @@ public class MaximumVolumeAccumulator extends AbstractVolumeAccumulator {
 		String[] dec= new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
-				"	float density = "+Float.MIN_VALUE+";",		
+				"	float density = 0;",		
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
-				"		if(density < densities[n]){",
-				"			density = densities[n];",
-				"		}",	
+				"		density = max(density,densities[n]);",
 				"	}",
 				"	return density;",	
 				"}"

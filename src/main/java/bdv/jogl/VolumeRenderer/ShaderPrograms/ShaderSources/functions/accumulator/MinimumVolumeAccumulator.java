@@ -15,9 +15,10 @@ public class MinimumVolumeAccumulator extends AbstractVolumeAccumulator {
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
 				"	float density = "+Float.MAX_VALUE+";",		
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
-				"		if(density > densities[n]){",
-				"			density = densities[n];",
+				"		if(densities[n] < 0){",
+				"			continue;",	
 				"		}",	
+				"		density = min(density, densities[n]);",	
 				"	}",
 				"	return density;",	
 				"}"

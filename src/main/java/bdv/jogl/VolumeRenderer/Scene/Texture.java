@@ -141,6 +141,9 @@ public class Texture {
 		gl2.glTexParameteri(textureType, parameter, value);
 	}
 	
+	public void setTexParameterfv(GL2 gl2, int parameter, float[] values){
+		gl2.glTexParameterfv(textureType, parameter, values, 0);
+	}
 	
 	/**
 	 * Clears the current texture context of the object
