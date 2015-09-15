@@ -10,4 +10,11 @@ public class VolumeDataManagerAdapter implements IVolumeDataManagerListener {
 	
 	@Override
 	public void dataUpdated(Integer i) {}
+	
+	@Override
+	public void dataRemoved(Integer i) {}
+	
+	@Override
+	public void dataEnabled(Integer i, Boolean flag) {	
+	}
 }

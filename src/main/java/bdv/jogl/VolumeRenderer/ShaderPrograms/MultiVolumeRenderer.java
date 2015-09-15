@@ -27,6 +27,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.math.geom.AABBox;
+
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 
 /**
@@ -89,6 +90,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			@Override
 			public void addedData(Integer i) {
+				sources.setMaxNumberOfVolumes(dataManager.getVolumeKeys().size());
+			}
+			
+			@Override
+			public void dataRemoved(Integer i) {
 				sources.setMaxNumberOfVolumes(dataManager.getVolumeKeys().size());
 			}
 		});
@@ -222,7 +228,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		activeBuffers.rewind();
 		for(int i = 0; i<sources.getMaxNumberOfVolumes();i++){
 			int active; 
-			if(dataManager.getVolumeKeys().contains(i)){
+			if(dataManager.isEnabled(i)){
 				active=1;
 			}else{
 				active=0;

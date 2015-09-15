@@ -1,11 +1,14 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
 import java.awt.Color;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -21,7 +24,7 @@ public class VolumeLegend extends JPanel {
 
 	private final VolumeDataManager dataManager;
 	
-	private final Map<Integer,JLabel> idLabelMap = new HashMap<Integer, JLabel>(); 
+	private final Map<Integer,JCheckBox> idCheckboxMap = new HashMap<Integer, JCheckBox>(); 
 	
 	public VolumeLegend(final VolumeDataManager m){
 		this.dataManager = m;
@@ -45,14 +48,24 @@ public class VolumeLegend extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
-	private void updateLegend(Integer id) {
-			if(idLabelMap.containsKey(id)){
+	private void updateLegend(final Integer id) {
+			if(idCheckboxMap.containsKey(id)){
 				return;
 			}
+
 			Color volumeColor = getColorOfVolume(id);
-			JLabel tmp = new JLabel("Volume: "+id);
+			final JCheckBox tmp = new JCheckBox("Volume: "+id);
 			tmp.setForeground(volumeColor);
-			idLabelMap.put(id, tmp);
+			tmp.setSelected(true);
+			tmp.addItemListener(new ItemListener() {
+				
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+				 	dataManager.enableVolume(id, tmp.isSelected());
+					
+				}
+			});
+			idCheckboxMap.put(id, tmp);
 			add(tmp);
 	
 	}

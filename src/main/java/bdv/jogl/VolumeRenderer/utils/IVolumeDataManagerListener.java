@@ -14,4 +14,9 @@ public interface IVolumeDataManagerListener {
 	
 	
 	public void dataUpdated(Integer i);
+	
+	public void dataRemoved(Integer i);
+
+
+	public void dataEnabled(Integer i, Boolean flag);
 }

@@ -122,8 +122,17 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 			
 			@Override
 			public void addedData(Integer i) {
+				repaint();	
+			}
+			
+			@Override
+			public void dataRemoved(Integer i) {
 				repaint();
-				
+			}
+			
+			@Override
+			public void dataEnabled(Integer i, Boolean flag) {
+				repaint();	
 			}
 		});
 	}

@@ -170,6 +170,11 @@ public class SceneControlsWindow extends JFrame {
 				float maxVolume=dataManager.getGlobalMaxVolumeValue();
 				isoValueSpinner.setModel(new SpinnerNumberModel(0.0,0.0, maxVolume, (maxVolume< 1.0)?0.1f:1.0f));
 			}
+			
+			@Override
+			public void dataEnabled(Integer i, Boolean flag) {
+				drawWindow.getGlCanvas().repaint();
+			}
 		});	
 		
 		changeVolumeInterpreter();
