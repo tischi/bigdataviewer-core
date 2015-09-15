@@ -11,7 +11,7 @@ public class MinimumVolumeAccumulator extends AbstractVolumeAccumulator {
 	@Override
 	public String[] declaration() {
 		String[] dec= new String[]{
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 9",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
 				"	float density = "+Float.MAX_VALUE+";",		
 				"	int numberOfChanges=  0;",

@@ -11,7 +11,7 @@ public class MaxDifferenceAccumulator extends AbstractVolumeAccumulator {
 	@Override
 	public String[] declaration() {
 		String[] dec= new String[]{
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 7",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
 				"	float difference = 0;",		
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",

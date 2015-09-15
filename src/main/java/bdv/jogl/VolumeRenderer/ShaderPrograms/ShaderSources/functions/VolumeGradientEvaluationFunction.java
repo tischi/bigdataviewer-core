@@ -9,7 +9,7 @@ public class VolumeGradientEvaluationFunction extends AbstractShaderFunction {
 	@Override
 	public String[] declaration() {
 		return new String[]{
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 5",
 				"vec3 "+getFunctionName()+"(vec3 texCoord, sampler3D volume){",
 				/*"	vec3 left = texCoord+vec3(-"+scvMinDelta+",0.0,0.0);",
 				"	vec3 right = texCoord+vec3("+scvMinDelta+",0.0,0.0);",

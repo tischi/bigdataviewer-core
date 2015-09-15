@@ -15,7 +15,7 @@ public class GetStepsToVolumeFunction extends AbstractShaderFunction {
 	@Override
 	public String[] declaration() {
 		String dec[] = {
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 3",
 				"int "+getFunctionName()+"(float stepsSize, vec3 position, vec3 direction){",
 				"	//infinite steps ;)",
 				"	int steps = "+Integer.MAX_VALUE+";",

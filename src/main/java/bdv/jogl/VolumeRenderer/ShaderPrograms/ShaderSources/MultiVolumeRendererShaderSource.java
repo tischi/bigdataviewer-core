@@ -154,7 +154,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		List<String> code = new ArrayList<String>();
 		String[] head = {
 				"#version "+getShaderLanguageVersion(),
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() +" 0",
 				"const int "+scvMaxNumberOfVolumes+" = "+maxNumberOfVolumes+";",
 				"const int maxInt = "+Integer.MAX_VALUE+";",
 				"const float gamma = 20.0;",
@@ -181,7 +181,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		};
 
 		String[] body ={
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber(),
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() + " 1",
 				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions["+scvMaxNumberOfVolumes+"] ){",
 				"	float volumeValues["+scvMaxNumberOfVolumes+"];",
 				"	for(int i = 0; i < "+scvMaxNumberOfVolumes+"; i++){",

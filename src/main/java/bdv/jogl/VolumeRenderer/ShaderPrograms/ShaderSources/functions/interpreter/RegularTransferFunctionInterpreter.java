@@ -10,6 +10,7 @@ public class RegularTransferFunctionInterpreter extends AbstractTransferFunction
 	@Override
 	public String[] declaration() {
 		String dec[] ={
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() +" 11",
 				"",
 				"uniform sampler1D "+suvColorTexture+";",
 				"",

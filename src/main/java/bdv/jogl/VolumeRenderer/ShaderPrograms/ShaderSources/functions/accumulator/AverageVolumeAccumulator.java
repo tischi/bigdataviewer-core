@@ -11,7 +11,7 @@ public class AverageVolumeAccumulator extends AbstractVolumeAccumulator {
 	@Override
 	public String[] declaration() {
 		String[] dec= new String[]{
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 6",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
 				"	float density = 0.0;",
 				"	int count =0;",

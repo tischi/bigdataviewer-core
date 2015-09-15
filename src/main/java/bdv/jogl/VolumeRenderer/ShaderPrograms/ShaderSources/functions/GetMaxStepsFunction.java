@@ -14,6 +14,7 @@ public class GetMaxStepsFunction extends AbstractShaderFunction implements IFunc
 	@Override
 	public String[] declaration() {
 		String dec[] = {
+		"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() +" 2",
 		"int "+getFunctionName()+"(float stepsSize, vec3 position, vec3 direction){",
 		"	//infinite steps ;)",
 		"	int steps = maxInt;",
