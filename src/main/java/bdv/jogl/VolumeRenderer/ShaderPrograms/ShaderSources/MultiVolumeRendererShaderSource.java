@@ -74,6 +74,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String sgvSampleSize = "sample_step";
 	
+	public static final String suvBackgroundColor = "inBackgroundColorFragmentShader";
+	
 	/**
 	 * @return the maxNumberOfVolumes
 	 */
@@ -167,6 +169,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform sampler3D "+suvVolumeTexture+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvMaxDiagonalLength+" ;",
 				"uniform float "+suvIsoValue+";",
+				"uniform vec3 "+suvBackgroundColor+";",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",
@@ -196,7 +199,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	const int samples = 256;",
 				"	float "+sgvSampleSize+" ="+suvMaxDiagonalLength+"/float(samples);",
 				"",	
-				"	fragmentColor = vec4(0.0);",
+				"	fragmentColor = vec4("+suvBackgroundColor+".xyz,0.0);",
 				"	"+sgvVolumeNormalizeFactor+" = 1.0/ ("+suvMaxVolumeValue+");",
 				"	"+sgvNormIsoValue+"="+suvIsoValue+"*"+sgvVolumeNormalizeFactor+";",
 				"	//get rays of volumes",
@@ -253,6 +256,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"   }",
 				//"	fragmentColor.rgb *= gamma;",
 				"	fragmentColor = max(vec4(0.0),min(fragmentColor, vec4(1.0)));",
+			//	"	fragmentColor = vec4("+suvBackgroundColor+".rgb,0.0);",
 				"}"
 		};
 		addCodeArrayToList(head, code);

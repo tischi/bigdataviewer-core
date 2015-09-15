@@ -6,7 +6,7 @@ import java.util.List;
 
 import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.CameraListener;
-
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
@@ -140,10 +140,8 @@ public abstract class AbstractScene {
 	 * @param gl2
 	 */
 	public void render(GL2 gl2){
-		gl2.glClearColor(	backgroundColor.getRed()/255,
-				backgroundColor.getGreen()/255, 
-				backgroundColor.getBlue()/255, 
-				backgroundColor.getAlpha()/255);
+		float[] c = getNormalizedColor(backgroundColor);
+		gl2.glClearColor(c[0],c[1],c[2],c[3]);
 		
 		gl2.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 

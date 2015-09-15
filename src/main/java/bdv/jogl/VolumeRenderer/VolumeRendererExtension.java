@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer;
 
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -57,10 +58,14 @@ public class VolumeRendererExtension {
 		}
 
 		this.bdv = bdv;
+		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
 		dataScene = new VolumeDataScene(bdv, dataManager,volumeRenderer);
 		glWindow = new GLWindow(dataScene);
 	
+		volumeRenderer.setBackgroundColor(bgColor);
+		dataScene.setBackgroundColor(bgColor);
+		
 		createControlWindow();
 		createActionInToolBar();
 		createListeners();

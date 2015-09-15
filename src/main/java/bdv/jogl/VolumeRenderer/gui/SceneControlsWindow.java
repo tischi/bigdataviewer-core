@@ -1,11 +1,17 @@
 package bdv.jogl.VolumeRenderer.gui;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
@@ -14,6 +20,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IsoSurfaceVolumeInterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
@@ -60,13 +67,22 @@ public class SceneControlsWindow extends JFrame {
 	
 	private JSpinner isoValueSpinner = new JSpinner();
 	
+	private JButton backgroundColorButton = new JButton("");
+	
+	private JPanel backgroundPanel = new JPanel();
+	
 	private final VolumeDataManager dataManager;
 	
 	private final MultiVolumeRenderer renderer;
 	
 	private final GLWindow drawWindow;
 	
-	public SceneControlsWindow(final TransferFunction1D tf,final AggregatorManager agm, final VolumeDataManager dataManager, final MultiVolumeRenderer mvr, final GLWindow win){
+	public SceneControlsWindow(
+			final TransferFunction1D tf,
+			final AggregatorManager agm, 
+			final VolumeDataManager dataManager, 
+			final MultiVolumeRenderer mvr, 
+			final GLWindow win){
 		this.drawWindow = win;
 		this.renderer = mvr;
 		transferFunction = tf;
@@ -83,13 +99,17 @@ public class SceneControlsWindow extends JFrame {
 		setTitle("Transfer function configurations");
 		setSize(640, 100);
 		initAdvancedBox();
+		initBackgroundPanel();
 		initUsePreIntegration();
 		initShowIsoSurface();
+		
+	
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(tfpanel);
 		mainPanel.add(advancedCheck);
 		mainPanel.add(tfDataPanel);
+		mainPanel.add(backgroundPanel);
 		mainPanel.add(usePreIntegration);
 		mainPanel.add(showIsoSurface);
 		mainPanel.add(isoValueSpinner);
@@ -99,6 +119,36 @@ public class SceneControlsWindow extends JFrame {
 		
 		getContentPane().add(mainPanel);
 		pack();
+	}
+
+	private void updateBackgroundColors(Color c){
+		backgroundColorButton.setBackground(c);
+		renderer.setBackgroundColor(c);
+		drawWindow.getScene().setBackgroundColor(c);
+		drawWindow.getGlCanvas().repaint();
+	}
+	
+	private void initBackgroundPanel() {
+		
+		backgroundPanel.setLayout(new BoxLayout(backgroundPanel, BoxLayout.X_AXIS));
+		backgroundPanel.add(new JLabel("Background color: ") );
+		backgroundPanel.add(backgroundColorButton);
+		updateBackgroundColors( drawWindow.getScene().getBackgroundColor());
+		
+		backgroundColorButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Color color = JColorChooser.showDialog(new JFrame(), "color dialog", backgroundColorButton.getBackground());
+				
+				if(color == null && !drawWindow.getScene().getBackgroundColor().equals(color)){
+					return;
+				}
+				
+				updateBackgroundColors(color);
+			}
+		});
+		
 	}
 
 	private void changeVolumeInterpreter(){

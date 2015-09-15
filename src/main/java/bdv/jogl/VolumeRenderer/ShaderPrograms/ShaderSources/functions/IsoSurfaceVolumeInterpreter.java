@@ -23,6 +23,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 		addCodeArrayToList(gradEval.declaration(),code);
 		addCodeArrayToList( new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 1",
+				"vec3 rDiffuse=vec3(0.5,0.5,0.5);",
 				"//bisection form http://onlinelibrary.wiley.com/doi/10.1111/j.1467-8659.2005.00855.x/abstract",
 				"vec3 bisection(float fNear, float fFar, vec3 xNear, vec3 xFar, float isoValue){",
 				"	vec3 xNew = (xFar - xNear) * (isoValue - fNear)/(fFar - fNear) + xNear;",
@@ -65,7 +66,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"		factorDiffuse /= float(n);",
 				"		c = vec4(0.8);",
 				"		c.a = 1.0;",
-				"		c.rgb *= factorDiffuse;",	
+				"		c.rgb *= rDiffuse*factorDiffuse;",	
 				"	}",	
 				"	vec4 c_out = c_in + (1.0 - c_in.a)*c;",
 				"	return c_out;",

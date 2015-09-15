@@ -2,6 +2,7 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 
+import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.math.geom.AABBox;
-
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 
 /**
  * Renderer for multiple volume data
@@ -52,6 +53,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isColorUpdateable;
 
 	private boolean isEyeUpdateable = true;
+	
+	private Color backgroundColor = Color.BLACK;
+	
+	private boolean isBackgroundColorUpdateable = true;
 
 	private Matrix4 drawCubeTransformation = getNewIdentityMatrix();
 	
@@ -71,6 +76,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isColorUpdateable = flag;
 		isEyeUpdateable = flag;
 		isIsoSurfaceValueUpdatable = flag;
+		isBackgroundColorUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -148,6 +154,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
 
+		updateBackgroundColor(gl2);
+		
 		updateActiveVolumes(gl2);
 
 		updateLocalTransformationInverse(gl2);
@@ -166,6 +174,18 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		updateEyes(gl2);
 	}
 
+
+	private void updateBackgroundColor(GL2 gl2) {
+		if(!this.isBackgroundColorUpdateable){
+			return;
+		}
+		
+		float[] c=getNormalizedColor(backgroundColor);
+		
+		gl2.glUniform3fv(getLocation(suvBackgroundColor),1, c, 0);
+		
+		isBackgroundColorUpdateable = false;
+	}
 
 	private void updateMaxDiagonalLength(GL2 gl2) {
 		float length = Float.MIN_VALUE;
@@ -324,7 +344,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvVolumeTexture,
 				suvColorTexture,
 				suvMaxDiagonalLength,
-				suvIsoValue});
+				suvIsoValue, 
+				suvBackgroundColor});
 
 		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
@@ -422,7 +443,19 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 */
 	public Matrix4 getDrawCubeTransformation() {
 		return copyMatrix( drawCubeTransformation);
+	}	
+	
+	/**
+	 * @param backgroundColor the backgroundColor to set
+	 */
+	public void setBackgroundColor(Color backgroundColor) {
+		if(this.backgroundColor.equals(backgroundColor)){
+			return;
+		}
+		this.backgroundColor = backgroundColor;
+		isBackgroundColorUpdateable=true;
 	}
+
 
 	@Override
 	protected void disposeSubClass(GL2 gl2) {

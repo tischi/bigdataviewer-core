@@ -57,6 +57,14 @@ public class GLWindow extends JFrame {
 	}
 
 	/**
+	 * @return the renderScene
+	 */
+	public AbstractScene getScene() {
+		return renderScene;
+	}
+
+
+	/**
 	 * @return the glCanvas
 	 */
 	public GLCanvas getGlCanvas() {
@@ -126,6 +134,8 @@ public class GLWindow extends JFrame {
 		setScene(scene);
 	}
 
+	
+	
 	/**
 	 * Does define the layout of the Window
 	 */
