@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -10,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -99,6 +101,11 @@ public class SceneControlsWindow extends JFrame {
 		createTFWindow(tf,agm,dataManager);
 	}
 	
+	private void addComponetenToMainPanel(JComponent c){
+		c.setAlignmentX(LEFT_ALIGNMENT);
+		mainPanel.add(c);
+	}
+	
 	private void createTFWindow(final TransferFunction1D tf,final AggregatorManager agm,final VolumeDataManager dataManager){
 		tfpanel = new TransferFunctionDrawPanel(tf,dataManager);
 		tfDataPanel = new TransferFunctionDataPanel(tf);
@@ -114,18 +121,16 @@ public class SceneControlsWindow extends JFrame {
 		initBorderCheck();
 		
 	
-		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(tfpanel);
-		mainPanel.add(advancedCheck);
-		mainPanel.add(tfDataPanel);
-		mainPanel.add(rectBorderCheck);
-		mainPanel.add(backgroundPanel);
-		mainPanel.add(usePreIntegration);
-		mainPanel.add(isoPanel);
-
+		addComponetenToMainPanel(tfpanel);
+		addComponetenToMainPanel(advancedCheck);
+		addComponetenToMainPanel(tfDataPanel);
+		addComponetenToMainPanel(rectBorderCheck);
+		addComponetenToMainPanel(backgroundPanel);
+		addComponetenToMainPanel(usePreIntegration);
+		addComponetenToMainPanel(isoPanel);
+		addComponetenToMainPanel(aggregationPanel);
 		
-		mainPanel.add(aggregationPanel);
 		tfDataPanel.setVisible(advancedCheck.isSelected());
 		
 		getContentPane().add(mainPanel);

@@ -9,6 +9,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -66,6 +67,11 @@ public class TransferFunctionDrawPanel extends JPanel {
 		initListener();
 	}
 	
+	private void addComponent(JComponent c){
+		c.setAlignmentX(LEFT_ALIGNMENT);
+		add(c);
+	}
+	
 	private void initUI(){
 		setLayout(mainLayout);
 		
@@ -98,12 +104,13 @@ public class TransferFunctionDrawPanel extends JPanel {
 		
 		scrollArea.setPreferredSize(new Dimension(700,200));
 		
-		add(scrollArea);
-		add(legend);
+		
+		addComponent(scrollArea);
+		addComponent(legend);
 		
 		
 		//controls
-		add(logarithmicOccuranceCheck,c);
+		addComponent(logarithmicOccuranceCheck);
 	}
 
 	@Override
