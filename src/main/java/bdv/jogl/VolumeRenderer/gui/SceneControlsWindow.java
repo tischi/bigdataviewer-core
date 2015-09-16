@@ -21,6 +21,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
+import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IsoSurfaceVolumeInterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
@@ -73,7 +74,11 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final VolumeDataManager dataManager;
 	
+	private final JCheckBox rectBorderCheck = new JCheckBox("Show volume Borders",false);
+	
 	private final MultiVolumeRenderer renderer;
+	
+	private final VolumeDataScene scene;
 	
 	private final GLWindow drawWindow;
 	
@@ -82,7 +87,9 @@ public class SceneControlsWindow extends JFrame {
 			final AggregatorManager agm, 
 			final VolumeDataManager dataManager, 
 			final MultiVolumeRenderer mvr, 
-			final GLWindow win){
+			final GLWindow win,
+			final VolumeDataScene scene){
+		this.scene = scene;
 		this.drawWindow = win;
 		this.renderer = mvr;
 		transferFunction = tf;
@@ -102,6 +109,7 @@ public class SceneControlsWindow extends JFrame {
 		initBackgroundPanel();
 		initUsePreIntegration();
 		initShowIsoSurface();
+		initBorderCheck();
 		
 	
 		
@@ -109,6 +117,7 @@ public class SceneControlsWindow extends JFrame {
 		mainPanel.add(tfpanel);
 		mainPanel.add(advancedCheck);
 		mainPanel.add(tfDataPanel);
+		mainPanel.add(rectBorderCheck);
 		mainPanel.add(backgroundPanel);
 		mainPanel.add(usePreIntegration);
 		mainPanel.add(showIsoSurface);
@@ -119,6 +128,23 @@ public class SceneControlsWindow extends JFrame {
 		
 		getContentPane().add(mainPanel);
 		pack();
+	}
+
+	private void updateBorderStatus(){
+		scene.enableVolumeBorders(rectBorderCheck.isSelected());
+		drawWindow.getGlCanvas().repaint();
+	}
+	
+	private void initBorderCheck() {
+		updateBorderStatus();
+		rectBorderCheck.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateBorderStatus();
+			}
+		});
+		
 	}
 
 	private void updateBackgroundColors(Color c){

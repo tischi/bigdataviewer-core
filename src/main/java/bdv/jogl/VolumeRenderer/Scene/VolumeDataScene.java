@@ -38,12 +38,20 @@ public class VolumeDataScene extends AbstractScene{
 
 	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
 
+	private boolean showVolumes = true;
 	//private UnitCube boundingVolume =new UnitCube();
 
 	@Override
 	protected void disposeSpecial(GL2 gl2) {
 	}
 
+	public void enableVolumeBorders(boolean flag){
+		showVolumes = flag;
+		for(UnitCube c : volumeBorders.values()){
+			c.setEnabled(flag);
+		}
+	}
+	
 	private void addNewCubeBorderShader(Integer id){
 		UnitCube cubeShader = new UnitCube();
 		volumeBorders.put(id,cubeShader);
@@ -63,6 +71,7 @@ public class VolumeDataScene extends AbstractScene{
 		cubeShader.setProjection(getCamera().getProjectionMatix());
 		cubeShader.setView(getCamera().getViewMatrix());
 		cubeShader.setModelTransformation(modelMatrix);
+		cubeShader.setEnabled(showVolumes);
 	}
 	
 	private void setDataManager(final VolumeDataManager manager){

@@ -35,6 +35,8 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 
 	private VertexAttribute position;
 	
+	private boolean isEnabled = true;
+	
 	private boolean needsRebuild = false;
 	
 	private boolean viewNeedsUpdate = true;
@@ -114,6 +116,20 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 */
 	protected void disposeSubClass(GL2 gl2){
 		
+	}
+
+	/**
+	 * @return the isEnabled
+	 */
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	/**
+	 * @param isEnabled the isEnabled to set
+	 */
+	public void setEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
 	}
 
 	/**
@@ -321,7 +337,9 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * render call, updates data if needed an delivers the program context for sub classes
 	 */
 	public void render(GL2 gl2){
-
+		if(!isEnabled){
+			return;
+		}
 		update(gl2);
 
 		shaderProgram.useProgram(gl2, true);

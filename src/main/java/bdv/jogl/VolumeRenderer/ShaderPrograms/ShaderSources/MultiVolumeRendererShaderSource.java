@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.scvMaxNumberOfVolumes;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeInterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
@@ -75,6 +76,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String sgvSampleSize = "sample_step";
 	
 	public static final String suvBackgroundColor = "inBackgroundColorFragmentShader";
+	
+	public static final String suvLightPosition = "inlightPos";
+	
+	public static final String suvLightIntensiy = "iniIn";
 	
 	/**
 	 * @return the maxNumberOfVolumes
@@ -170,6 +175,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform float "+suvMaxDiagonalLength+" ;",
 				"uniform float "+suvIsoValue+";",
 				"uniform vec3 "+suvBackgroundColor+";",
+				"uniform vec3 "+suvLightPosition+"["+scvMaxNumberOfVolumes+"];",
+				"uniform vec3 "+suvLightIntensiy+" = vec3(1.0,1.0,1.0);",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",
