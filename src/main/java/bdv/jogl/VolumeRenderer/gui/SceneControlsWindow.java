@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -223,6 +224,7 @@ public class SceneControlsWindow extends JFrame {
 			@Override
 			public void dataUpdated(Integer i) {
 				float maxVolume=dataManager.getGlobalMaxVolumeValue();
+				transferFunction.setMaxOrdinates(new Point2D.Float(maxVolume, 1.0f));
 				isoValueSpinner.setModel(new SpinnerNumberModel(0.0,0.0, maxVolume, (maxVolume< 1.0)?0.1f:1.0f));
 			}
 			
