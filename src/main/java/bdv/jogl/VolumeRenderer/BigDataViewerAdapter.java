@@ -43,6 +43,7 @@ public class BigDataViewerAdapter {
 				ViewerState state = bdv.getViewer().getState();
 				List<SourceState<?>> sources = state.getSources();
 
+				
 				int currentTimepoint = state.getCurrentTimepoint();
 				if(manager.getCurrentTime() == currentTimepoint){
 					return;

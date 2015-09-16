@@ -226,7 +226,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"void main(void)",
 				"{",	
-				"	const int samples = 256;",
+				"	const int samples = 512;",
 				"	float "+sgvSampleSize+" ="+suvMaxDiagonalLength+"/float(samples);",
 				"",	
 				"	fragmentColor = vec4("+suvBackgroundColor+".xyz,0.0);",

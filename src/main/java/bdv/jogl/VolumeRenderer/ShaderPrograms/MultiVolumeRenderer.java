@@ -125,47 +125,74 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			return;
 		}
 		
-		Float zeroDist = 0.f;
+	
 		float[]	zNormalVector=new float[3];
-		calcSlicePlane(zeroDist, zNormalVector);
+		float zeroDist=calcSlicePlane( zNormalVector);
 		
 		gl2.glUniform3fv(getLocation(suvNormalSlice), 1, zNormalVector, 0);
 		gl2.glUniform1f(getLocation(suvZeroDistSlice), zeroDist);
 	}
 
-	private void calcSlicePlane(Float dist, float[] zNormalVector) {
-		float nullPoint[] = {0.f,0.f,0.f,1};
+	private float calcSlicePlane(float[] zNormalVector) {
+		float centerPoint[] = {0.5f,0.5f,0.f,1};
 		float normVector[] = {0,0,1,0};
+		float dist = 0;
 		
 		Matrix4 inversGlobal = copyMatrix(getModelTransformation());
+	//	nullPoint[0]=inversGlobal.getMatrix()[14];
+//		nullPoint[1]=inversGlobal.getMatrix()[13];
+	//	nullPoint[2]=inversGlobal.getMatrix()[12];
 		inversGlobal.invert();
 		
 		Matrix4 localInverse = copyMatrix(dataManager.getVolume(0).localTransformation);
 		localInverse.scale(dataManager.getVolume(0).dimensions[0], dataManager.getVolume(0).dimensions[1], dataManager.getVolume(0).dimensions[2]);
+		Matrix4 localViewInverse = copyMatrix(dataManager.getVolume(0).localTransformation);
+		localViewInverse.invert();
+		Matrix4 viewerscaleinverse = getNewIdentityMatrix();
+		viewerscaleinverse.scale(dataManager.getVolume(0).dimensions[0],dataManager.getVolume(0).dimensions[1],dataManager.getVolume(0).dimensions[2]);
+		viewerscaleinverse.invert();
 		localInverse.invert();
+	
 		Matrix4 mat = getNewIdentityMatrix();
+		mat.scale(1, 1, -1);
+		
 		//from cube to tex 1
 		mat.multMatrix(localInverse);
 		//canonic to cube
 		mat.multMatrix(getDrawCubeTransformation());
-		//form 2d View to canonic
-		mat.multMatrix(inversGlobal);
+		
+		Matrix4 bdvTrans = getNewIdentityMatrix();
+		
+		//to screen
+		bdvTrans.multMatrix(getModelTransformation());
+		//to local
+		bdvTrans.multMatrix(dataManager.getVolume(0).localTransformation);
+		//0 1 to volume
+		bdvTrans.scale(dataManager.getVolume(0).dimensions[0],dataManager.getVolume(0).dimensions[1],dataManager.getVolume(0).dimensions[2]);
+		
+	
+		 
+		//bdvTrans.multVec(new float[]{0.5f,0.5f,0.0f,1.0f }, centerPoint);
+		bdvTrans.invert();
+		//bdvTrans.transpose();
+		mat.multMatrix(bdvTrans);
 		
 		float[]transformedZero ={0,0,0,0};
-		mat.multVec(nullPoint, transformedZero);
+		mat.multVec(centerPoint, transformedZero);
 		mat.invert();
 		mat.transpose();
 		
 		float[]transformedNormal ={0,0,0,0};
 		mat.multVec(normVector, transformedNormal);
-		VectorUtil.normalizeVec3(transformedNormal);
+		VectorUtil.normalizeVec3(zNormalVector,transformedNormal);
 		
 		
 		//prepare return
 		for(int i =0; i < 3; i++){
-			zNormalVector[i]= transformedNormal[i];
-			dist+= (transformedZero[i]/transformedZero[3])*transformedNormal[i] ;
+			//zNormalVector[i]= transformedNormal[i];
+			dist+= (transformedZero[i]/transformedZero[3])*zNormalVector[i] ;
 		}
+		return dist;
 	}
 
 	/**
