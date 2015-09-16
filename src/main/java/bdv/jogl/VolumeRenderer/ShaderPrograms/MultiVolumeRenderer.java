@@ -65,7 +65,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private Matrix4 drawCubeTransformation = getNewIdentityMatrix();
 	
-	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
+	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource ();
+
+	private boolean isSliceUpdateable;
+
+	private boolean showSlice = false;
+
+	private boolean isShownUpdatable = true; 
 
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
@@ -90,8 +96,78 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		updateColor(gl2);
 
 		updateEyes(gl2);
+		
+		updateSliceShown(gl2);
+		
+		updateSlice(gl2);
+		
+		
 	}
 	
+	private int boolToInt(boolean bool){
+		if(bool){
+			return 1;
+		}else{
+			return 0;
+		}
+	}
+	
+	private void updateSliceShown(GL2 gl2) {
+		if(!isShownUpdatable){
+			return;
+		}
+		
+		gl2.glUniform1i(getLocation(suvShowSlice), boolToInt( this.showSlice));
+	}
+
+	private void updateSlice(GL2 gl2) {
+		if(!isSliceUpdateable){
+			return;
+		}
+		
+		Float zeroDist = 0.f;
+		float[]	zNormalVector=new float[3];
+		calcSlicePlane(zeroDist, zNormalVector);
+		
+		gl2.glUniform3fv(getLocation(suvNormalSlice), 1, zNormalVector, 0);
+		gl2.glUniform1f(getLocation(suvZeroDistSlice), zeroDist);
+	}
+
+	private void calcSlicePlane(Float dist, float[] zNormalVector) {
+		float nullPoint[] = {0.f,0.f,0.f,1};
+		float normVector[] = {0,0,1,0};
+		
+		Matrix4 inversGlobal = copyMatrix(getModelTransformation());
+		inversGlobal.invert();
+		
+		Matrix4 localInverse = copyMatrix(dataManager.getVolume(0).localTransformation);
+		localInverse.scale(dataManager.getVolume(0).dimensions[0], dataManager.getVolume(0).dimensions[1], dataManager.getVolume(0).dimensions[2]);
+		localInverse.invert();
+		Matrix4 mat = getNewIdentityMatrix();
+		//from cube to tex 1
+		mat.multMatrix(localInverse);
+		//canonic to cube
+		mat.multMatrix(getDrawCubeTransformation());
+		//form 2d View to canonic
+		mat.multMatrix(inversGlobal);
+		
+		float[]transformedZero ={0,0,0,0};
+		mat.multVec(nullPoint, transformedZero);
+		mat.invert();
+		mat.transpose();
+		
+		float[]transformedNormal ={0,0,0,0};
+		mat.multVec(normVector, transformedNormal);
+		VectorUtil.normalizeVec3(transformedNormal);
+		
+		
+		//prepare return
+		for(int i =0; i < 3; i++){
+			zNormalVector[i]= transformedNormal[i];
+			dist+= (transformedZero[i]/transformedZero[3])*transformedNormal[i] ;
+		}
+	}
+
 	/**
 	 * returns the source
 	 * @return
@@ -107,6 +183,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isEyeUpdateable = flag;
 		isIsoSurfaceValueUpdatable = flag;
 		isBackgroundColorUpdateable = flag;
+		isLightPositionUpdateable = flag;
+		isSliceUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -150,8 +228,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		Matrix4 globalTransformation = getNewIdentityMatrix();
 		globalTransformation.multMatrix(getView());
-		globalTransformation.multMatrix(getModelTransformation());
-
+	
 		for(int i =0; i< maxNumVolumes;i++){
 			int fieldOffset = 3*i;
 			if(!dataManager.getVolumeKeys().contains(i)){
@@ -399,7 +476,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvMaxDiagonalLength,
 				suvIsoValue, 
 				suvBackgroundColor,
-				suvLightPosition
+				suvLightPosition,
+				suvNormalSlice,
+				suvZeroDistSlice,
+				suvShowSlice
 				});
 
 		int location = getLocation(suvVolumeTexture);
@@ -434,7 +514,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public void setModelTransformation(Matrix4 modelTransformations) {
 		super.setModelTransformation(modelTransformations);
 
-		isEyeUpdateable = true;
+		isSliceUpdateable = true;
 	}
 
 	@Override
@@ -526,6 +606,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		this.isoSurfaceValue = floatValue;
 		
 		isIsoSurfaceValueUpdatable = true;
+	}
+
+	public void setSliceShown(boolean selected) {
+		this.showSlice = selected;
+		
+		isShownUpdatable  = true; 
 		
 	}
 }

@@ -110,7 +110,7 @@ public class VolumeRendererExtension {
 		});
 		BigDataViewerAdapter.connect(this.bdv, dataManager);
 		
-		this.bdv.getViewer().addTransformListener(new SceneGlobalTransformationListener(dataScene));
+		this.bdv.getViewer().addTransformListener(new SceneGlobalTransformationListener(volumeRenderer,glWindow));
 	}
 
 	/**

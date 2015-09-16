@@ -86,6 +86,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final JPanel isoPanel = new JPanel();
 	
+	private final JCheckBox showSlice = new JCheckBox("Show slice in 3D View");
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -119,13 +121,14 @@ public class SceneControlsWindow extends JFrame {
 		initUsePreIntegration();
 		initShowIsoSurface();
 		initBorderCheck();
-		
+		initShowSlice();
 	
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		addComponetenToMainPanel(tfpanel);
 		addComponetenToMainPanel(advancedCheck);
 		addComponetenToMainPanel(tfDataPanel);
 		addComponetenToMainPanel(rectBorderCheck);
+		addComponetenToMainPanel(showSlice);
 		addComponetenToMainPanel(backgroundPanel);
 		addComponetenToMainPanel(usePreIntegration);
 		addComponetenToMainPanel(isoPanel);
@@ -135,6 +138,25 @@ public class SceneControlsWindow extends JFrame {
 		
 		getContentPane().add(mainPanel);
 		pack();
+	}
+
+	private void initShowSlice() {
+		updateSlice();
+		showSlice.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				// TODO Auto-generated method stub
+				updateSlice();
+			}
+		});
+		
+	}
+
+	private void updateSlice() {
+		renderer.setSliceShown(showSlice.isSelected());
+		drawWindow.getGlCanvas().repaint();
+		
 	}
 
 	private void updateBorderStatus(){

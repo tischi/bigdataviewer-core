@@ -1,10 +1,13 @@
 package bdv.jogl.VolumeRenderer;
 
-import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
+
+import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
+import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
-
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 /**
  * Listener for global transformation changes
  * @author michael
@@ -12,18 +15,21 @@ import net.imglib2.ui.TransformListener;
  */
 public class SceneGlobalTransformationListener implements TransformListener<AffineTransform3D> {
 
-	//private final VolumeDataScene scene;
+	private final MultiVolumeRenderer renderer;
+	private final GLWindow window;
 	
 	/**
 	 * add scene to transfer data
 	 * @param scene
 	 */
-	public SceneGlobalTransformationListener(final VolumeDataScene scene){
-		//this.scene = scene;
+	public SceneGlobalTransformationListener(final MultiVolumeRenderer renderer, final GLWindow window){
+		this.renderer = renderer;
+		this.window = window;
 	}
 	
 	@Override
 	public void transformChanged(AffineTransform3D transform) {
-		//scene.setGlobalModelTransformation(convertToJoglTransform(transform));
+		renderer.setModelTransformation(convertToJoglTransform(transform));
+		window.getGlCanvas().repaint();
 	}
 }

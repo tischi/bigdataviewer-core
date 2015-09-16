@@ -35,7 +35,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 
 	private AbstractVolumeAccumulator accumulator = new AverageVolumeAccumulator();
 	
-	private AbstractVolumeInterpreter interpreter = new TransparentVolumeinterpreter(); 
+	private AbstractVolumeInterpreter interpreter; 
 
 	private static final String svTextureCoordinate = "textureCoordinate";
 
@@ -80,6 +80,16 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String suvLightPosition = "inlightPos";
 	
 	public static final String suvLightIntensiy = "iniIn";
+	
+	public static final String suvZeroDistSlice = "inZeroSlicePoint";
+	
+	public static final String suvNormalSlice = "inZeroSliceNormal";
+	
+	public static final String suvShowSlice = "inShowSlice";
+	
+	public MultiVolumeRendererShaderSource(){
+		setVolumeInterpreter(  new TransparentVolumeinterpreter());
+	}
 	
 	/**
 	 * @return the maxNumberOfVolumes
@@ -149,7 +159,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		"+svTextureCoordinate+"[i] = transformed.xyz/transformed.w;",
 				"	}",
 				"",
-				"	gl_Position ="+suvProjectionMatrix+" * "+suvViewMatrix+" * "+suvModelMatrix+" * positionInGlobalSpace;",
+				"	gl_Position ="+suvProjectionMatrix+" * "+suvViewMatrix+"  * positionInGlobalSpace;",
 				"}",
 
 		};
@@ -177,6 +187,9 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec3 "+suvBackgroundColor+";",
 				"uniform vec3 "+suvLightPosition+"["+scvMaxNumberOfVolumes+"];",
 				"uniform vec3 "+suvLightIntensiy+" = vec3(0.0,1.0,0.0);",
+				"uniform vec3 "+suvNormalSlice+";",
+				"uniform float "+suvZeroDistSlice+";",
+				"uniform int "+suvShowSlice+";",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",
@@ -205,6 +218,12 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	return volumeValues;",
 				"}",
 				"",
+				"float getSliceDistance(){",
+				"	float distance = "+suvZeroDistSlice+";",
+				"	distance+=dot("+suvNormalSlice+","+sgvRayPositions+"[0]);",
+				"	return distance;",
+				"}",
+				"",
 				"void main(void)",
 				"{",	
 				"	const int samples = 256;",
@@ -216,7 +235,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	//get rays of volumes",
 				"	int steps = 0;",
 				"	int startStep = "+Short.MAX_VALUE+";",	
-
+				
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
 				"    	vec3 ray_dir = normalize("+svTextureCoordinate+"[n] - "+suvEyePosition+"[n] );",
 				"    	vec3 ray_pos = "+svTextureCoordinate+"[n]; // the current ray position",
@@ -241,6 +260,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"	//multi ray casting",
 				"  	float density = 0.0;",
+				"	float latestdDistanceToSlice = getSliceDistance();",
 				//TODO find gpu killing bug of start steps
 				"  	for(int i = 0; i< steps; i++){",
 				"",
@@ -256,14 +276,22 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity",sgvSampleSize})+";",
 				"      	vec4 c_out =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
-				"		fragmentColor = c_out;",
+				"",
+				"		for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",	
+				"			"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n] * "+sgvSampleSize+";",
+				"		}",
+				"",
+				"		float currentSliceDistance = getSliceDistance();",
+				"		if("+suvShowSlice+" == 1&&sign(currentSliceDistance)!=sign(latestdDistanceToSlice)||sign(currentSliceDistance)==0 ){",
+				"			c_out = gamma*vec4(nextDensity,nextDensity,nextDensity,0.5);",
+				"		}",
+				"		latestdDistanceToSlice = currentSliceDistance;",
+				"",		
+				"		fragmentColor = fragmentColor + (1.0 - fragmentColor.a)*c_out;",
 				"		if(c_out.a +"+scvMinDelta+" >= 1.0){",
 				"			break;",
 				"		}",	
 				"		density = nextDensity;",
-				"		for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",	
-				"			"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n] * "+sgvSampleSize+";",
-				"		}",	
 				"   }",
 				//"	fragmentColor.rgb *= gamma;",
 				"	fragmentColor = max(vec4(0.0),min(fragmentColor, vec4(1.0)));",
@@ -289,12 +317,14 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 			return;
 		}
 		this.accumulator = a1;
+		this.interpreter.setAccumulator(accumulator);
 		notifySourceCodeChanged();
 	}
 
 
 	public void setVolumeInterpreter(AbstractVolumeInterpreter volumeInterpreter) {
 		this.interpreter = volumeInterpreter;
+		this.interpreter.setAccumulator(accumulator);
 		notifySourceCodeChanged();
 		
 	}

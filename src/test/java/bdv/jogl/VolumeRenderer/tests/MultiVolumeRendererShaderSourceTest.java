@@ -148,10 +148,20 @@ public class MultiVolumeRendererShaderSourceTest {
 			public String[] declaration() {
 				return new String[]{"fooo"};
 			}
+			@Override
+			public String[] colorAccDecl() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 		
 		AbstractVolumeAccumulator a2 = new AbstractVolumeAccumulator("barrr") {
 			
+			@Override
+			public String[] colorAccDecl() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 			@Override
 			public String[] declaration() {
 				return new String[]{"bar"};
