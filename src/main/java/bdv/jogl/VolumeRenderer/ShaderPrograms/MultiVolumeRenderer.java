@@ -43,6 +43,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float isoSurfaceValue = 0;
 	
+	private float[] lightPosition = new float[]{0,1000,-100};
+	
+	private boolean isLightPositionUpdateable = true;
+	
 	private boolean isIsoSurfaceValueUpdatable= true;
 	
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
@@ -63,6 +67,31 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	
 	private MultiVolumeRendererShaderSource sources =new MultiVolumeRendererShaderSource (); 
 
+	@Override
+	protected void updateShaderAttributesSubClass(GL2 gl2) {
+
+		updateBackgroundColor(gl2);
+		
+		updateActiveVolumes(gl2);
+
+		updateLocalTransformationInverse(gl2);
+
+		updateEyePositions(gl2);
+		
+		updateIsoValue(gl2);
+		
+		boolean update = updateTextureData(gl2);
+		if(update){
+			updateGlobalScale(gl2);
+
+			updateMaxDiagonalLength(gl2);
+		}
+
+		updateColor(gl2);
+
+		updateEyes(gl2);
+	}
+	
 	/**
 	 * returns the source
 	 * @return
@@ -157,29 +186,47 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isEyeUpdateable = false;
 	}
 
-	@Override
-	protected void updateShaderAttributesSubClass(GL2 gl2) {
-
-		updateBackgroundColor(gl2);
-		
-		updateActiveVolumes(gl2);
-
-		updateLocalTransformationInverse(gl2);
-
-		updateIsoValue(gl2);
-		
-		boolean update = updateTextureData(gl2);
-		if(update){
-			updateGlobalScale(gl2);
-
-			updateMaxDiagonalLength(gl2);
+	private void updateEyePositions(GL2 gl2) {
+		if(!isLightPositionUpdateable){
+			return;
 		}
-
-		updateColor(gl2);
-
-		updateEyes(gl2);
+		float textureLightPositions[] = calculateTextureLightPositions();
+		
+		gl2.glUniform3fv(getLocation(suvLightPosition),sources.getMaxNumberOfVolumes(), textureLightPositions,0);
+		
 	}
 
+	private float[] calculateTextureLightPositions() {
+		final int maxNumVolumes = sources.getMaxNumberOfVolumes();
+		float lightPositionsObjectSpace[] = new float[3*maxNumVolumes];
+
+		Matrix4 globalTransformation = getNewIdentityMatrix();
+		//globalTransformation.multMatrix(getView());
+		globalTransformation.multMatrix(getModelTransformation());
+
+		for(int i =0; i< maxNumVolumes;i++){
+			int fieldOffset = 3*i;
+			if(!dataManager.getVolumeKeys().contains(i)){
+				break;
+			}
+			VolumeDataBlock data = dataManager.getVolume(i);
+			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
+
+			modelViewMatrixInverse.multMatrix(copyMatrix(data.localTransformation));
+			modelViewMatrixInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			modelViewMatrixInverse.invert();
+			
+			float transformer[] = new float[]{lightPosition[0],lightPosition[1],lightPosition[2],1};
+			float transformed[] = new float[4];
+			modelViewMatrixInverse.multVec(transformer, transformed);
+			
+			lightPositionsObjectSpace[fieldOffset] = transformed[0]/transformed[3];
+			lightPositionsObjectSpace[fieldOffset+1] = transformed[1]/transformed[3];
+			lightPositionsObjectSpace[fieldOffset+2] = transformed[2]/transformed[3];
+
+		}
+		return lightPositionsObjectSpace;
+	}
 
 	private void updateBackgroundColor(GL2 gl2) {
 		if(!this.isBackgroundColorUpdateable){
@@ -351,7 +398,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvColorTexture,
 				suvMaxDiagonalLength,
 				suvIsoValue, 
-				suvBackgroundColor});
+				suvBackgroundColor,
+				suvLightPosition
+				});
 
 		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){

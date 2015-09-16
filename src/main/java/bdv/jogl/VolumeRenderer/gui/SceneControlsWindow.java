@@ -82,6 +82,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final GLWindow drawWindow;
 	
+	private final JPanel isoPanel = new JPanel();
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -120,8 +122,8 @@ public class SceneControlsWindow extends JFrame {
 		mainPanel.add(rectBorderCheck);
 		mainPanel.add(backgroundPanel);
 		mainPanel.add(usePreIntegration);
-		mainPanel.add(showIsoSurface);
-		mainPanel.add(isoValueSpinner);
+		mainPanel.add(isoPanel);
+
 		
 		mainPanel.add(aggregationPanel);
 		tfDataPanel.setVisible(advancedCheck.isSelected());
@@ -222,6 +224,10 @@ public class SceneControlsWindow extends JFrame {
 				drawWindow.getGlCanvas().repaint();
 			}
 		});
+		
+		isoPanel.setLayout(new BoxLayout(isoPanel, BoxLayout.X_AXIS));
+		isoPanel.add(showIsoSurface);
+		isoPanel.add(isoValueSpinner);
 		
 	}
 

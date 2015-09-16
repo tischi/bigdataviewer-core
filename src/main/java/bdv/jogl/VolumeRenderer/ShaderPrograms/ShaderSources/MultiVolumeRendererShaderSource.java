@@ -176,7 +176,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform float "+suvIsoValue+";",
 				"uniform vec3 "+suvBackgroundColor+";",
 				"uniform vec3 "+suvLightPosition+"["+scvMaxNumberOfVolumes+"];",
-				"uniform vec3 "+suvLightIntensiy+" = vec3(1.0,1.0,1.0);",
+				"uniform vec3 "+suvLightIntensiy+" = vec3(0.0,1.0,0.0);",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",
