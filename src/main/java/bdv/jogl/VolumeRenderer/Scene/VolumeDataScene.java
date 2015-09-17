@@ -36,8 +36,6 @@ public class VolumeDataScene extends AbstractScene{
 
 	private VolumeDataManager dataManager;
 
-	private Matrix4 globalModelTransformation = getNewIdentityMatrix();
-
 	private boolean showVolumes = true;
 	//private UnitCube boundingVolume =new UnitCube();
 
@@ -190,13 +188,5 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void renderSpecial(GL2 gl2){
 
-	}
-
-
-	/**
-	 * @param globalModelTransformation the globalModelTransformation to set
-	 */
-	public void setGlobalModelTransformation(Matrix4 globalModelTransformation) {
-		this.globalModelTransformation = globalModelTransformation;
 	}
 }

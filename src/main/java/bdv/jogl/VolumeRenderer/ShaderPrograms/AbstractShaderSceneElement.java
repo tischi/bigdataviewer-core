@@ -295,7 +295,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	private void initProgram(GL2 gl2){
 		//create program id 
 		shaderProgram.init(gl2);
-
+		
 		//compile and attache shaders from files
 		for(ShaderCode code:getSource().getShaderCodes()){
 			code.compile(gl2,System.err);

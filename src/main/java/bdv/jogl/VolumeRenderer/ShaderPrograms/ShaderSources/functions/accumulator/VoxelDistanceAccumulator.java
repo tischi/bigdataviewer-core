@@ -3,7 +3,6 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulat
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.scvMaxNumberOfVolumes;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.sgvRayPositions;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvActiveVolumes;
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvVolumeTexture;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvVoxelCount;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.addCodeArrayToList;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
@@ -30,7 +29,7 @@ public class VoxelDistanceAccumulator extends AbstractVolumeAccumulator {
 				"		if(densities[n] < 0.0){",
 				"			continue;",	
 				"		}",	
-				"		float weight = 1.0/diffs[n];",
+				"		float weight = 1.0/exp(diffs[n]);",
 				"		sum+=weight;",
 				"		density = weight * densities[n];",
 				"	}",
@@ -55,7 +54,7 @@ public class VoxelDistanceAccumulator extends AbstractVolumeAccumulator {
 				"float["+scvMaxNumberOfVolumes+"] calcVoxelDiff(vec3 positionsTexSpace["+scvMaxNumberOfVolumes+"]){",
 				"	float differences["+scvMaxNumberOfVolumes+"];",
 				"	for(int v = 0; v < "+scvMaxNumberOfVolumes+"; v++){",
-				"		vec3 voxelCounts = "+suvVoxelCount+"[v]; ",
+				"		vec3 voxelCounts = vec3("+suvVoxelCount+"[v]); ",
 				"		vec3 posVoxelSpace = positionsTexSpace[v] * voxelCounts;",
 				"		vec3 minDiffDim = abs(vec3(0.5)-fract(posVoxelSpace));",
 				"		differences[v] = length(minDiffDim);",

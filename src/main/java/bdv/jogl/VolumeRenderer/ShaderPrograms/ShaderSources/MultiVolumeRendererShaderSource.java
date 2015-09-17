@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.scvMaxNumberOfVolumes;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeInterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
@@ -180,6 +179,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"const float gamma = 20.0;",
 				"const float "+scvMinDelta+" = 0.00001;",
 				"",
+				"uniform ivec3 "+suvVoxelCount+"["+scvMaxNumberOfVolumes+"];",
 				"uniform int "+suvActiveVolumes+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvMaxVolumeValue+";",
 				"uniform float "+suvMinVolumeValue+";",
@@ -193,7 +193,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec3 "+suvNormalSlice+";",
 				"uniform float "+suvZeroDistSlice+";",
 				"uniform int "+suvShowSlice+";",
-				"uniform ivec3 "+suvVoxelCount+"["+scvMaxNumberOfVolumes+"];",
+		
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",

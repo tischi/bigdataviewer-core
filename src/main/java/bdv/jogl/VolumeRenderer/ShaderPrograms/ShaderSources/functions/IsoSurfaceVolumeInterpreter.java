@@ -6,7 +6,6 @@ import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.filefilter.SuffixFileFilter;
 
 public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 

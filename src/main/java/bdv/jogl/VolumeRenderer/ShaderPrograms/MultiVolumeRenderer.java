@@ -470,11 +470,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			buffer.rewind();
 
 			//uploade data
-			volumeTextureMap.get(i).update(gl2, 0, buffer, 
-					new int[]{(int)data.dimensions[0], 
-							(int)data.dimensions[1], 
-							(int)data.dimensions[2]});
-
+			int dim[] = new int[]{(int)data.dimensions[0], 
+					(int)data.dimensions[1], 
+					(int)data.dimensions[2]};
+			volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
+		
+			if(getLocation(suvVoxelCount)!=-1){
+				gl2.glUniform3iv(getLocation(suvVoxelCount)+i, 1,dim,0 );
+			}
 			data.setNeedsUpdate(false);
 		}
 
@@ -491,7 +494,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	protected void generateIdMappingSubClass(GL2 gl2) {
 
 
-		mapUniforms(gl2, new String[]{
+		mapUniforms(gl2, new String[]{		
+				suvVoxelCount,
 				suvDrawCubeTransformation,
 				suvTextureTransformationInverse,
 				suvActiveVolumes,
@@ -506,7 +510,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvLightPosition,
 				suvNormalSlice,
 				suvZeroDistSlice,
-				suvShowSlice
+				suvShowSlice,
+		
 				});
 
 		int location = getLocation(suvVolumeTexture);
