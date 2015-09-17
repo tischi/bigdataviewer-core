@@ -18,8 +18,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.google.gson.JsonNull;
-
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.Axis.AxisType;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;

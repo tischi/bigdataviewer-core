@@ -19,14 +19,14 @@ public class MaxDifferenceAccumulator extends AbstractVolumeAccumulator {
 	@Override
 	public String[] colorAccDecl() {
 		String[] dec = {
-			"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"]){",
+			"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"],vec4 refinedValues["+scvMaxNumberOfVolumes+"]){",
 			"	vec3 color = vec3(0.0);",
 			"	float maxValue =0;",
 			"	for(int v =0; v < "+scvMaxNumberOfVolumes+"; v++){",
 			"		if("+suvActiveVolumes+"[v]==0){",
 			"			continue;",
 			"		}",
-			"		float value = texture("+suvVolumeTexture+"[v],"+sgvRayPositions+"[v] ).r;",
+			"		float value = refinedValues[v].a;",
 			"		if(value < 0.0){",
 			"			continue;",	
 			"		}",

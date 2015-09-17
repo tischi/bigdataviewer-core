@@ -11,6 +11,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulato
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxDifferenceAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MinimumVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.VoxelDistanceAccumulator;
 
 /**
  * Stores aggregators and calls listeners
@@ -47,6 +48,7 @@ public class AggregatorManager {
 		addAccumulator(new MaximumVolumeAccumulator());
 		addAccumulator(new MinimumVolumeAccumulator());
 		addAccumulator(new MaxDifferenceAccumulator());
+		addAccumulator(new VoxelDistanceAccumulator());
 		setActiveAcumulator(avg.getFunctionName());
 	}
 	

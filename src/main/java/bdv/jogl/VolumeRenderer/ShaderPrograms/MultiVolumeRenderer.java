@@ -134,7 +134,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private float calcSlicePlane(float[] zNormalVector) {
-		float centerPoint[] = {0.5f,0.5f,0.f,1};
+		float centerPoint[] = {-500f,0.5f,0.f,1};
 		float normVector[] = {0,0,1,0};
 		float dist = 0;
 		
@@ -190,7 +190,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//prepare return
 		for(int i =0; i < 3; i++){
 			//zNormalVector[i]= transformedNormal[i];
-			dist+= (transformedZero[i]/transformedZero[3])*zNormalVector[i] ;
+			dist+= (transformedZero[i]/*/transformedZero[3]*/)*zNormalVector[i] ;
 		}
 		return dist;
 	}

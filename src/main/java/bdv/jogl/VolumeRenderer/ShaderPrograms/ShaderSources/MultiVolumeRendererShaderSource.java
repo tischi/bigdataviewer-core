@@ -87,8 +87,11 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvShowSlice = "inShowSlice";
 	
+	public static final String suvVoxelCount = "inVoxelCount";
+	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
+		setShaderLanguageVersion(400);
 	}
 	
 	/**
@@ -190,6 +193,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec3 "+suvNormalSlice+";",
 				"uniform float "+suvZeroDistSlice+";",
 				"uniform int "+suvShowSlice+";",
+				"uniform ivec3 "+suvVoxelCount+"["+scvMaxNumberOfVolumes+"];",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
 				"vec3 "+sgvRayPositions+"["+scvMaxNumberOfVolumes+"];",

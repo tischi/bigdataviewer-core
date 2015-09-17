@@ -18,11 +18,11 @@ public class MinimumVolumeAccumulator extends AbstractVolumeAccumulator {
 	@Override
 	public String[] colorAccDecl() {
 		String[] dec = {
-			"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"]){",
+			"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"],vec4 refinedValues["+scvMaxNumberOfVolumes+"]){",
 			"	vec3 color = vec3(0.0);",
 			"	float minValue = "+Float.MAX_VALUE+";",	
 			"	for(int v =0; v < "+scvMaxNumberOfVolumes+"; v++){",
-			"		float value = texture("+suvVolumeTexture+"[v],"+sgvRayPositions+"[v] ).r;",
+			"		float value = refinedValues[v].a;",
 			"		if("+suvActiveVolumes+"[v]==0){",
 			"			continue;",
 			"		}",
