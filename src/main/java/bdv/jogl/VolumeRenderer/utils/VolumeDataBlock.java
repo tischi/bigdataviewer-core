@@ -13,7 +13,7 @@ public class VolumeDataBlock{
 	public long[] dimensions = {0,0,0};
 	public float maxValue;
 	public float minValue;
-	public Matrix4 localTransformation = getNewIdentityMatrix();
+	private Matrix4 localTransformation = getNewIdentityMatrix();
 	public final TreeMap<Float, Integer> valueDistribution = new TreeMap<Float, Integer>();
 	public int maxOccurance = 0;
 	private boolean needsUpdate = true;
@@ -33,5 +33,13 @@ public class VolumeDataBlock{
 	
 	public int getMaxOccurance(){
 		return maxOccurance;
+	}
+
+	public Matrix4 getLocalTransformation() {
+		return localTransformation;
+	}
+
+	public void setLocalTransformation(Matrix4 localTransformation) {
+		this.localTransformation = localTransformation;
 	}
 }

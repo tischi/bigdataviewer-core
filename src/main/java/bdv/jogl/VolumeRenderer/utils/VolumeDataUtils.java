@@ -12,6 +12,8 @@ import java.util.TreeMap;
 
 import javax.naming.spi.DirStateFactory;
 
+import com.jogamp.opengl.math.Matrix4;
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
@@ -188,5 +190,13 @@ public class VolumeDataUtils {
 
 	public static Color getColorOfVolume(int i){
 		return volumeColor[i%volumeColor.length];
+	}
+	
+	public static Matrix4 calcVolumeTransformation(final VolumeDataBlock block){
+		Matrix4 trans = getNewIdentityMatrix();
+
+		trans.multMatrix(block.getLocalTransformation());
+		trans.scale(block.dimensions[0]+1, block.dimensions[1]+1, block.dimensions[2]+1);
+		return trans;
 	}
 }

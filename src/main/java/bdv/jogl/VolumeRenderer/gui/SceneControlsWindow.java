@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -83,6 +84,10 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final JCheckBox showSlice = new JCheckBox("Show slice in 3D View");
 	
+	private final JPanel samplePanel = new JPanel();
+	
+	private final JSpinner sampleSpinner = new JSpinner(new SpinnerNumberModel(256, 1, 10000, 1));
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -117,11 +122,13 @@ public class SceneControlsWindow extends JFrame {
 		initShowIsoSurface();
 		initBorderCheck();
 		initShowSlice();
+		initSampleSpinner();
 	
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		addComponetenToMainPanel(tfpanel);
 		addComponetenToMainPanel(advancedCheck);
 		addComponetenToMainPanel(tfDataPanel);
+		addComponetenToMainPanel(samplePanel);
 		addComponetenToMainPanel(rectBorderCheck);
 		addComponetenToMainPanel(showSlice);
 		addComponetenToMainPanel(backgroundPanel);
@@ -133,6 +140,26 @@ public class SceneControlsWindow extends JFrame {
 		
 		getContentPane().add(mainPanel);
 		pack();
+	}
+
+	private void initSampleSpinner() {
+		samplePanel.setLayout(new BoxLayout(samplePanel, BoxLayout.X_AXIS));
+		samplePanel.add(new JLabel("Render samples: "));
+		samplePanel.add(sampleSpinner);
+		
+		updateSamples();
+		sampleSpinner.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateSamples();	
+			}
+		});
+	}
+
+	private void updateSamples() {
+		renderer.setSamples(((Number) sampleSpinner.getValue()).intValue());
+		drawWindow.getGlCanvas().repaint();
 	}
 
 	private void initShowSlice() {

@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
+import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 
 import java.awt.Color;
 import java.nio.FloatBuffer;
@@ -71,7 +72,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private boolean showSlice = false;
 
-	private boolean isShownUpdatable = true; 
+	private boolean isShownUpdatable = true;
+
+	private int samples;
+
+	private boolean isSamplesUpdatable; 
 
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
@@ -101,9 +106,18 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		
 		updateSlice(gl2);
 		
-		
+		updateSamples(gl2);
 	}
 	
+	private void updateSamples(GL2 gl2) {
+		if(!isSamplesUpdatable){
+			return;
+		}
+		
+		gl2.glUniform1i(getLocation(suvSamples), samples);
+		isSamplesUpdatable = false;
+	}
+
 	private int boolToInt(boolean bool){
 		if(bool){
 			return 1;
@@ -144,13 +158,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	//	nullPoint[2]=inversGlobal.getMatrix()[12];
 		inversGlobal.invert();
 		
-		Matrix4 localInverse = copyMatrix(dataManager.getVolume(0).localTransformation);
-		localInverse.scale(dataManager.getVolume(0).dimensions[0], dataManager.getVolume(0).dimensions[1], dataManager.getVolume(0).dimensions[2]);
-		Matrix4 localViewInverse = copyMatrix(dataManager.getVolume(0).localTransformation);
-		localViewInverse.invert();
-		Matrix4 viewerscaleinverse = getNewIdentityMatrix();
-		viewerscaleinverse.scale(dataManager.getVolume(0).dimensions[0],dataManager.getVolume(0).dimensions[1],dataManager.getVolume(0).dimensions[2]);
-		viewerscaleinverse.invert();
+		Matrix4 localInverse = calcVolumeTransformation(dataManager.getVolume(0));
 		localInverse.invert();
 	
 		Matrix4 mat = getNewIdentityMatrix();
@@ -166,11 +174,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//to screen
 		bdvTrans.multMatrix(getModelTransformation());
 		//to local
-		bdvTrans.multMatrix(dataManager.getVolume(0).localTransformation);
+		bdvTrans.multMatrix(calcVolumeTransformation(dataManager.getVolume(0)));
 		//0 1 to volume
-		bdvTrans.scale(dataManager.getVolume(0).dimensions[0],dataManager.getVolume(0).dimensions[1],dataManager.getVolume(0).dimensions[2]);
 		
-	
 		 
 		//bdvTrans.multVec(new float[]{0.5f,0.5f,0.0f,1.0f }, centerPoint);
 		bdvTrans.invert();
@@ -212,6 +218,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isBackgroundColorUpdateable = flag;
 		isLightPositionUpdateable = flag;
 		isSliceUpdateable = flag;
+		isSamplesUpdatable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -264,8 +271,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			VolumeDataBlock data = dataManager.getVolume(i);
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
 
-			modelViewMatrixInverse.multMatrix(copyMatrix(data.localTransformation));
-			modelViewMatrixInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			modelViewMatrixInverse.multMatrix(calcVolumeTransformation(data));
 			modelViewMatrixInverse.invert();
 
 			eyePositionsObjectSpace[fieldOffset] = modelViewMatrixInverse.getMatrix()[12];
@@ -316,8 +322,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			VolumeDataBlock data = dataManager.getVolume(i);
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
 
-			modelViewMatrixInverse.multMatrix(copyMatrix(data.localTransformation));
-			modelViewMatrixInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			modelViewMatrixInverse.multMatrix(calcVolumeTransformation(data));
 			modelViewMatrixInverse.invert();
 			
 			float transformer[] = new float[]{lightPosition[0],lightPosition[1],lightPosition[2],1};
@@ -357,8 +362,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			float[][] coordsInTextureSpace = new float[2][4];
 
-			Matrix4 textureTransformation = copyMatrix(data.localTransformation);
-			textureTransformation.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			Matrix4 textureTransformation = copyMatrix(calcVolumeTransformation(data));
 			textureTransformation.invert();		
 			for(int i =0; i < globalUnitCubeHighLow.length;i++){
 				textureTransformation.multVec(globalUnitCubeHighLow[i], coordsInTextureSpace[i]);
@@ -399,8 +403,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				continue;
 			}
 
-			Matrix4 localInverse = copyMatrix(data.localTransformation);
-			localInverse.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+			Matrix4 localInverse = copyMatrix(calcVolumeTransformation(data));
 			localInverse.invert();
 			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
@@ -422,7 +425,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(int index: dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(index);
 			
-			AABBox box = getAABBOfTransformedBox(data.dimensions, data.localTransformation);
+			AABBox box = getAABBOfTransformedBox(data.dimensions, data.getLocalTransformation());
 			
 			for(int d =0; d < 3; d++){
 				lowhighPoint[0][d] = Math.min(lowhighPoint[0][d], box.getLow()[d]);
@@ -511,7 +514,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvNormalSlice,
 				suvZeroDistSlice,
 				suvShowSlice,
-		
+				suvSamples
 				});
 
 		int location = getLocation(suvVolumeTexture);
@@ -644,6 +647,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		this.showSlice = selected;
 		
 		isShownUpdatable  = true; 
+		
+	}
+
+	public void setSamples(int intValue) {
+		this.samples = intValue;
+		
+		isSamplesUpdatable = true;
 		
 	}
 }

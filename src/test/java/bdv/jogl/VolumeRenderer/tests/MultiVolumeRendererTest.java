@@ -147,12 +147,12 @@ public class MultiVolumeRendererTest {
 		Matrix4 loc2 = new Matrix4();
 		loc2.rotate(-45, 0, 0, 1);
 		blocks[0].data = volumeDataArrays[0];
-		blocks[0].localTransformation  = loc1;
+		blocks[0].setLocalTransformation(loc1);
 		blocks[0].dimensions = testdim.clone();
 	
 		blocks[1].data = volumeDataArrays[1];
 		blocks[1].dimensions = testdim.clone();
-		blocks[1].localTransformation = loc2;
+		blocks[1].setLocalTransformation(loc2);
 	
 		
 		dataManager.setVolume(0,0, blocks[0]);

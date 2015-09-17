@@ -60,7 +60,7 @@ public class BigDataViewerAdapter {
 					Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
 
 					VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(currentTimepoint, midMapLevel));
-					data.localTransformation =sourceTransformation;
+					data.setLocalTransformation(sourceTransformation);
 					manager.setVolume(i,currentTimepoint, data);
 				}
 			}

@@ -88,6 +88,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvVoxelCount = "inVoxelCount";
 	
+	public static final String suvSamples = "inSamples";
+	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
 		setShaderLanguageVersion(400);
@@ -193,6 +195,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec3 "+suvNormalSlice+";",
 				"uniform float "+suvZeroDistSlice+";",
 				"uniform int "+suvShowSlice+";",
+				"uniform int "+suvSamples+";",
 		
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
@@ -230,8 +233,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"void main(void)",
 				"{",	
-				"	const int samples = 512;",
-				"	float "+sgvSampleSize+" ="+suvMaxDiagonalLength+"/float(samples);",
+				"	float "+sgvSampleSize+" ="+suvMaxDiagonalLength+"/float("+suvSamples+");",
 				"",	
 				"	fragmentColor = vec4("+suvBackgroundColor+".xyz,0.0);",
 				"	"+sgvVolumeNormalizeFactor+" = 1.0/ ("+suvMaxVolumeValue+");",
@@ -255,8 +257,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"    		startStep = csteps;",
 				"  		}",  
 				"	}",
-				"   if(steps > samples){",
-				"   	steps = samples;",
+				"   if(steps > "+suvSamples+"){",
+				"   	steps = "+suvSamples+";",
 				"  	}",    
 				"	if(startStep >= steps){",
 				"		startStep = steps-1;",	
