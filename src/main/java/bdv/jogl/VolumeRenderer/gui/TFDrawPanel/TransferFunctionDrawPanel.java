@@ -10,8 +10,15 @@ import java.awt.event.ItemListener;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import com.google.gson.JsonNull;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.Axis.AxisType;
@@ -48,6 +55,14 @@ public class TransferFunctionDrawPanel extends JPanel {
 	private final JScrollPane scrollArea = new JScrollPane(renderAndAxisArea);
 	
 	private final VolumeLegend legend;
+
+	private final JPanel zoomXPanel = new JPanel();
+	
+	private final JPanel zoomYPanel = new JPanel();
+	
+	private final JSpinner zoomSpinnerx  = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
+	
+	private final JSpinner zoomSpinnery  = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
 	
 	private JCheckBox logarithmicOccuranceCheck = new JCheckBox("Logarithmic distribution");
 	
@@ -104,8 +119,17 @@ public class TransferFunctionDrawPanel extends JPanel {
 		
 		scrollArea.setPreferredSize(new Dimension(700,200));
 		
+		zoomXPanel.setLayout(new BoxLayout(zoomXPanel, BoxLayout.X_AXIS));
+		zoomXPanel.add(new JLabel("Zoom x Axis: ") );
+		zoomXPanel.add(zoomSpinnerx);
+		
+		zoomYPanel.setLayout(new BoxLayout(zoomYPanel, BoxLayout.X_AXIS));
+		zoomYPanel.add(new JLabel("Zoom y Axis: ") );
+		zoomYPanel.add(zoomSpinnery);
 		
 		addComponent(scrollArea);
+		addComponent(zoomXPanel);
+		addComponent(zoomYPanel);
 		addComponent(legend);
 		
 		
@@ -120,6 +144,17 @@ public class TransferFunctionDrawPanel extends JPanel {
 		yDistributionAxis.setMax(dataManager.getGlobalMaxOccurance());
 		super.paint(g);
 	};
+	
+	private void updateXScale(){
+		renderPanel.setSize(renderPanel.getMinimumSize().width * ((Number)zoomSpinnerx.getValue()).intValue(), renderPanel.getHeight());
+		renderPanel.setPreferredSize(renderPanel.getSize());
+	}
+
+	private void updateYScale(){
+		renderPanel.setSize(renderPanel.getWidth(), renderPanel.getMinimumSize().height * ((Number) zoomSpinnery.getValue()).intValue());
+		renderPanel.setPreferredSize(renderPanel.getSize());
+	}
+	
 	private void initListener(){
 		logarithmicOccuranceCheck.addItemListener(new ItemListener() {
 			
@@ -127,6 +162,24 @@ public class TransferFunctionDrawPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				renderPanel.setLogscaleDistribution(logarithmicOccuranceCheck.isSelected());			
 				
+			}
+		});
+		
+		updateXScale();
+		zoomSpinnerx.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateXScale();
+			}
+		});
+		
+		updateYScale();
+		zoomSpinnery.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateYScale();
 			}
 		});
 	}
