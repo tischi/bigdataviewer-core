@@ -150,7 +150,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private float calcSlicePlane(float[] zNormalVector) {
-		float centerPoint[] = {0f,0f,0.f,1};
+		float centerPoint[] = {1000f,1000f,0.f,1};
 		float normVector[] = {0,0,1,0};
 		float dist = 0;
 		
@@ -164,7 +164,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		localInverse.invert();
 	
 		Matrix4 mat = getNewIdentityMatrix();
-		mat.scale(1, 1, -1);
+	//	mat.scale(1, 1, -0.5f);
 		
 		//from cube to tex 1
 		mat.multMatrix(localInverse);
@@ -198,7 +198,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//prepare return
 		for(int i =0; i < 3; i++){
 			//zNormalVector[i]= transformedNormal[i];
-			dist+= (transformedZero[i]/*/transformedZero[3]*/)*zNormalVector[i] ;
+			dist+= (transformedZero[i]/transformedZero[3])*zNormalVector[i] ;
 		}
 		return dist;
 	}
@@ -405,7 +405,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				continue;
 			}
 
-			Matrix4 localInverse = copyMatrix(calcVolumeTransformation(data));
+			Matrix4 localInverse = (calcVolumeTransformation(data));
+			long []dim= data.dimensions;
+			//text offsets
 			localInverse.invert();
 			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
@@ -426,8 +428,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		for(int index: dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(index);
-			
-			AABBox box = getAABBOfTransformedBox(data.dimensions, data.getLocalTransformation());
+			long [] foo= data.dimensions.clone();
+			/*foo[0]+=1;
+			foo[1]+=1;
+			foo[2]+=1;*/
+			AABBox box = getAABBOfTransformedBox(foo, data.getLocalTransformation());
 			
 			for(int d =0; d < 3; d++){
 				lowhighPoint[0][d] = Math.min(lowhighPoint[0][d], box.getLow()[d]);

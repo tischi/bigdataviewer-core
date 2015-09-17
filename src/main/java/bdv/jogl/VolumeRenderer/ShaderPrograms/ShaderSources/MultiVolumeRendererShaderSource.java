@@ -268,7 +268,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"  	float density = 0.0;",
 				"	float latestdDistanceToSlice = getSliceDistance();",
 				//TODO find gpu killing bug of start steps
-				"  	for(int i = 0; i< steps; i++){",
+				"  	for(int i = 0; i< "+suvSamples+"; i++){",
 				"",
 				"      	// note:", 
 				"      	// - ray_dir * "+sgvSampleSize+" can be precomputed",
@@ -289,7 +289,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"		float currentSliceDistance = getSliceDistance();",
 				"		if("+suvShowSlice+" == 1&&sign(currentSliceDistance)!=sign(latestdDistanceToSlice)||sign(currentSliceDistance)==0 ){",
-				"			c_out = gamma*vec4(nextDensity,nextDensity,nextDensity,0.5);",
+				"			c_out = gamma*vec4(densities[0]*"+sgvVolumeNormalizeFactor+",densities[0]*"+sgvVolumeNormalizeFactor+",densities[0]*"+sgvVolumeNormalizeFactor+",1);",
 				"		}",
 				"		latestdDistanceToSlice = currentSliceDistance;",
 				"",		
