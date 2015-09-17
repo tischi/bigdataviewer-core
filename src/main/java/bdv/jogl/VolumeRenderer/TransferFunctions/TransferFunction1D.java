@@ -402,8 +402,8 @@ public class TransferFunction1D {
 		fireColorChangedEventAll();
 	}
 
-	public FloatBuffer getTexture(){
-		return sampler.sample(this, 1);
+	public FloatBuffer getTexture(float f){
+		return sampler.sample(this, f);
 	}
 
 	public IFunction getTransferFunctionShaderCode(){

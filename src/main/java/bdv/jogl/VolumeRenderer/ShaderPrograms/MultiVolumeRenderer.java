@@ -76,7 +76,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private int samples;
 
-	private boolean isSamplesUpdatable; 
+	private boolean isSamplesUpdatable;
+
+	private float length; 
 
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
@@ -148,7 +150,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private float calcSlicePlane(float[] zNormalVector) {
-		float centerPoint[] = {-500f,0.5f,0.f,1};
+		float centerPoint[] = {0f,0f,0.f,1};
 		float normVector[] = {0,0,1,0};
 		float dist = 0;
 		
@@ -350,7 +352,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private void updateMaxDiagonalLength(GL2 gl2) {
-		float length = Float.MIN_VALUE;
+		length = Float.MIN_VALUE;
 		float[][] globalUnitCubeHighLow = new float[][]{{0,0,0,1},{1,1,1,1}};
 
 		//get cube to global space
@@ -565,7 +567,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 		//get Buffer last key is the highest number 
-		FloatBuffer buffer = tf.getTexture(); 
+		FloatBuffer buffer = tf.getTexture(length/samples); 
 				
 		//upload data
 		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});
@@ -654,6 +656,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		this.samples = intValue;
 		
 		isSamplesUpdatable = true;
+		isColorUpdateable = true;
 		
 	}
 }

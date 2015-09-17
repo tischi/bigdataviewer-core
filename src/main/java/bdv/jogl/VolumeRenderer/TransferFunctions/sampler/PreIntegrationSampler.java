@@ -46,8 +46,10 @@ public class PreIntegrationSampler implements ITransferFunctionSampler {
 	
 	
 	@Override
-	public FloatBuffer sample(TransferFunction1D transferFunction, float sampleStep) {
+	public FloatBuffer sample(TransferFunction1D transferFunction, float stepSize) {
 		//http://www.uni-koblenz.de/~cg/Studienarbeiten/SA_MariusErdt.pdf
+		
+		int sampleStep=1;
 		TreeMap<Integer, Color> colorMap = transferFunction.getTexturColor();
 		//get Buffer last key is the highest number 
 		FloatBuffer buffer = Buffers.newDirectFloatBuffer(((colorMap.lastKey()-colorMap.firstKey())+1)*4);
@@ -84,12 +86,12 @@ public class PreIntegrationSampler implements ITransferFunctionSampler {
 				}
 				
 				//absorbation integral
-				integral[3] += calcAbsorbationIntegral(formerSampleColor[3], sampleColor[3], sampleStep);
+				integral[3] += calcAbsorbationIntegral(formerSampleColor[3], sampleColor[3], stepSize);
 				
 				//color integral
 				for(int i = 0; i< 3; i++){
 					integral[i] +=calcColorChannelIntegral(formerSampleColor[i], sampleColor[i], 
-							formerSampleColor[3], sampleColor[3], sampleStep);
+							formerSampleColor[3], sampleColor[3], stepSize);
 				}
 				buffer.put(integral.clone());
 				formerSampleColor = sampleColor.clone();
