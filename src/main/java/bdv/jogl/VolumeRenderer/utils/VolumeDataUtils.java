@@ -12,10 +12,17 @@ import java.util.TreeMap;
 
 import javax.naming.spi.DirStateFactory;
 
+import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.BigDataViewerDataSelector;
+import bdv.viewer.state.SourceState;
+
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.geom.AABBox;
+
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import net.imglib2.IterableInterval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.view.Views;
 
@@ -43,8 +50,10 @@ public class VolumeDataUtils {
 	 * @param source data to copy from
 	 * @return An array of volume data with the dimensions x,y,z 
 	 */
-	public static VolumeDataBlock getDataBlock(RandomAccessibleInterval<?> source){
-		IterableInterval<?> tmp = Views.flatIterable(source);
+	public static VolumeDataBlock getDataBlock(final BigDataViewer bdv,final AABBox minBoundingBox, int sourceId, int midmap){
+		SourceState<?> source = bdv.getViewer().getState().getSources().get(sourceId);
+		int currentTimePoint = bdv.getViewer().getState().getCurrentTimepoint();
+		IterableInterval<?> tmp = Views.flatIterable(source.getSpimSource().getSource(currentTimePoint, midmap));
 		Long maxX = tmp.dimension(0);
 		Long maxY = tmp.dimension(1);
 		Long maxZ = tmp.dimension(2);
@@ -59,9 +68,9 @@ public class VolumeDataUtils {
 		float minValue = Float.MAX_VALUE;
 		float maxValue = Float.MIN_VALUE; 
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
-		for(int z = 0; z< maxZ.intValue(); z++){
-			for(int y = 0; y < maxY.intValue(); y++){
-				for(int x = 0; x < maxX.intValue(); x++ ){
+		for(int z = Math.max(0,(int)Math.floor(minBoundingBox.getMinZ())); z < Math.min(Math.ceil(minBoundingBox.getMaxZ()), maxZ.intValue()); z++){
+			for(int y = Math.max(0,(int)Math.floor(minBoundingBox.getMinY())); y < Math.min(Math.ceil(minBoundingBox.getMaxY()), maxY.intValue()); y++){
+				for(int x = Math.max(0,(int)Math.floor(minBoundingBox.getMinX())); x < Math.min(Math.ceil(minBoundingBox.getMaxX()), maxX.intValue()); x++ ){
 					short value = (short)values.next().get();
 					block[i++] = value ;
 					
@@ -87,6 +96,10 @@ public class VolumeDataUtils {
 		data.minValue = minValue;
 		data.data = block;
 		data.maxOccurance = maxOcc;
+		AffineTransform3D sourceTransform3D = new AffineTransform3D();
+		source.getSpimSource().getSourceTransform(currentTimePoint, midmap, sourceTransform3D);
+		Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
+		data.setLocalTransformation(sourceTransformation);
 		return data;
 	}
 

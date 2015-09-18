@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -46,6 +47,8 @@ public class VolumeRendererExtension {
 
 	private final AggregatorManager aggManager = new AggregatorManager();
 
+	private final BigDataViewerDataSelector selector;
+	
 	private SceneControlsWindow controls;
 
 	private void createControlWindow(){
@@ -58,6 +61,8 @@ public class VolumeRendererExtension {
 		}
 
 		this.bdv = bdv;
+		selector = new BigDataViewerDataSelector(bdv);
+		selector.selectVolumePart(new Point(100,100));
 		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
 		dataScene = new VolumeDataScene(bdv, dataManager,volumeRenderer);

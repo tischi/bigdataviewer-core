@@ -1,11 +1,10 @@
 package bdv.jogl.VolumeRenderer;
 
-import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.convertToJoglTransform;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.getDataBlock;
 
 import java.util.List;
 
-import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.geom.AABBox;
 
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.TransformListener;
@@ -33,11 +32,11 @@ public class BigDataViewerAdapter {
 	 * @param bdv
 	 * @param manager
 	 */
-	public static void connect(final BigDataViewer bdv,final VolumeDataManager manager){
+	public static synchronized void connect(final BigDataViewer bdv,final VolumeDataManager manager){
 		bdv.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 
 			@Override
-			public void transformChanged(AffineTransform3D transform) {
+			public synchronized void transformChanged(AffineTransform3D transform) {
 
 
 				//mainly for new time points and data not realy for transform
@@ -56,12 +55,7 @@ public class BigDataViewerAdapter {
 
 					//block transform
 					int midMapLevel = getMidmapLevel(source);
-					AffineTransform3D sourceTransform3D = new AffineTransform3D();
-					source.getSpimSource().getSourceTransform(currentTimepoint, midMapLevel, sourceTransform3D);
-					Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
-
-					VolumeDataBlock data = getDataBlock(source.getSpimSource().getSource(currentTimepoint, midMapLevel));
-					data.setLocalTransformation(sourceTransformation);
+					VolumeDataBlock data = getDataBlock(bdv,new AABBox(new float[]{0,0,0,0},new float[]{2000,2000,2000}),i,midMapLevel);
 					manager.setVolume(i,currentTimepoint, data);
 				}
 			}
