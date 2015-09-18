@@ -171,64 +171,36 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private float calcSlicePlane(float[] zNormalVector) {
-		float centerPoint[] = {0f,0f,0.f,1};
 		float normVector[] = {0,0,1,0};
 		float dist = 0;
 		
-		Matrix4 inversGlobal = copyMatrix(getModelTransformation());
-	//	nullPoint[0]=inversGlobal.getMatrix()[14];
-//		nullPoint[1]=inversGlobal.getMatrix()[13];
-	//	nullPoint[2]=inversGlobal.getMatrix()[12];
-		inversGlobal.invert();
 
-		Matrix4 local = calcVolumeTransformation(dataManager.getVolume(0));
-		Matrix4 localInverse = calcVolumeTransformation(dataManager.getVolume(0));
-		localInverse.invert();
-	
-		Matrix4 mat = getNewIdentityMatrix();
-		mat.scale(1, 1, -1f);
+		VolumeDataBlock data = dataManager.getVolume(0);
 		
-		//from cube to tex 1
-		mat.multMatrix(localInverse);
-		//canonic to cube
-		mat.multMatrix(local);
-		//mat.multMatrix(getDrawCubeTransformation());
-		
-		Matrix4 bdvTrans = getNewIdentityMatrix();
-		
-		//to screen
-		bdvTrans.multMatrix(getModelTransformation());
-		//to local
-		bdvTrans.multMatrix(calcVolumeTransformation(dataManager.getVolume(0)));
-		//0 1 to volume
-		bdvTrans.invert();
 		Matrix4 bdvTransSafe = getNewIdentityMatrix();
-		
+
+		Matrix4 mat = getNewIdentityMatrix();
+	
 		//to screen
 		bdvTransSafe.multMatrix(getModelTransformation());
 		bdvTransSafe.multMatrix(dataManager.getVolume(0).getLocalTransformation());
+		bdvTransSafe.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
+		bdvTransSafe.invert();
 		
-		 
-		//bdvTransSafe.multVec(new float[]{0.5f,0.5f,0.0f,1.0f }, centerPoint);
-	
-		//bdvTrans.transpose();
-		mat.multMatrix(bdvTrans);
-		
-		float[]transformedZero ={0,0,0,0};
-		mat.multVec(centerPoint, transformedZero);
+		mat.multMatrix(bdvTransSafe);
 		mat.invert();
 		mat.transpose();
 		
 		float[]transformedNormal ={0,0,0,0};
 		mat.multVec(normVector, transformedNormal);
-		VectorUtil.normalizeVec3(zNormalVector,transformedNormal);
 		
+		float n =VectorUtil.normVec3(transformedNormal);
 		
 		//prepare return
 		for(int i =0; i < 3; i++){
-			//zNormalVector[i]= transformedNormal[i];
-			dist+= (transformedZero[i]/transformedZero[3])*zNormalVector[i] ;
+			zNormalVector[i]= transformedNormal[i]/n;
 		}
+		dist= transformedNormal[3]/n;
 		return dist;
 	}
 
