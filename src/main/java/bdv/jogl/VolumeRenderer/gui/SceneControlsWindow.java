@@ -145,6 +145,21 @@ public class SceneControlsWindow extends JFrame {
 		getContentPane().add(mainPanel);
 		pack();
 	}
+	public void updateUseGradient(){
+		renderer.setUseGradient(this.useGradient.isSelected());
+		drawWindow.getGlCanvas().repaint();
+	}
+	private void initUseGradient() {
+		updateUseGradient();
+		useGradient.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateUseGradient();
+			}
+		});
+		
+	}
 
 	private void initSampleSpinner() {
 		samplePanel.setLayout(new BoxLayout(samplePanel, BoxLayout.X_AXIS));
