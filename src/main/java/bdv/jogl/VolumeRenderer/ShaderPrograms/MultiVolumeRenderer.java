@@ -9,7 +9,6 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
@@ -100,24 +99,27 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		updateActiveVolumes(gl2);
 
 		updateLocalTransformationInverse(gl2);
-
+		
 		updateEyePositions(gl2);
 		
 		updateIsoValue(gl2);
 		
 		boolean update = updateTextureData(gl2);
+		
+		
 		if(update){
-			updateGlobalScale(gl2);
 
+			updateGlobalScale(gl2);
+		
 			updateMaxDiagonalLength(gl2);
 		}
-
+		
 		updateColor(gl2);
-
+		
 		updateEyes(gl2);
 		
 		updateSliceShown(gl2);
-		
+
 		updateSlice(gl2);
 		
 		updateSamples(gl2);
@@ -407,8 +409,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			}
 
 			Matrix4 localInverse = copyMatrix(calcVolumeTransformation(data));
-			long []dim= data.dimensions;
-			//text offsets
 			localInverse.invert();
 			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
@@ -454,7 +454,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			return;
 		}
 		gl2.glUniform1f(getLocation(suvIsoValue), isoSurfaceValue);
-		GLErrorHandler.assertGL(gl2);
+
 		isIsoSurfaceValueUpdatable = false;
 	}
 	
@@ -485,7 +485,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 					(int)data.dimensions[1], 
 					(int)data.dimensions[2]};
 			volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
-		
+
+			
 			if(getLocation(suvVoxelCount)!=-1){
 				gl2.glUniform3iv(getLocation(suvVoxelCount)+i, 1,dim,0 );
 			}

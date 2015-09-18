@@ -92,6 +92,7 @@ public class Texture {
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		rebindTexture(gl2);
+
 		switch (dimensions.length) {
 		case 1:
 

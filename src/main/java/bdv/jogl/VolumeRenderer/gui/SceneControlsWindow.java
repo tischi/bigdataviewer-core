@@ -259,13 +259,14 @@ public class SceneControlsWindow extends JFrame {
 	}
 	
 	private void initShowIsoSurface() {
+		isoValueSpinner.setModel(new SpinnerNumberModel(0.0,0.0, 10000, 1.0f));
 		dataManager.addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
 			
 			@Override
 			public void dataUpdated(Integer i) {
-				float maxVolume=dataManager.getGlobalMaxVolumeValue();
+				float maxVolume=Math.min(dataManager.getGlobalMaxVolumeValue(),1000);
 				transferFunction.setMaxOrdinates(new Point2D.Float(maxVolume, 1.0f));
-				isoValueSpinner.setModel(new SpinnerNumberModel(0.0,0.0, maxVolume, (maxVolume< 1.0)?0.1f:1.0f));
+			
 			}
 			
 			@Override

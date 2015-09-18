@@ -354,7 +354,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		position.bind(gl2);
 		
 		renderSubClass(gl2);
-
+		
 		position.unbind(gl2);
 
 		shaderProgram.useProgram(gl2, false);

@@ -24,7 +24,8 @@ import bdv.viewer.state.ViewerState;
 public class BigDataViewerAdapter {
 
 	private static int getMidmapLevel(final SourceState<?> source){
-		return source.getSpimSource().getNumMipmapLevels()-1;
+		int levels= source.getSpimSource().getNumMipmapLevels();
+		return levels -1;
 	}
 
 	/**
