@@ -21,7 +21,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 	@Override
 	public String[] declaration() {
 		List<String> code = new ArrayList<String>();
-		addCodeArrayToList(gradEval.declaration(),code);
+		//addCodeArrayToList(gradEval.declaration(),code);
 		addCodeArrayToList( new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 101",
 				"//bisection form http://onlinelibrary.wiley.com/doi/10.1111/j.1467-8659.2005.00855.x/abstract",
@@ -30,12 +30,12 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"	return xNew;",	
 				"}",
 				"",
-				"vec4[2] refineIntersection(float fNear, float fFar, vec3 xNear, vec3 xFar, float isoValue, sampler3D volume){",
+				"vec4[2] refineIntersection(float fNear, float fFar, vec3 xNear, vec3 xFar, float isoValue, sampler3D volume, vec3 texOffset, vec3 texfactor){",
 				"	vec4[2] refined;",
-				"	float formerDistance ="+Float.MAX_VALUE+";",
+				"	float formerDistance = "+Float.MAX_VALUE+";//min(distance(isoValue,fNear),distance(isoValue,fFar));",
 				"	for(int i =0; i < "+refinementSteps+"; i++){",
 				"		vec3 xNew = bisection(fNear,fFar,xNear,xFar,isoValue);  ",
-				"		float fNew = texture(volume, xNew).r * "+sgvVolumeNormalizeFactor+";",
+				"		float fNew = texture(volume, xNew * texfactor+texOffset).r * "+sgvVolumeNormalizeFactor+";",
 				"		float currentDistance = distance(isoValue,fNew);",
 				"		if(currentDistance > formerDistance){",
 				"			break;",
@@ -90,14 +90,14 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"			}",	
 				"			vec3 xNear = "+sgvRayPositions+"[volume] - "+sgvRayDirections+"[volume] * "+sgvSampleSize+";",
 				"			vec3 xFar = "+sgvRayPositions+"[volume];", 
-				"			vec4 refined[2] = refineIntersection(vm1,v,xNear,xFar,"+sgvNormIsoValue+","+suvVolumeTexture+"[volume]);",
+				"			vec4 refined[2] = refineIntersection(vm1,v,xNear,xFar,"+sgvNormIsoValue+","+suvVolumeTexture+"[volume], "+sgvTexTOffsets+"[volume], "+sgvTexTScales+"[volume]);",
 				"			if(distance("+sgvNormIsoValue+",refined[1].a)<distance("+sgvNormIsoValue+",refined[0].a)){",
 				"				refinedVal[volume] = refined[1];",
 				"			}else{",
 				"				refinedVal[volume] = refined[0];",
 				"			}",
 			//	"			vec3 gradient = "+gradEval.call(new String[]{sgvRayPositions+"[volume]", suvVolumeTexture+"[volume]"})+";",
-				"			vec4 gradient = "+gradEval.call(new String[]{"refinedVal[volume].xyz", suvVolumeTexture+"[volume]"})+";",
+				"			vec4 gradient = "+gradEval.call(new String[]{"refinedVal[volume].xyz", suvVolumeTexture+"[volume]",sgvTexTOffsets+"[volume]", sgvTexTScales+"[volume]"})+";",
 				"			colors[volume].rgb = blinnPhongShading(inconstants,ambientColor,normalize(gradient.xyz),"+sgvRayDirections+"[volume], normalize("+sgvRayPositions+"[volume]-"+suvLightPosition+"[volume]),"+suvLightIntensiy+");",
 				"			colors[volume].a = gradient.w;",		
 				"			n++;",	

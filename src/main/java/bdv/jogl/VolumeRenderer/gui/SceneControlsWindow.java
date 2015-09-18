@@ -88,6 +88,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final JSpinner sampleSpinner = new JSpinner(new SpinnerNumberModel(256, 1, 10000, 1));
 	
+	private final JCheckBox useGradient = new JCheckBox("Use gradients as values",false);
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -123,6 +125,7 @@ public class SceneControlsWindow extends JFrame {
 		initBorderCheck();
 		initShowSlice();
 		initSampleSpinner();
+		initUseGradient();
 	
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		addComponetenToMainPanel(tfpanel);
@@ -135,6 +138,7 @@ public class SceneControlsWindow extends JFrame {
 		addComponetenToMainPanel(usePreIntegration);
 		addComponetenToMainPanel(isoPanel);
 		addComponetenToMainPanel(aggregationPanel);
+		addComponetenToMainPanel(useGradient);
 		
 		tfDataPanel.setVisible(advancedCheck.isSelected());
 		

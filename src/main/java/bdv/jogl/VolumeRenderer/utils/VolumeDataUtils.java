@@ -204,10 +204,10 @@ public class VolumeDataUtils {
 	public static Matrix4 fromCubeToNormalizedTextureSpace(final VolumeDataBlock block){
 		Matrix4 trans= calcVolumeTransformation(block);
 		trans.invert();
-		long[] dim = block.dimensions;
-		trans.translate(1.f/(2.f*(float)dim[0]), 1.f/(2.f*(float)dim[1]), 1.f/(2.f*(float)dim[2]));
-		trans.scale((float)(dim[0]-1)/((float)dim[0]), (float)(dim[1]-1)/((float)dim[1]), (float)(dim[2]-1)/((float)dim[2]));
-	
+		//long[] dim = block.dimensions;
+		
+	//	trans.scale((float)(dim[0]-1)/((float)dim[0]), (float)(dim[1]-1)/((float)dim[1]), (float)(dim[2]-1)/((float)dim[2]));
+	//	trans.translate(1.f/(2.f*(float)dim[0]), 1.f/(2.f*(float)dim[1]), 1.f/(2.f*(float)dim[2]));
 		return trans;
 	}
 }

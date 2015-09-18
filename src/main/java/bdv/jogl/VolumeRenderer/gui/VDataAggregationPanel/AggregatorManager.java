@@ -43,13 +43,13 @@ public class AggregatorManager {
 	
 	
 	public AggregatorManager(){
-		AverageVolumeAccumulator avg = new AverageVolumeAccumulator();
-		addAccumulator(avg);
+		MaximumVolumeAccumulator max =new MaximumVolumeAccumulator();
+		addAccumulator(new AverageVolumeAccumulator());
 		addAccumulator(new MaximumVolumeAccumulator());
 		addAccumulator(new MinimumVolumeAccumulator());
 		addAccumulator(new MaxDifferenceAccumulator());
 		addAccumulator(new VoxelDistanceAccumulator());
-		setActiveAcumulator(avg.getFunctionName());
+		setActiveAcumulator(max.getFunctionName());
 	}
 	
 	/**

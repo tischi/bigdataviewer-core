@@ -73,6 +73,13 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	}
 
 	/**
+	 * @return the projection
+	 */
+	public Matrix4 getProjection() {
+		return projection;
+	}
+
+	/**
 	 * @param view the view to set
 	 */
 	public void setView(final Matrix4 view) {

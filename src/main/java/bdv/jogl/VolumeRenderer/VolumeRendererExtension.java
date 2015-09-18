@@ -74,6 +74,7 @@ public class VolumeRendererExtension {
 
 	private void createListeners() {
 		//source changes 
+		volumeRenderer.getSource().setAccumulator(aggManager.getAccumulator( aggManager.getActiveAccumulator()));
 		aggManager.addListener(new IVolumeAggregationListener() {
 
 			@Override
