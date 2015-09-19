@@ -33,9 +33,9 @@ import net.imglib2.view.Views;
  *
  */
 public class VolumeDataUtils {
-	
+
 	private static Color volumeColor[] = new Color[]{
-		
+
 		Color.YELLOW,
 		Color.CYAN,
 		Color.DARK_GRAY,
@@ -44,7 +44,7 @@ public class VolumeDataUtils {
 		Color.BLACK,
 	};
 
-	
+
 	/**
 	 * Gets the volume data from a RandomAccessibleInterval
 	 * @param source data to copy from
@@ -58,7 +58,13 @@ public class VolumeDataUtils {
 		Long maxY = tmp.dimension(1);
 		Long maxZ = tmp.dimension(2);
 
-		float[] block = new float[maxX.intValue()*maxY.intValue()*maxZ.intValue()];
+		Long boxEntries[]= new Long[]{ ((Double)(Math.ceil((double)minBoundingBox.getMaxX())- Math.floor((double)minBoundingBox.getMinX()))).longValue(),
+				((Double)(Math.ceil((double)minBoundingBox.getMaxY())- Math.floor((double)minBoundingBox.getMinY()))).longValue(),
+				((Double)(Math.ceil((double)minBoundingBox.getMaxZ())- Math.floor((double)minBoundingBox.getMinZ()))).longValue()};
+		
+		float[] block = new float[Math.min(maxX.intValue(),boxEntries[0].intValue())*
+		                          Math.min(maxY.intValue(),boxEntries[1].intValue())*
+		                          Math.min(maxZ.intValue(),boxEntries[2].intValue())];
 
 		VolumeDataBlock data = new VolumeDataBlock();
 		TreeMap<Float, Integer> distr = data.getValueDistribution();
@@ -68,27 +74,29 @@ public class VolumeDataUtils {
 		float minValue = Float.MAX_VALUE;
 		float maxValue = Float.MIN_VALUE; 
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
-		for(int z = Math.max(0,(int)Math.floor(minBoundingBox.getMinZ())); z < Math.min(Math.ceil(minBoundingBox.getMaxZ()), maxZ.intValue()); z++){
-			for(int y = Math.max(0,(int)Math.floor(minBoundingBox.getMinY())); y < Math.min(Math.ceil(minBoundingBox.getMaxY()), maxY.intValue()); y++){
-				for(int x = Math.max(0,(int)Math.floor(minBoundingBox.getMinX())); x < Math.min(Math.ceil(minBoundingBox.getMaxX()), maxX.intValue()); x++ ){
+		for(int z = 0; z <  maxZ.intValue(); z++){
+			for(int y = 0; y < maxY.intValue(); y++){
+				for(int x = 0; x <  maxX.intValue(); x++ ){
 					short value = (short)values.next().get();
-					block[i++] = value ;
-					
-					//update local distribution
-					if(!distr.containsKey((float)value)){
-						distr.put((float)value,0);
+					if(minBoundingBox.contains(x, y, z)){
+						block[i++] = value ;
+
+						//update local distribution
+						if(!distr.containsKey((float)value)){
+							distr.put((float)value,0);
+						}
+						Integer curOcc= distr.get((float) value);
+						curOcc++;
+						distr.put((float)value,curOcc);
+						maxOcc = Math.max(curOcc, maxOcc);
+						minValue = Math.min(minValue, value);
+						maxValue = Math.max(maxValue, value);
 					}
-					Integer curOcc= distr.get((float) value);
-					curOcc++;
-					distr.put((float)value,curOcc);
-					maxOcc = Math.max(curOcc, maxOcc);
-					minValue = Math.min(minValue, value);
-					maxValue = Math.max(maxValue, value);
 				}
 			}
 		}
-		
-		
+
+
 		tmp.dimensions( data.dimensions);
 		tmp.min(data.minPoint);
 		tmp.max(data.maxPoint);
@@ -122,7 +130,7 @@ public class VolumeDataUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
+
 
 		//vti header
 		paraWriter.println("# vtk DataFile Version 3.1");
@@ -144,8 +152,8 @@ public class VolumeDataUtils {
 					//not last element in dimension
 					if(x < vData.dimensions[0]-1&&y < vData.dimensions[1]-1&&z < vData.dimensions[2]-1){
 						Long currenVoxelID = (long)values.size();
-						
-						
+
+
 						//add cell ids
 						List<Long> cell = new ArrayList<Long>(8);
 						cell.add(currenVoxelID);
@@ -156,7 +164,7 @@ public class VolumeDataUtils {
 						cell.add(offsetNextSlice+currenVoxelID+offsetNextNode);
 						cell.add(offsetNextSlice+currenVoxelID+offsetNextLine);
 						cell.add(offsetNextSlice+currenVoxelID+offsetNextLine+offsetNextNode);
-						
+
 						cellDefines.add(cell);
 					}
 
@@ -197,30 +205,30 @@ public class VolumeDataUtils {
 			paraWriter.println(s.toString());
 		}
 		//end point data
-		
+
 		paraWriter.close();
 	}
 
 	public static Color getColorOfVolume(int i){
 		return volumeColor[i%volumeColor.length];
 	}
-	
+
 	public static Matrix4 calcVolumeTransformation(final VolumeDataBlock block){
 		Matrix4 trans = getNewIdentityMatrix();
 
 		trans.multMatrix(block.getLocalTransformation());
 		trans.scale(block.dimensions[0], block.dimensions[1], block.dimensions[2]);
-		
+
 		return trans;
 	}
-	
+
 	public static Matrix4 fromCubeToNormalizedTextureSpace(final VolumeDataBlock block){
 		Matrix4 trans= calcVolumeTransformation(block);
 		trans.invert();
 		//long[] dim = block.dimensions;
-		
-	//	trans.scale((float)(dim[0]-1)/((float)dim[0]), (float)(dim[1]-1)/((float)dim[1]), (float)(dim[2]-1)/((float)dim[2]));
-	//	trans.translate(1.f/(2.f*(float)dim[0]), 1.f/(2.f*(float)dim[1]), 1.f/(2.f*(float)dim[2]));
+
+		//	trans.scale((float)(dim[0]-1)/((float)dim[0]), (float)(dim[1]-1)/((float)dim[1]), (float)(dim[2]-1)/((float)dim[2]));
+		//	trans.translate(1.f/(2.f*(float)dim[0]), 1.f/(2.f*(float)dim[1]), 1.f/(2.f*(float)dim[2]));
 		return trans;
 	}
 }
