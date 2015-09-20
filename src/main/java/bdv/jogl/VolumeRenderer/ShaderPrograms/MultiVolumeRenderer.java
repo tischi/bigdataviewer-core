@@ -6,7 +6,9 @@ import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
@@ -83,6 +85,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	
 	private boolean useGradient= false;
 
+	private final List<IMultiVolumeRendererListener> listeners = new ArrayList<IMultiVolumeRendererListener>();
+	
 	/**
 	 * @param useGradient the useGradient to set
 	 */
@@ -91,6 +95,20 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isUseGradientUpdateable = true;
 	}
 
+	private void fireAllRect(AABBox rect){
+		for(IMultiVolumeRendererListener l : listeners){
+			fireRect(l, rect);
+		}
+	}
+	
+	private void fireRect(IMultiVolumeRendererListener l, AABBox rect){
+		l.drawRectChanged(rect);
+	}
+	
+	public void addMultiVolumeListener(IMultiVolumeRendererListener l){
+		listeners.add(l);
+	}
+	
 	@Override
 	protected void updateShaderAttributesSubClass(GL2 gl2) {
 
@@ -444,6 +462,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		AABBox boundingVolume = new AABBox(lowhighPoint[0],lowhighPoint[1]);
 		
 		//correct origo
+		fireAllRect(boundingVolume);
 		drawCubeTransformation.translate(boundingVolume.getMinX(),boundingVolume.getMinY(),boundingVolume.getMinZ());
 		drawCubeTransformation.scale(boundingVolume.getWidth(),boundingVolume.getHeight(),boundingVolume.getDepth());
 		gl2.glUniformMatrix4fv(getLocation(suvDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);

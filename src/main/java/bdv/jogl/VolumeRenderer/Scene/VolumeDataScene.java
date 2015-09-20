@@ -2,14 +2,13 @@ package bdv.jogl.VolumeRenderer.Scene;
 
 
 import java.util.HashMap;
-
 import java.util.Map;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.realtransform.AffineTransform3D;
-
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Camera;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -29,8 +28,6 @@ import com.jogamp.opengl.math.geom.AABBox;
  *
  */
 public class VolumeDataScene extends AbstractScene{
-
-	private BigDataViewer bigDataViewer;
 
 	private Map<Integer,UnitCube> volumeBorders = new HashMap<Integer, UnitCube>();
 
@@ -92,9 +89,7 @@ public class VolumeDataScene extends AbstractScene{
 	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
 
 
-	public VolumeDataScene(BigDataViewer bdv, VolumeDataManager dataManager, ISceneElements renderer){
-		
-		bigDataViewer = bdv;
+	public VolumeDataScene( VolumeDataManager dataManager, MultiVolumeRenderer renderer){
 		setDataManager(dataManager);
 		addSceneElement(renderer);
 	}
@@ -103,20 +98,13 @@ public class VolumeDataScene extends AbstractScene{
 	 * does std gl camera initializations
 	 * @param camera2 camera to init
 	 */
-	private void initLocalCamera(Camera camera2, int width, int height, AABBox volumeBoundingBox){
-
-		float[] center = volumeBoundingBox.getCenter();
-
-		float[] eye = {center[0],center[1],	center[2] - 7f * (volumeBoundingBox.getDepth())};
-
+	public void initLocalCamera(Camera camera2, int width, int height){
 
 		camera2.setAlpha(45);
 		camera2.setWidth(width);
 		camera2.setHeight(height);
 		camera2.setZfar(5000);
 		camera2.setZnear(1);
-		camera2.setLookAtPoint(center);
-		camera2.setEyePoint(eye);
 		camera2.setUpVector(new float[]{0,-1,0});
 		camera2.init();
 	}
@@ -133,41 +121,14 @@ public class VolumeDataScene extends AbstractScene{
 	 */
 	protected void initSpecial(GL2 gl2, int width, int height){
 		
-		int currentRenderTimePoint = bigDataViewer.getViewer().getState().getCurrentTimepoint();
-		float[][] minMaxDimensions = {
-				{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE},
-				{Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE}
-				};
 
 
 
-			initBoundingVolumeCube(gl2);
-		for(SourceState<?> source: bigDataViewer.getViewer().getState().getSources()){
 
-			if(!source.isCurrent()){
-				continue;
-			}
-			//create vRenderer
-	
+		initBoundingVolumeCube(gl2);
 
-			int midMapLevel = getMidmapLevel(source);
-			AffineTransform3D sourceTransformation = new AffineTransform3D();
-			source.getSpimSource().getSourceTransform(currentRenderTimePoint, midMapLevel, sourceTransformation);
-			Matrix4 transformation = convertToJoglTransform(sourceTransformation);
-			RandomAccessibleInterval<?> data = source.getSpimSource().getSource(currentRenderTimePoint, midMapLevel);
-			
-			
-			//long[] dim = new long[3];
-			long[] dim = new long[]{1,1,1};
-			data.dimensions(dim);
-			AABBox currentBox = getAABBOfTransformedBox(dim, transformation);
-			for(int i = 0; i<dim.length; i++){
-				minMaxDimensions[0][i]  =Math.min(minMaxDimensions[0][i], currentBox.getLow()[i]);
-				minMaxDimensions[1][i]  =Math.max(minMaxDimensions[1][i], currentBox.getHigh()[i]);
-			}
-		}
-		AABBox volumeBoundingBox = new AABBox(minMaxDimensions[0],minMaxDimensions[1]);
-		initLocalCamera(camera, width, height, volumeBoundingBox);
+		
+		initLocalCamera(camera, width,height);
 	}
 
 

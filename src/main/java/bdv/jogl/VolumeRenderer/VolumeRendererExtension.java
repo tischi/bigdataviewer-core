@@ -1,5 +1,7 @@
 package bdv.jogl.VolumeRenderer;
 
+import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.getAABBOfTransformedBox;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
@@ -9,8 +11,11 @@ import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
+import com.jogamp.opengl.math.geom.AABBox;
+
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.IMultiVolumeRendererListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
@@ -21,6 +26,7 @@ import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
 import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.OpenVolumeRendererAction;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 
 /**
  * The context class of the bdv 3D volume extension
@@ -48,6 +54,8 @@ public class VolumeRendererExtension {
 	private final AggregatorManager aggManager = new AggregatorManager();
 
 	private final BigDataViewerDataSelector selector;
+
+	private boolean cameraUpdatable = true;
 	
 	private SceneControlsWindow controls;
 
@@ -55,6 +63,16 @@ public class VolumeRendererExtension {
 		controls =new SceneControlsWindow(transferFunction,aggManager, dataManager, volumeRenderer,glWindow,dataScene);
 	}
 
+	private void updateCameraPoints(Camera c,AABBox viewVolume){
+		float[] center = viewVolume.getCenter();
+
+		float[] eye = {center[0],center[1],	center[2] - 2f * (viewVolume.getDepth())};
+		
+		c.setLookAtPoint(center);
+		c.setEyePoint(eye);
+		c.updateViewMatrix();
+	}
+	
 	public VolumeRendererExtension(final BigDataViewer bdv){
 		if(bdv == null){
 			throw new NullPointerException("The extension needs a valid big data viewer instance");
@@ -65,7 +83,19 @@ public class VolumeRendererExtension {
 		selector.selectVolumePart(new Point(100,100));
 		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
-		dataScene = new VolumeDataScene(bdv, dataManager,volumeRenderer);
+		dataScene = new VolumeDataScene( dataManager,volumeRenderer);
+		volumeRenderer.addMultiVolumeListener(new IMultiVolumeRendererListener() {
+			
+			@Override
+			public void drawRectChanged(AABBox drawRect) {
+				if(!cameraUpdatable){
+					return;
+				}
+				updateCameraPoints(dataScene.getCamera(), drawRect);
+				cameraUpdatable = false;
+			}
+		});
+		
 		glWindow = new GLWindow(dataScene);
 	
 		volumeRenderer.setBackgroundColor(bgColor);
@@ -117,6 +147,14 @@ public class VolumeRendererExtension {
 		BigDataViewerAdapter.connect(this.bdv, dataManager);
 		
 		this.bdv.getViewer().addTransformListener(new SceneGlobalTransformationListener(volumeRenderer,glWindow));
+		
+		this.dataManager.addVolumeDataManagerListener(new VolumeDataManagerAdapter(){
+			
+			@Override
+			public void addedData(Integer i) {
+				cameraUpdatable = true;
+			}
+		});
 	}
 
 	/**
