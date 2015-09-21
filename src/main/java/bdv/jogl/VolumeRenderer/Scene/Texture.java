@@ -4,7 +4,12 @@ import java.nio.Buffer;
 import java.util.HashSet;
 import java.util.Set;
 
+
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
+
+import static bdv.jogl.VolumeRenderer.utils.GLUtils.contextSupportsExtension;
 
 /**
  * Class representing gl textures. Sadly jogl does not support 1D and 3D Textures. 
@@ -29,6 +34,7 @@ public class Texture {
 	
 	private final int pixelDataType;
 
+
 	/**
 	 * Constructor
 	 * @param textureType type of the texture (GL_TEXTURE_<N>D)
@@ -42,7 +48,7 @@ public class Texture {
 		this.pixelFormat = pixelFormat;
 		this.pixelDataType = pixelDataType;
 	}
-
+	
 	/**
 	 * Generates the texture binding for the glsl shaders
 	 * @param gl2
@@ -81,6 +87,58 @@ public class Texture {
 		gl2.glUniform1i(variableLocation,logicalTextureUnit);
 	}
 	
+	public static boolean isSparseTextureSupported(GL context){
+		return contextSupportsExtension(context, "GL_ARB_sparse_texture");
+	}
+	
+	/**
+	 * 
+	 * @param gl2
+	 * @param midmapLevel
+	 * @param data
+	 * @param virtualDimensions
+	 * @param offsets
+	 * @param sizes
+	 * @throws UnsupportedOperationException if sparse textures are not supported.
+	 */
+	public void updateSparse(GL2 gl2,int midmapLevel, Buffer data, int[] virtualDimensions, int[] offsets, int[] sizes) {
+		if(isSparseTextureSupported(gl2)){
+			throw new UnsupportedOperationException("sparse textures are not supported on your system!");
+		}
+		//activate context
+		gl2.glActiveTexture(textureUnit);
+		rebindTexture(gl2);
+		setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_TRUE);
+		switch (virtualDimensions.length) {
+			case 1:
+				gl2.glTexStorage1D(this.textureType, 1, this.internalFormat, virtualDimensions[0]);
+				//release all commitments
+				gl2.glTexPageCommitmentARB(this.textureType, 1, 0, 0, 0, virtualDimensions[0], 1, 1,false);
+				//add commitments
+				gl2.glTexPageCommitmentARB(this.textureType, 1, offsets[0], 0, 0, sizes[0], 1, 1,true);
+				gl2.glTexSubImage1D(this.textureType, 0, offsets[0], sizes[0], this.pixelFormat, this.pixelDataType, data);
+				break;
+			case 2:
+				gl2.glTexStorage2D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[2]);
+				//release all commitments
+				gl2.glTexPageCommitmentARB(this.textureType, 1, 0, 0, 0, virtualDimensions[0], virtualDimensions[1], 1,false);
+				//add commitments
+				gl2.glTexPageCommitmentARB(this.textureType, 1, offsets[0], offsets[1], 0, sizes[0], sizes[1], 1,true);
+				gl2.glTexSubImage2D(this.textureType, 0, offsets[0],offsets[1], sizes[0],sizes[1], this.pixelFormat, this.pixelDataType, data);
+				break;
+			case 3:
+				gl2.glTexStorage3D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[2],virtualDimensions[3]);
+				//release all commitments
+				gl2.glTexPageCommitmentARB(this.textureType, 1, 0, 0, 0, virtualDimensions[0], virtualDimensions[1], virtualDimensions[2],false);
+				//add commitments
+				gl2.glTexPageCommitmentARB(this.textureType, 1, offsets[0], offsets[1], offsets[2], sizes[0], sizes[1], sizes[2],true);
+				gl2.glTexSubImage3D(this.textureType, 0, offsets[0],offsets[1],offsets[2], sizes[0],sizes[1],sizes[2], this.pixelFormat, this.pixelDataType, data);
+				break;
+			default:
+			break;
+		}
+	}
+	
 	/**
 	 * Updates the data for the texture
 	 * @param gl2
@@ -92,7 +150,7 @@ public class Texture {
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		rebindTexture(gl2);
-
+		
 		switch (dimensions.length) {
 		case 1:
 
