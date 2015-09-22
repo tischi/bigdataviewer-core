@@ -18,7 +18,7 @@ public class VolumeGradientEvaluationFunction extends AbstractShaderFunction {
 				"	vec3 back = texCoord+vec3(0.0,0.0,"+scvMinDelta+");",*/
 				"	const float offset = 0.5;",
 				"	texCoord = texCoord*textureNormFactor+textureIndexOffset;",
-				"	float center = texture(volume,texCoord);",
+				"	float center = float(texture(volume,texCoord));",
 				"	vec3 plus = vec3(	texture(volume,texCoord+vec3(offset*textureIndexOffset.x,0.0,0.0)).r,",
 				"						texture(volume,texCoord+vec3(0.0,offset*textureIndexOffset.y,0.0)).r,",
 				"						texture(volume,texCoord+vec3(0.0,0.0,offset*textureIndexOffset.z)).r);",
