@@ -5,9 +5,9 @@ import java.nio.FloatBuffer;
 
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
+import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource;
-import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
@@ -22,8 +22,6 @@ public class UnitCube extends AbstractShaderSceneElement{
 	private boolean renderWireframe = false;
 	
 	private boolean colorNeedsUpdate = true;
-	
-	private float[] coordinates = GeometryUtils.getUnitCubeVerticesTriangles(); 
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
 	
@@ -67,23 +65,30 @@ public class UnitCube extends AbstractShaderSceneElement{
 	
 	protected void renderSubClass(GL4 gl2){
 		GLErrorHandler.assertGL(gl2);
-		
+		float coordinates[];
+		int drawDirective;
 		if(isRenderWireframe()){
 			gl2.glDisable(GL4.GL_DEPTH_TEST);
-			gl2.glPolygonMode( GL4.GL_FRONT_AND_BACK, GL4.GL_LINE );
+			drawDirective= GL4.GL_LINES;
+			coordinates = getUnitCubeEdges(); 
+		}else{
+			drawDirective = GL4.GL_TRIANGLE_STRIP;
+			coordinates = getUnitCubeVerticesTriangles();
 		}
 		GLErrorHandler.assertGL(gl2);
-		gl2.glDrawArrays(GL4.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
-		GLErrorHandler.assertGL(gl2);
-		if(isRenderWireframe()){
-			gl2.glPolygonMode(GL4.GL_FRONT_AND_BACK, GL4.GL_FILL);
-		}
+		gl2.glDrawArrays(drawDirective, 0,coordinates.length/3);
 		GLErrorHandler.assertGL(gl2);
 	}
 
 	
 	protected void updateVertexBufferSubClass(GL4 gl2, VertexAttribute position){
-		FloatBuffer bufferData = Buffers.newDirectFloatBuffer(coordinates);
+		FloatBuffer bufferData;
+		
+		if(renderWireframe){
+			bufferData = Buffers.newDirectFloatBuffer(getUnitCubeEdges());
+		}else{
+			bufferData = Buffers.newDirectFloatBuffer(getUnitCubeVerticesTriangles());
+		}
 		bufferData.rewind();
 
 		position.setAttributeValues(gl2, bufferData);
@@ -112,6 +117,12 @@ public class UnitCube extends AbstractShaderSceneElement{
 	};
 	
 	protected int getVertexBufferSize(){
+		float[] coordinates;
+		if(renderWireframe){
+			coordinates = getUnitCubeEdges();
+		}else{
+			coordinates = getUnitCubeVerticesQuads();
+		}
 		return coordinates.length * Buffers.SIZEOF_FLOAT;
 	}
 }

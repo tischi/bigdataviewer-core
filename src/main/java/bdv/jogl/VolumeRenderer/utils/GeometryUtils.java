@@ -97,6 +97,47 @@ public class GeometryUtils {
 		return array;
 	}
 	
+	public static float[] getUnitCubeEdges(){
+		float array[] = {
+			0,0,0,
+			0,0,1,
+			
+			0,0,0,
+			0,1,0,
+			
+			0,0,0,
+			1,0,0,
+			
+			0,0,1,
+			0,1,1,
+			
+			0,0,1,
+			1,0,1,
+			
+			0,1,0,
+			1,1,0,
+			
+			0,1,0,
+			0,1,1,
+			
+			1,0,0,
+			1,1,0,
+			
+			1,0,0,
+			1,0,1,
+			
+			1,1,0,
+			1,1,1,
+			
+			1,1,1,
+			1,0,1,
+			
+			1,1,1,
+			0,1,1,
+		};
+		return array;
+	} 
+	
 	/**
 	 * Returns the axis aligned bounding box of a certain box dimension after transformation
 	 * @param formerBoxDim
