@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import org.junit.Test;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -58,7 +58,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 		@Override
 		public void init(GLAutoDrawable drawable) {
 			GL gl = drawable.getGL();
-			GL2 gl2 = gl.getGL2();
+			GL4 gl2 = gl.getGL4();
 
 			redirector.setHeight(drawable.getSurfaceHeight());
 			redirector.setWidth(drawable.getSurfaceWidth());
@@ -70,7 +70,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 		@Override
 		public void dispose(GLAutoDrawable drawable) {
 			GL gl = drawable.getGL();
-			GL2 gl2 = gl.getGL2();
+			GL4 gl2 = gl.getGL4();
 
 			result = redirector.getFrameBufferContent(gl2);
 
@@ -86,7 +86,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 		@Override
 		public void display(GLAutoDrawable drawable) {
 			GL gl = drawable.getGL();
-			GL2 gl2 = gl.getGL2();
+			GL4 gl2 = gl.getGL4();
 
 			redirector.render(gl2);
 

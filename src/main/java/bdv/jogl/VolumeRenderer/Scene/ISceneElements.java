@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.Scene;
 
-import com.jogamp.opengl.GL2;
+
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
 
 /**
@@ -14,19 +15,19 @@ public interface ISceneElements {
 	 * releases all gl resources
 	 * @param gl2
 	 */
-	public void disposeGL(GL2 gl2);
+	public void disposeGL(GL4 gl2);
 	
 	/**
 	 * Updates the mandatory data and renders the scene element
 	 * @param gl2
 	 */
-	public void render(GL2 gl2);
+	public void render(GL4 gl2);
 	
 	/**
 	 * initializes the scene element context
 	 * @param gl
 	 */
-	public void init(GL2 gl);
+	public void init(GL4 gl);
 
 	/**
 	 * set the model transformation matrix of the current element

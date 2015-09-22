@@ -10,7 +10,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.AbstractShaderSource
 import bdv.jogl.VolumeRenderer.utils.MatrixUtils;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
@@ -99,7 +99,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * releases all gl resources
 	 * @param gl2
 	 */
-	public void disposeGL(GL2 gl2){
+	public void disposeGL(GL4 gl2){
 		
 		disposeSubClass(gl2);
 		
@@ -121,7 +121,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Subclass hooks for disposal
 	 * @param gl2
 	 */
-	protected void disposeSubClass(GL2 gl2){
+	protected void disposeSubClass(GL4 gl2){
 		
 	}
 
@@ -143,7 +143,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * initializes the shader program
 	 * @param gl
 	 */
-	public void init(GL2 gl){
+	public void init(GL4 gl){
 
 		initProgram(gl);
 
@@ -159,7 +159,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * update all shader variables 
 	 */
-	public void update(GL2 gl){
+	public void update(GL4 gl){
 		if(needsRebuild){
 			disposeGL(gl);
 			init(gl);
@@ -179,14 +179,14 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Sub class implemented vertex upload.
 	 * @param gl2
 	 */
-	protected abstract void updateVertexBufferSubClass(GL2 gl2, VertexAttribute position);
+	protected abstract void updateVertexBufferSubClass(GL4 gl2, VertexAttribute position);
 
 
 	/**
 	 * Activates vertex buffer and uploads data by calling updateVertexBufferSubClass.
 	 * @param gl2
 	 */
-	private void updateVertexBuffer(GL2 gl2){
+	private void updateVertexBuffer(GL4 gl2){
 
 		shaderProgram.useProgram(gl2, true);
 
@@ -200,7 +200,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param gl2 gl context
 	 * @param uniforms List of uniform names to map 
 	 */
-	protected void mapUniforms(GL2 gl2, final String[] uniforms){
+	protected void mapUniforms(GL4 gl2, final String[] uniforms){
 		int location = -1;
 		for(String uniform:uniforms){
 			location = gl2.glGetUniformLocation(shaderProgram.program(), uniform);
@@ -213,7 +213,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param gl2 gl context
 	 * @param uniforms List of uniform names to map 
 	 */
-	protected void mapAvertexAttributs(GL2 gl2, final String[] attributes){
+	protected void mapAvertexAttributs(GL4 gl2, final String[] attributes){
 		int location = -1;
 		for(String attribute:attributes){
 			location = gl2.glGetAttribLocation(shaderProgram.program(), attribute);
@@ -236,14 +236,14 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Sub class uniform upload
 	 * @param gl2
 	 */
-	protected abstract void  updateShaderAttributesSubClass(GL2 gl2);
+	protected abstract void  updateShaderAttributesSubClass(GL4 gl2);
 
 
 	/**
 	 * uploads uniform shader variables to the graphic device 
 	 * @param gl2
 	 */
-	private void updateShaderAttributes(GL2 gl2){
+	private void updateShaderAttributes(GL4 gl2){
 
 		shaderProgram.useProgram(gl2, true);
 
@@ -272,14 +272,14 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Sub class id mapping for special ids.
 	 * @param gl2
 	 */
-	protected abstract void generateIdMappingSubClass(GL2 gl2);
+	protected abstract void generateIdMappingSubClass(GL4 gl2);
 
 
 	/**
 	 * Mapps all Shader variables to the shaderVariableMapping, also does for sub classes
 	 * @param gl2
 	 */
-	private void generateIdMapping(GL2 gl2){
+	private void generateIdMapping(GL4 gl2){
 		shaderProgram.useProgram(gl2, true);
 
 		//get ids
@@ -299,7 +299,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Creates a shader program
 	 * @param gl2
 	 */
-	private void initProgram(GL2 gl2){
+	private void initProgram(GL4 gl2){
 		//create program id 
 		shaderProgram.init(gl2);
 		
@@ -329,12 +329,12 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Creates a vertex buffer for the current program
 	 * @param gl2
 	 */
-	private void generateVertexBuffer(GL2 gl2){
+	private void generateVertexBuffer(GL4 gl2){
 
 		position = new VertexAttribute(
 				gl2, 
 				getLocation(satPosition), 
-				GL2.GL_FLOAT, 3, Buffers.SIZEOF_FLOAT);
+				GL4.GL_FLOAT, 3, Buffers.SIZEOF_FLOAT);
 		
 		position.allocateAttributes(gl2, getVertexBufferSize());
 	}
@@ -343,7 +343,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	/**
 	 * render call, updates data if needed an delivers the program context for sub classes
 	 */
-	public void render(GL2 gl2){
+	public void render(GL4 gl2){
 		if(!isEnabled){
 			return;
 		}
@@ -365,7 +365,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * Function containing the actual render call. program and Vertex buffer are bound in there.
 	 * @param gl2
 	 */
-	protected abstract void renderSubClass(GL2 gl2);
+	protected abstract void renderSubClass(GL4 gl2);
 
 	/**
 	 * @return the modelTransformations

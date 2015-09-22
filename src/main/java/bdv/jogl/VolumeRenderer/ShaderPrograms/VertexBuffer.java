@@ -2,8 +2,7 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.nio.Buffer;
 
-
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 
 /**
  * Class encapsulating gl vbo routines
@@ -14,14 +13,14 @@ public class VertexBuffer {
 
 	private int vbo; 
 	
-	private void generateBuffer(GL2 gl2){
+	private void generateBuffer(GL4 gl2){
 		//vertex buffer
 		int[] vertexBufferObject = new int[1];
 		gl2.glGenBuffers(1,vertexBufferObject,0 );
 		vbo =  vertexBufferObject[0];
 	}
 	
-	public VertexBuffer(GL2 gl2){
+	public VertexBuffer(GL4 gl2){
 		generateBuffer(gl2);
 	}
 	
@@ -30,23 +29,23 @@ public class VertexBuffer {
 	 * @param gl2
 	 * @param sizeInBytes Memory size
 	 */
-	public void allocateMemory(GL2 gl2, int sizeInBytes){
+	public void allocateMemory(GL4 gl2, int sizeInBytes){
 		
 		bind(gl2);
 		
-		gl2.glBufferData(GL2.GL_ARRAY_BUFFER, 
+		gl2.glBufferData(GL4.GL_ARRAY_BUFFER, 
 				sizeInBytes,
 				null, 
-				GL2.GL_STATIC_DRAW);
+				GL4.GL_STATIC_DRAW);
 		
 		unbind(gl2);
 	}
 	
-	public void memcopyData(GL2 gl2, final Buffer data, int elementSize, int offset){
+	public void memcopyData(GL4 gl2, final Buffer data, int elementSize, int offset){
 		bind(gl2);
 		
 		gl2.glBufferSubData(
-				GL2.GL_ARRAY_BUFFER,
+				GL4.GL_ARRAY_BUFFER,
 				offset, 
 				data.capacity() * elementSize, 
 				data);
@@ -58,19 +57,19 @@ public class VertexBuffer {
 	 * Binds the buffer to the current context
 	 * @param gl2
 	 */
-	public void bind(GL2 gl2){
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo);
+	public void bind(GL4 gl2){
+		gl2.glBindBuffer(GL4.GL_ARRAY_BUFFER, vbo);
 	}
 	
 	/**
 	 * Unbinds the buffer
 	 * @param gl2
 	 */
-	public void unbind(GL2 gl2){
-		gl2.glBindBuffer(GL2.GL_ARRAY_BUFFER, 0);
+	public void unbind(GL4 gl2){
+		gl2.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
 	}
 	
-	public void delete(GL2 gl2){
+	public void delete(GL4 gl2){
 		int[] buffers = {vbo};
 		gl2.glDeleteBuffers(1, buffers,0);
 	}

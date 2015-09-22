@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -69,7 +69,7 @@ public class UnitCubeTest {
 
 			@Override
 			public void init(GLAutoDrawable drawable) {
-				GL2 gl2 = drawable.getGL().getGL2();
+				GL4 gl2 = drawable.getGL().getGL4();
 
 				cube.init(gl2);
 
@@ -102,7 +102,7 @@ public class UnitCubeTest {
 
 			@Override
 			public void display(GLAutoDrawable drawable) {
-				GL2 gl2 = drawable.getGL().getGL2();
+				GL4 gl2 = drawable.getGL().getGL4();
 		//		cube.update(gl2);
 				cube.render(gl2);
 
@@ -161,7 +161,7 @@ public class UnitCubeTest {
 
 			@Override
 			public void init(GLAutoDrawable drawable) {
-				GL2 gl2 = drawable.getGL().getGL2();
+				GL4 gl2 = drawable.getGL().getGL4();
 				for(UnitCube cube:cubes){
 					cube.init(gl2);
 
@@ -194,7 +194,7 @@ public class UnitCubeTest {
 
 			@Override
 			public void display(GLAutoDrawable drawable) {
-				GL2 gl2 = drawable.getGL().getGL2();
+				GL4 gl2 = drawable.getGL().getGL4();
 				for(UnitCube cube:cubes){
 				//	cube.update(gl2);
 					cube.render(gl2);

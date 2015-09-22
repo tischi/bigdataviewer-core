@@ -1,10 +1,13 @@
 package bdv.jogl.VolumeRenderer.Scene;
 
 import java.nio.Buffer;
+import java.nio.IntBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL4;
@@ -53,7 +56,7 @@ public class Texture {
 	 * Generates the texture binding for the glsl shaders
 	 * @param gl2
 	 */
-	public void genTexture(GL2 gl2){
+	public void genTexture(GL4 gl2){
 		int testUnit = GL2.GL_TEXTURE0; 
 		
 		//find next free unit
@@ -78,7 +81,7 @@ public class Texture {
 
 	}
 	
-	private void rebindTexture(GL2 gl2){
+	private void rebindTexture(GL4 gl2){
 		gl2.glBindTexture(textureType, textureObject);
 
 		int logicalTextureUnit = textureUnit-GL2.GL_TEXTURE0;
@@ -91,6 +94,14 @@ public class Texture {
 		return contextSupportsExtension(context, "GL_ARB_sparse_texture");
 	}
 	
+	public int[] getVirtPageSizes(GL4 gl){
+		int pagesizes[] = new int[3];
+		gl.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_X_ARB, 1,pagesizes, 0);
+		gl.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1,pagesizes, 1);
+		gl.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_Z_ARB, 1,pagesizes, 2);
+		return pagesizes;
+	}
+	
 	/**
 	 * 
 	 * @param gl2
@@ -101,14 +112,21 @@ public class Texture {
 	 * @param sizes
 	 * @throws UnsupportedOperationException if sparse textures are not supported.
 	 */
-	public void updateSparse(GL2 gl2,int midmapLevel, Buffer data, int[] virtualDimensions, int[] offsets, int[] sizes) {
-		if(isSparseTextureSupported(gl2)){
+	public void updateSparse(GL4 gl2,int midmapLevel, Buffer data, int[] virtualDimensions, int[] offsets, int[] sizes) {
+		if(!isSparseTextureSupported(gl2)){
 			throw new UnsupportedOperationException("sparse textures are not supported on your system!");
 		}
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		rebindTexture(gl2);
 		setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_TRUE);
+		setTexParameteri(gl2, GL4.GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, 0);
+		int pagesizes[] = new int[6];
+		gl2.glGetInternalformativ(textureType, internalFormat, GL4.GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 3,pagesizes,3);
+		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_X_ARB, 1,pagesizes, 0);
+		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1,pagesizes, 1);
+		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_Z_ARB, 1,pagesizes, 2);
+		
 		switch (virtualDimensions.length) {
 			case 1:
 				gl2.glTexStorage1D(this.textureType, 1, this.internalFormat, virtualDimensions[0]);
@@ -127,12 +145,29 @@ public class Texture {
 				gl2.glTexSubImage2D(this.textureType, 0, offsets[0],offsets[1], sizes[0],sizes[1], this.pixelFormat, this.pixelDataType, data);
 				break;
 			case 3:
-				gl2.glTexStorage3D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[2],virtualDimensions[3]);
+				GLErrorHandler.assertGL(gl2);
+			
+				gl2.glTexStorage3D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[1],virtualDimensions[2]);
+				GLErrorHandler.assertGL(gl2);
 				//release all commitments
-				gl2.glTexPageCommitmentARB(this.textureType, 1, 0, 0, 0, virtualDimensions[0], virtualDimensions[1], virtualDimensions[2],false);
+				gl2.glTexPageCommitmentARB(this.textureType, 0, 0, 0, 0, virtualDimensions[0], virtualDimensions[1], virtualDimensions[2],false);
 				//add commitments
-				gl2.glTexPageCommitmentARB(this.textureType, 1, offsets[0], offsets[1], offsets[2], sizes[0], sizes[1], sizes[2],true);
+				GLErrorHandler.assertGL(gl2);
+
+				int [] tmp= new int[3];
+				for(int i =0; i < virtualDimensions.length; i++){
+					tmp[i] = pagesizes[i]*(int)Math.ceil((float)sizes[i]/(float)pagesizes[i]);
+				}
+				gl2.glTexPageCommitmentARB(this.textureType, 0, offsets[0], offsets[1], offsets[2], tmp[0], tmp[1], tmp[2],true);
+				GLErrorHandler.assertGL(gl2);
+				IntBuffer clearBuffer = Buffers.newDirectIntBuffer(tmp[0]*tmp[1]*tmp[2]);
+				for(int t= 0; t< clearBuffer.capacity(); t++){
+					clearBuffer.put(t, -1);
+				}
+				clearBuffer.rewind();
+				gl2.glTexSubImage3D(this.textureType, 0, offsets[0],offsets[1],offsets[2], tmp[0],tmp[1],tmp[2], this.pixelFormat, this.pixelDataType, clearBuffer);
 				gl2.glTexSubImage3D(this.textureType, 0, offsets[0],offsets[1],offsets[2], sizes[0],sizes[1],sizes[2], this.pixelFormat, this.pixelDataType, data);
+				GLErrorHandler.assertGL(gl2);
 				break;
 			default:
 			break;
@@ -146,7 +181,7 @@ public class Texture {
 	 * @param data
 	 * @param dimensions
 	 */
-	public void update(GL2 gl2,int midmapLevel, Buffer data, int[] dimensions){
+	public void update(GL4 gl2,int midmapLevel, Buffer data, int[] dimensions){
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		rebindTexture(gl2);
@@ -196,11 +231,15 @@ public class Texture {
 	 * @param parameter 
 	 * @param value
 	 */
-	public void setTexParameteri(GL2 gl2, int parameter, int value){
+	public void setTexParameteri(GL4 gl2, int parameter, int value){
 		gl2.glTexParameteri(textureType, parameter, value);
 	}
+
+	public void setTexParameteriv(GL4 gl2, int parameter, int[] values){
+		gl2.glTexParameteriv(textureType, parameter, values,0);
+	}
 	
-	public void setTexParameterfv(GL2 gl2, int parameter, float[] values){
+	public void setTexParameterfv(GL4 gl2, int parameter, float[] values){
 		gl2.glTexParameterfv(textureType, parameter, values, 0);
 	}
 	
@@ -208,7 +247,7 @@ public class Texture {
 	 * Clears the current texture context of the object
 	 * @param gl2
 	 */
-	public void delete(GL2 gl2){
+	public void delete(GL4 gl2){
 		
 		
 		int textBuffer[] = {textureObject};

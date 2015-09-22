@@ -5,11 +5,12 @@ import java.nio.FloatBuffer;
 
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
+import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.UnitCubeShaderSource;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 
 /**
  * class to render a cube in gl
@@ -22,7 +23,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 	
 	private boolean colorNeedsUpdate = true;
 	
-	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
+	private float[] coordinates = GeometryUtils.getUnitCubeVerticesTriangles(); 
 
 	private Color color = new Color(1f, 1f, 1f, 1f);
 	
@@ -33,7 +34,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 		return source;
 	};
 	
-	protected void updateShaderAttributesSubClass(GL2 gl2){
+	protected void updateShaderAttributesSubClass(GL4 gl2){
 		if(!colorNeedsUpdate){
 			return;
 		}
@@ -43,8 +44,8 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 
 	
-	protected void generateIdMappingSubClass(GL2 gl2){
-		mapUniforms(gl2, new String[]{suvColor});
+	protected void generateIdMappingSubClass(GL4 gl){
+		mapUniforms(gl, new String[]{suvColor});
 	}
 
 
@@ -64,23 +65,24 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 	
 	
-	protected void renderSubClass(GL2 gl2){
-		int[] oldFrontBack={GL2.GL_FILL,GL2.GL_FILL};
+	protected void renderSubClass(GL4 gl2){
+		GLErrorHandler.assertGL(gl2);
 		
 		if(isRenderWireframe()){
-			gl2.glDisable(GL2.GL_DEPTH_TEST);
-			gl2.glGetIntegerv(GL2.GL_POLYGON_MODE, oldFrontBack,0);
-			gl2.glPolygonMode( GL2.GL_FRONT_AND_BACK, GL2.GL_LINE );
+			gl2.glDisable(GL4.GL_DEPTH_TEST);
+			gl2.glPolygonMode( GL4.GL_FRONT_AND_BACK, GL4.GL_LINE );
 		}
-		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+		GLErrorHandler.assertGL(gl2);
+		gl2.glDrawArrays(GL4.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
+		GLErrorHandler.assertGL(gl2);
 		if(isRenderWireframe()){
-			gl2.glPolygonMode(GL2.GL_FRONT, oldFrontBack[0]);
-			gl2.glPolygonMode( GL2.GL_BACK, oldFrontBack[1] );
+			gl2.glPolygonMode(GL4.GL_FRONT_AND_BACK, GL4.GL_FILL);
 		}
+		GLErrorHandler.assertGL(gl2);
 	}
 
 	
-	protected void updateVertexBufferSubClass(GL2 gl2, VertexAttribute position){
+	protected void updateVertexBufferSubClass(GL4 gl2, VertexAttribute position){
 		FloatBuffer bufferData = Buffers.newDirectFloatBuffer(coordinates);
 		bufferData.rewind();
 
@@ -105,7 +107,7 @@ public class UnitCube extends AbstractShaderSceneElement{
 	}
 
 	@Override
-	protected void disposeSubClass(GL2 gl2) {
+	protected void disposeSubClass(GL4 gl2) {
 		colorNeedsUpdate = true;
 	};
 	

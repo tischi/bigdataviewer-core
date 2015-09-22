@@ -13,7 +13,8 @@ import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
+
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
 
 
@@ -26,7 +27,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 	private VolumeDataBlock data;
 
-	private float[] coordinates = GeometryUtils.getUnitCubeVerticesQuads(); 
+	private float[] coordinates = GeometryUtils.getUnitCubeVerticesTriangles(); 
 
 	private Texture volumeTexture;
 
@@ -91,14 +92,14 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 
 
 	@Override
-	protected void updateVertexBufferSubClass(GL2 gl2, VertexAttribute position) {
+	protected void updateVertexBufferSubClass(GL4 gl2, VertexAttribute position) {
 		FloatBuffer bufferData = Buffers.newDirectFloatBuffer(coordinates);
 		bufferData.rewind();
 
 		position.setAttributeValues(gl2, bufferData);
 	}
 
-	private void updateTextureData(GL2 gl2){
+	private void updateTextureData(GL4 gl2){
 		if(!data.needsUpdate()){
 			return;
 		}
@@ -146,7 +147,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		return eyeTrans;
 	}
 
-	private void updateEye(GL2 gl2){
+	private void updateEye(GL4 gl2){
 		if(!isEyeUpdateable){
 			return;
 		}
@@ -159,7 +160,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 
-	private void updateColor(GL2 gl2){
+	private void updateColor(GL4 gl2){
 		if(!isColorUpdateable){
 			return;
 		}
@@ -174,7 +175,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void updateShaderAttributesSubClass(GL2 gl2) {
+	protected void updateShaderAttributesSubClass(GL4 gl2) {
 
 		updateTextureData(gl2);
 
@@ -185,7 +186,7 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void generateIdMappingSubClass(GL2 gl2) {
+	protected void generateIdMappingSubClass(GL4 gl2) {
 
 		//get location
 		mapUniforms(gl2, new String[]{
@@ -197,20 +198,20 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 		});
 
 		int location = getLocation(suvVolumeTexture);
-		volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
+		volumeTexture = new Texture(GL4.GL_TEXTURE_3D,location,GL4.GL_R32F,GL4.GL_RED,GL4.GL_FLOAT);
 		volumeTexture.genTexture(gl2);
-		volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-		volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl2,GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+		volumeTexture.setTexParameteri(gl2, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+		volumeTexture.setTexParameteri(gl2, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl2, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl2, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 
 		location = getLocation(suvColorTexture);
-		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
+		colorTexture = new Texture(GL4.GL_TEXTURE_1D,location,GL4.GL_RGBA,GL4.GL_RGBA,GL4.GL_FLOAT);
 		colorTexture.genTexture(gl2);
-		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+		colorTexture.setTexParameteri(gl2,GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+		colorTexture.setTexParameteri(gl2, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+		colorTexture.setTexParameteri(gl2, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
 	}
 
 
@@ -221,9 +222,9 @@ public class SimpleVolumeRenderer extends AbstractShaderSceneElement {
 	}
 
 	@Override
-	protected void renderSubClass(GL2 gl2) {
+	protected void renderSubClass(GL4 gl2) {
 
-		gl2.glDrawArrays(GL2.GL_QUADS, 0,coordinates.length/3);
+		gl2.glDrawArrays(GL4.GL_TRIANGLE_STRIP, 0,coordinates.length/3);
 
 	}
 }

@@ -2,12 +2,15 @@ package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 
 import javax.swing.JFrame;
+
 import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
 import bdv.jogl.VolumeRenderer.Scene.SceneEventListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL4ES3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -76,7 +79,8 @@ public class GLWindow extends JFrame {
 	 */
 	public GLWindow(final VolumeDataScene scene){		
 		// create render area
-		GLProfile glprofile = GLProfile.getDefault();
+		//GLProfile glprofile = GLProfile.getDefault();
+		GLProfile glprofile = GLProfile.get(GLProfile.GL4);
 		GLCapabilities glcapabilities = new GLCapabilities( glprofile );
 
 
@@ -87,7 +91,7 @@ public class GLWindow extends JFrame {
 			public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 					int height) {
 				GL gl = drawable.getGL();
-				GL2 gl2 = gl.getGL2();
+				GL4 gl2 = gl.getGL4();
 
 				//resizes available scene
 			    renderScene.resize(gl2, x, y, width, height);;
@@ -102,7 +106,7 @@ public class GLWindow extends JFrame {
 
 				GL gl = drawable.getGL();
 				//gl =drawable.setGL(new TraceGL2(drawable.getGL().getGL2(), System.err));
-				GL2 gl2 = gl.getGL2();
+				GL4 gl2 = gl.getGL4();
 
 				//init available scene
 				renderScene.init(gl2, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
@@ -111,7 +115,7 @@ public class GLWindow extends JFrame {
 			@Override
 			public void dispose(GLAutoDrawable drawable) {
 				GL gl = drawable.getGL();
-				GL2 gl2 = gl.getGL2();
+				GL4 gl2 = gl.getGL4();
 
 				//disposes available scene
 				renderScene.dispose(gl2);
@@ -123,7 +127,7 @@ public class GLWindow extends JFrame {
 			public void display(GLAutoDrawable drawable) {		
 
 				GL gl = drawable.getGL();
-				GL2 gl2 = gl.getGL2();
+				GL4 gl2 = gl.getGL4();
 
 				//renders available scene
 				renderScene.render(gl2);

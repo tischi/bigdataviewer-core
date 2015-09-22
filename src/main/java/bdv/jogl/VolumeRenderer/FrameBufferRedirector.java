@@ -8,6 +8,7 @@ import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
 import com.jogamp.opengl.FBObject;
 import com.jogamp.opengl.FBObject.Colorbuffer;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 
 /**
  * Provides methods to redirect the frame buffer to a cpu readable format mainly for test purposes 
@@ -26,7 +27,7 @@ public class FrameBufferRedirector {
 	
 	private Colorbuffer buffer;
 	
-	private void initFrameBufferObject(GL2 gl2){	
+	private void initFrameBufferObject(GL4 gl2){	
 		buffer = FBObject.createColorTextureAttachment(gl2, true, width, height);
 		buffer.initialize(gl2);
 		internalFrameBuffer = new FBObject();
@@ -36,7 +37,7 @@ public class FrameBufferRedirector {
 	
 	}
 	
-	private void disposeFrameBufferObject(GL2 gl2){
+	private void disposeFrameBufferObject(GL4 gl2){
 		internalFrameBuffer.destroy(gl2);
 	}
 	
@@ -60,7 +61,7 @@ public class FrameBufferRedirector {
 	 * init wrapper
 	 * @param gl2
 	 */
-	public void init(GL2 gl2){
+	public void init(GL4 gl2){
 		initFrameBufferObject(gl2);
 		scene.init(gl2, width, height);
 	}
@@ -69,7 +70,7 @@ public class FrameBufferRedirector {
 	 * render wrapper
 	 * @param gl2
 	 */
-	public void render(GL2 gl2){
+	public void render(GL4 gl2){
 		internalFrameBuffer.bind(gl2);
 		scene.render(gl2);
 		internalFrameBuffer.unbind(gl2);
@@ -79,7 +80,7 @@ public class FrameBufferRedirector {
 	 * dispose wrapper
 	 * @param gl2
 	 */
-	public void disposeGL(GL2 gl2){
+	public void disposeGL(GL4 gl2){
 		scene.dispose(gl2);
 		disposeFrameBufferObject(gl2);
 		buffer.free(gl2);
@@ -89,7 +90,7 @@ public class FrameBufferRedirector {
 	 * returns the current content of the framebuffer as a matrix. x,y rgba
 	 * @return
 	 */
-	public float[][][] getFrameBufferContent(GL2 gl2){
+	public float[][][] getFrameBufferContent(GL4 gl2){
 		internalFrameBuffer.bind(gl2);
 		float[][][] matrix = new float[width][height][4];
 		FloatBuffer buffer = FloatBuffer.allocate(height*width*4);

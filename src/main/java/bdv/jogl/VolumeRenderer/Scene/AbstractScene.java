@@ -7,8 +7,10 @@ import java.util.List;
 import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.CameraListener;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
 
 /**
@@ -111,7 +113,7 @@ public abstract class AbstractScene {
 	 * @param width
 	 * @param height
 	 */
-	public void resize(GL2 gl2,int x, int y, int width, int height){
+	public void resize(GL4 gl2,int x, int y, int width, int height){
 		camera.setWidth(width);
 		camera.setHeight(height);
 		camera.updatePerspectiveMatrix();
@@ -125,7 +127,7 @@ public abstract class AbstractScene {
 	 * releases gl resources
 	 * @param gl2
 	 */
-	public void dispose(GL2 gl2){
+	public void dispose(GL4 gl2){
 		for(ISceneElements c : sceneElements){
 			c.disposeGL(gl2);
 		}
@@ -139,7 +141,7 @@ public abstract class AbstractScene {
 	 * render the scene
 	 * @param gl2
 	 */
-	public void render(GL2 gl2){
+	public void render(GL4 gl2){
 		float[] c = getNormalizedColor(backgroundColor);
 		gl2.glClearColor(c[0],c[1],c[2],c[3]);
 		
@@ -168,7 +170,7 @@ public abstract class AbstractScene {
 	 * @param width
 	 * @param height
 	 */
-	public void init(GL2 gl2, int width, int height){
+	public void init(GL4 gl2, int width, int height){
 		
 		camera.init();
 		
@@ -194,7 +196,7 @@ public abstract class AbstractScene {
 	 * @param width
 	 * @param height
 	 */
-	protected abstract void initSpecial(GL2 gl2, int width, int height);
+	protected abstract void initSpecial(GL4 gl2, int width, int height);
 
 	/**
 	 * specialized resize for subclasses
@@ -204,19 +206,19 @@ public abstract class AbstractScene {
 	 * @param width
 	 * @param height
 	 */
-	protected abstract void resizeSpecial(GL2 gl2,int x, int y, int width, int height);
+	protected abstract void resizeSpecial(GL4 gl2,int x, int y, int width, int height);
 
 
 	/**
 	 * specialized dispose for subclasses
 	 * @param gl2
 	 */
-	protected abstract void disposeSpecial(GL2 gl2);
+	protected abstract void disposeSpecial(GL4 gl2);
 
 
 	/**
 	 * specialized render for subclasses, actual rendering is performed by render, so should not be done here
 	 * @param gl2
 	 */
-	protected abstract void renderSpecial(GL2 gl2);
+	protected abstract void renderSpecial(GL4 gl2);
 }

@@ -4,9 +4,7 @@ package bdv.jogl.VolumeRenderer.Scene;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.realtransform.AffineTransform3D;
-import bdv.BigDataViewer;
+
 import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.UnitCube;
@@ -14,13 +12,9 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
-import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
-import bdv.viewer.state.SourceState;
-import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 
-import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
-import com.jogamp.opengl.math.geom.AABBox;
 
 /**
  * Describes a scene for volume data with multiple scene objects
@@ -37,7 +31,7 @@ public class VolumeDataScene extends AbstractScene{
 	//private UnitCube boundingVolume =new UnitCube();
 
 	@Override
-	protected void disposeSpecial(GL2 gl2) {
+	protected void disposeSpecial(GL4 gl2) {
 	}
 
 	public void enableVolumeBorders(boolean flag){
@@ -86,7 +80,7 @@ public class VolumeDataScene extends AbstractScene{
 	}
 	
 	@Override
-	protected void resizeSpecial(GL2 gl2, int x, int y, int width, int height) {}
+	protected void resizeSpecial(GL4 gl2, int x, int y, int width, int height) {}
 
 
 	public VolumeDataScene( VolumeDataManager dataManager, MultiVolumeRenderer renderer){
@@ -109,9 +103,6 @@ public class VolumeDataScene extends AbstractScene{
 		camera2.init();
 	}
 
-	private int getMidmapLevel(final SourceState<?> source){
-		return source.getSpimSource().getNumMipmapLevels()-1;
-	}
 	
 	/**
 	 * initializes the scene once
@@ -119,20 +110,14 @@ public class VolumeDataScene extends AbstractScene{
 	 * @param width
 	 * @param height
 	 */
-	protected void initSpecial(GL2 gl2, int width, int height){
-		
-
-
-
-
+	protected void initSpecial(GL4 gl2, int width, int height){
 		initBoundingVolumeCube(gl2);
-
 		
 		initLocalCamera(camera, width,height);
 	}
 
 
-	private void initBoundingVolumeCube(GL2 gl2) {
+	private void initBoundingVolumeCube(GL4 gl2) {
 		/*	addSceneElement(boundingVolume);
 
 		boundingVolume.init(gl2);
@@ -144,7 +129,7 @@ public class VolumeDataScene extends AbstractScene{
 	 * render the scene
 	 * @param gl2
 	 */
-	protected void renderSpecial(GL2 gl2){
+	protected void renderSpecial(GL4 gl2){
 
 	}
 }

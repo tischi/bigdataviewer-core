@@ -20,8 +20,11 @@ import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.geom.AABBox;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
+import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
+import net.imglib2.Positionable;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.RealPositionable;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.view.Views;
@@ -53,30 +56,36 @@ public class VolumeDataUtils {
 	public static VolumeDataBlock getDataBlock(final BigDataViewer bdv,final AABBox minBoundingBox, int sourceId, int midmap){
 		SourceState<?> source = bdv.getViewer().getState().getSources().get(sourceId);
 		int currentTimePoint = bdv.getViewer().getState().getCurrentTimepoint();
-		IterableInterval<?> tmp = Views.flatIterable(source.getSpimSource().getSource(currentTimePoint, midmap));
+		VolumeDataBlock data = new VolumeDataBlock();
+		TreeMap<Float, Integer> distr = data.getValueDistribution();
+		RandomAccessibleInterval<?> dataField = source.getSpimSource().getSource(currentTimePoint, midmap);
+		IterableInterval<?> tmp = Views.flatIterable(dataField);
+		tmp.dimensions( data.dimensions);
 		Long maxX = tmp.dimension(0);
 		Long maxY = tmp.dimension(1);
 		Long maxZ = tmp.dimension(2);
+
 
 		Long boxEntries[]= new Long[]{ ((Double)(Math.ceil((double)minBoundingBox.getMaxX())- Math.floor((double)minBoundingBox.getMinX()))).longValue(),
 				((Double)(Math.ceil((double)minBoundingBox.getMaxY())- Math.floor((double)minBoundingBox.getMinY()))).longValue(),
 				((Double)(Math.ceil((double)minBoundingBox.getMaxZ())- Math.floor((double)minBoundingBox.getMinZ()))).longValue()};
 		
+		long minMax[][] = new long[][]{{(long)Math.floor(minBoundingBox.getMinX()),(long)Math.floor(minBoundingBox.getMinY()),(long)Math.floor(minBoundingBox.getMinZ())},
+				{Math.min((long)Math.ceil(minBoundingBox.getMaxX()), data.dimensions[0])-1,Math.min((long)Math.ceil(minBoundingBox.getMaxY()), data.dimensions[1])-1,Math.min((long)Math.ceil(minBoundingBox.getMaxZ()), data.dimensions[2])-1}};
 		float[] block = new float[Math.min(maxX.intValue(),boxEntries[0].intValue())*
 		                          Math.min(maxY.intValue(),boxEntries[1].intValue())*
 		                          Math.min(maxZ.intValue(),boxEntries[2].intValue())];
+		tmp = Views.flatIterable(Views.interval(dataField, minMax[0], minMax[1]));
 
-		VolumeDataBlock data = new VolumeDataBlock();
-		TreeMap<Float, Integer> distr = data.getValueDistribution();
 		int maxOcc =0;
 		// copy values 
 		int i = 0;
 		float minValue = Float.MAX_VALUE;
 		float maxValue = Float.MIN_VALUE; 
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
-		for(int z = 0; z <  maxZ.intValue(); z++){
-			for(int y = 0; y < maxY.intValue(); y++){
-				for(int x = 0; x <  maxX.intValue(); x++ ){
+		for(long z = minMax[0][2]; z <  minMax[1][2]; z++){
+			for(long y = minMax[0][1]; y < minMax[1][1]; y++){
+				for(long x = minMax[0][0]; x < minMax[1][0]; x++ ){
 					short value = (short)values.next().get();
 					if(minBoundingBox.contains(x, y, z)){
 						block[i++] = value ;
@@ -97,9 +106,9 @@ public class VolumeDataUtils {
 		}
 
 
-		tmp.dimensions( data.dimensions);
-		tmp.min(data.minPoint);
-		tmp.max(data.maxPoint);
+
+		tmp.min(data.memOffset);
+		tmp.dimensions(data.memSize);
 		data.maxValue = maxValue;
 		data.minValue = minValue;
 		data.data = block;

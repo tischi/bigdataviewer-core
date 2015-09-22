@@ -8,8 +8,8 @@ import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 
 public class VolumeDataBlock{
 	public float[] data;
-	public long[] minPoint={0,0,0};
-	public long[] maxPoint={0,0,0};
+	public long[] memOffset={0,0,0};
+	public long[] memSize={0,0,0};
 	public long[] dimensions = {0,0,0};
 	public float maxValue;
 	public float minValue;

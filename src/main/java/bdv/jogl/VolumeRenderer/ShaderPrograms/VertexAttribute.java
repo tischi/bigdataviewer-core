@@ -2,7 +2,8 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms;
 
 import java.nio.Buffer;
 
-import com.jogamp.opengl.GL2;
+
+import com.jogamp.opengl.GL4;
 
 /**
  * Class to handle vertex Attributes
@@ -25,7 +26,7 @@ public class VertexAttribute {
 	
 	private final int dataTypeSize;
 	
-	private void generateAttributeArray(GL2 gl2){
+	private void generateAttributeArray(GL4 gl2){
 	
 		//gen vertex array
 		int[] vertexArrays  = new int[1];
@@ -33,7 +34,7 @@ public class VertexAttribute {
 		vao = vertexArrays[0];
 	}
 	
-	private void generatePointer(GL2 gl2){
+	private void generatePointer(GL4 gl2){
 
 		associatedVertexBuffer.bind(gl2);
 		
@@ -53,7 +54,7 @@ public class VertexAttribute {
 		
 		associatedVertexBuffer.unbind(gl2);
 	}	
-	public VertexAttribute(GL2 gl2,
+	public VertexAttribute(GL4 gl2,
 			int location, 
 			int glDataType, 
 			int elementsPerVertex,
@@ -75,7 +76,7 @@ public class VertexAttribute {
 	}
 	
 	
-	public void allocateAttributes(GL2 gl2,int numberOfElements){
+	public void allocateAttributes(GL4 gl2,int numberOfElements){
 		
 		bind(gl2);
 		
@@ -84,7 +85,7 @@ public class VertexAttribute {
 		unbind(gl2);
 	}
 	
-	public void setAttributeValues(GL2 gl2, final Buffer data){
+	public void setAttributeValues(GL4 gl2, final Buffer data){
 		
 		bind(gl2);
 		
@@ -101,18 +102,18 @@ public class VertexAttribute {
 		return associatedVertexBuffer;
 	}
 	
-	public void bind(GL2 gl2){
+	public void bind(GL4 gl2){
 		//bind
 		gl2.glBindVertexArray(vao);
 		
 	}
 	
-	public void unbind(GL2 gl2){
+	public void unbind(GL4 gl2){
 		//unbind
 		gl2.glBindVertexArray(0);
 	}
 
-	public void delete(GL2 gl2){
+	public void delete(GL4 gl2){
 		int[] arrays = {vao};
 		gl2.glDeleteVertexArrays(1, arrays, 0);
 	}

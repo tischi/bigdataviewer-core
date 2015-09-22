@@ -1,5 +1,7 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import com.jogamp.opengl.math.geom.AABBox;
+
 /**
  * listen on events of the Volume data manager
  * @author michael
@@ -19,4 +21,5 @@ public interface IVolumeDataManagerListener {
 
 
 	public void dataEnabled(Integer i, Boolean flag);
+
 }

@@ -14,6 +14,8 @@ import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
+import com.jogamp.opengl.math.geom.AABBox;
+
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;

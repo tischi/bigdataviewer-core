@@ -50,8 +50,8 @@ public class TestDataBlockSphere extends VolumeDataBlock {
 		//set dimensions
 		for(int d = 0; d < this.dimensions.length;  d++){
 			this.dimensions[d] = 2*radius;
-			this.minPoint[d] = 0;
-			this.maxPoint[d] = 2*radius;
+			this.memOffset[d] = 0;
+			this.memSize[d] = 2*radius;
 		}
 		
 		this.minValue = this.valueDistribution.firstKey();

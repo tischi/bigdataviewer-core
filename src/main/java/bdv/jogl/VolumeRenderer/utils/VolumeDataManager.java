@@ -14,6 +14,7 @@ import java.util.Set;
 import net.imglib2.realtransform.AffineTransform3D;
 
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.geom.AABBox;
 
 import bdv.BigDataViewer;
 
@@ -44,6 +45,7 @@ public class VolumeDataManager {
 			fireRemovedData(i, l);
 		}
 	}
+	
 	
 	private void fireRemovedData(Integer i, IVolumeDataManagerListener l){
 		l.dataRemoved(i);
