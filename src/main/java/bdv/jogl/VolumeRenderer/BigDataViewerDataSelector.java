@@ -13,7 +13,10 @@ import com.jogamp.opengl.math.geom.AABBox;
 import bdv.BigDataViewer;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
+import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.viewer.Source;
 import bdv.viewer.state.SourceState;
 
@@ -21,8 +24,21 @@ public class BigDataViewerDataSelector {
 
 	private final BigDataViewer bdv;
 
-	public BigDataViewerDataSelector(final BigDataViewer bdv){
-		this.bdv = bdv;
+	private final MultiVolumeRenderer renderer;
+	
+	private final GLWindow drawWindow;
+	
+	private final VolumeDataManager dataManager;
+	
+	public BigDataViewerDataSelector(
+			final BigDataViewer bdv,
+			final MultiVolumeRenderer renderer,
+			final GLWindow drawWindow,
+			final VolumeDataManager dataManager){
+		this.bdv = bdv;	
+		this.dataManager = dataManager;
+		this.renderer = renderer;
+		this.drawWindow =drawWindow;
 
 		initListener();
 	}
@@ -32,11 +48,10 @@ public class BigDataViewerDataSelector {
 	 */
 	private synchronized void initListener() {
 
-		this.bdv.getViewerFrame().getViewerPanel().addMouseListener(new MouseAdapter() {
+		this.bdv.getViewerFrame().getViewerPanel().getDisplay().addMouseListener(new MouseAdapter() {
 
 			@Override
 			public synchronized void mouseClicked(MouseEvent e) {
-				System.out.println("Hallo");
 
 				//select on double click
 				if(e.getClickCount() == 2){

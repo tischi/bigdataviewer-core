@@ -90,10 +90,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private boolean useSparseVolume = false;
 
+	public void setUseSparseVolumes(boolean flag){
+		useSparseVolume = flag;
+	}
+	
 	public void setDrawRect(AABBox rect){
 		drawCubeTransformation.translate(rect.getMinX(),rect.getMinY(),rect.getMinZ());
 		drawCubeTransformation.scale(rect.getWidth(),rect.getHeight(),rect.getDepth());
-	fireAllRect(rect);
+		fireAllRect(rect);
 	}
 
 	/**

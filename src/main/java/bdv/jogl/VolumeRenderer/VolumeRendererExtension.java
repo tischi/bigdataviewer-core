@@ -80,7 +80,6 @@ public class VolumeRendererExtension {
 
 		this.bdv = bdv;
 		selector = new BigDataViewerDataSelector(bdv);
-		selector.selectVolumePart(new Point(100,100));
 		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
 		dataScene = new VolumeDataScene( dataManager,volumeRenderer);
