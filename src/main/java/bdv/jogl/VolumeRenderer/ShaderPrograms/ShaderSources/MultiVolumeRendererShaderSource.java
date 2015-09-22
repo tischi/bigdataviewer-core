@@ -106,7 +106,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
-		setShaderLanguageVersion(130);
 	}
 	
 	/**

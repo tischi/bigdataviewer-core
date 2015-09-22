@@ -16,7 +16,7 @@ public abstract class AbstractShaderSource {
 	
 	private List<ISourceListener> sourceListeners = new LinkedList<ISourceListener>();
 	
-	private int shaderLanguageVersion = 130;
+	private int shaderLanguageVersion = 330;
 	
 	//default vertex shader attributes (sat)
 	public static final String satPosition = "inPosition";
