@@ -441,7 +441,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 			Matrix4 localInverse = copyMatrix(calcVolumeTransformation(data));
 			localInverse.invert();
-			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
+			gl2.glUniformMatrix4fv(getLocationSafe(gl2, suvTextureTransformationInverse+"["+index+"]"),
 					1,false,localInverse.getMatrix(),0);
 		}
 	}

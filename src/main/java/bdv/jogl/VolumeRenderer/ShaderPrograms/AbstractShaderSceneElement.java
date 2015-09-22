@@ -231,6 +231,16 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 		return shaderVariableMapping.get(variableName);
 	}
 
+	protected int getLocationSafe(GL4 gl2, final String variableName){
+		Integer i = shaderVariableMapping.get(variableName);
+		if ( i != null )
+			return i;
+
+		int location = gl2.glGetUniformLocation(shaderProgram.program(), variableName);
+		shaderVariableMapping.put(variableName, location);
+		return location;
+	}
+
 
 	/**
 	 * Sub class uniform upload
