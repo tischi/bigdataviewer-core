@@ -199,16 +199,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 
-		float[]	zNormalVector=new float[3];
-		float zeroDist=calcSlicePlane( zNormalVector);
+		float[] plane=calcSlicePlane();
 
-		gl2.glUniform3fv(getLocation(suvNormalSlice), 1, zNormalVector, 0);
-		gl2.glUniform1f(getLocation(suvZeroDistSlice), zeroDist);
+		gl2.glUniform4fv(getLocation(suvNormalSlice), 1, plane, 0);
+
 	}
 
-	private float calcSlicePlane(float[] zNormalVector) {
+	private float[] calcSlicePlane() {
 		float normVector[] = {0,0,1,0};
-		float dist = 0;
 
 
 		VolumeDataBlock data = dataManager.getVolume(0);
@@ -232,12 +230,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		float n =VectorUtil.normVec3(transformedNormal);
 
+		float plane[] = new float[4];
 		//prepare return
 		for(int i =0; i < 3; i++){
-			zNormalVector[i]= transformedNormal[i]/n;
+			plane[i]= transformedNormal[i]/n;
 		}
-		dist= transformedNormal[3]/n;
-		return dist;
+		plane[3]= transformedNormal[3]/n;
+		return plane;
 	}
 
 	/**
@@ -572,7 +571,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvBackgroundColor,
 				suvLightPosition,
 				suvNormalSlice,
-				suvZeroDistSlice,
 				suvShowSlice,
 				suvSamples,
 				suvUseGradient

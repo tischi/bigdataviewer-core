@@ -86,8 +86,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvLightIntensiy = "iniIn";
 	
-	public static final String suvZeroDistSlice = "inZeroSlicePoint";
-	
 	public static final String suvNormalSlice = "inZeroSliceNormal";
 	
 	public static final String suvShowSlice = "inShowSlice";
@@ -208,8 +206,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec3 "+suvBackgroundColor+";",
 				"uniform vec3 "+suvLightPosition+"["+scvMaxNumberOfVolumes+"];",
 				"uniform vec3 "+suvLightIntensiy+" = vec3(0.0,1.0,0.0);",
-				"uniform vec3 "+suvNormalSlice+";",
-				"uniform float "+suvZeroDistSlice+";",
+				"uniform vec4 "+suvNormalSlice+";",
 				"uniform int "+suvShowSlice+";",
 				"uniform int "+suvSamples+";",
 				"uniform int "+suvUseGradient+"=1;",
@@ -253,8 +250,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"}",
 				"",
 				"float getSliceDistance(){",
-				"	float distance = "+suvZeroDistSlice+";",
-				"	distance+=dot("+suvNormalSlice+","+sgvRayPositions+"[0]);",
+				"	float distance = "+suvNormalSlice+".a;",
+				"	distance+=dot("+suvNormalSlice+".xyz,"+sgvRayPositions+"[0]);",
 				"	return distance;",
 				"}",
 				"",
