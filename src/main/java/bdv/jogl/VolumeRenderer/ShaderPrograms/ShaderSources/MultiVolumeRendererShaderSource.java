@@ -102,6 +102,10 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvUseGradient = "inUseGradient";
 	
+	public static final String suvMinCubeSpace = "inMinCubeSpace";
+	
+	public static final String suvMaxCubeSpace = "inMaxCubeSpace";
+	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
 		setShaderLanguageVersion(130);
@@ -209,6 +213,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform int "+suvShowSlice+";",
 				"uniform int "+suvSamples+";",
 				"uniform int "+suvUseGradient+"=1;",
+				"uniform vec3 "+suvMinCubeSpace+"["+scvMaxNumberOfVolumes+"];",
+				"uniform vec3 "+suvMaxCubeSpace+"["+scvMaxNumberOfVolumes+"];",
 				
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	

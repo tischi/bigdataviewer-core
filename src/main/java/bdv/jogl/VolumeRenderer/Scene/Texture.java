@@ -37,6 +37,7 @@ public class Texture {
 	
 	private final int pixelDataType;
 
+	private boolean memoryAllocated = false;
 
 	/**
 	 * Constructor
@@ -146,26 +147,33 @@ public class Texture {
 				break;
 			case 3:
 				GLErrorHandler.assertGL(gl2);
-			
-				gl2.glTexStorage3D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[1],virtualDimensions[2]);
+				if(!memoryAllocated){
+					gl2.glTexStorage3D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[1],virtualDimensions[2]);
+					memoryAllocated = true;
+				}
 				GLErrorHandler.assertGL(gl2);
 				//release all commitments
 				gl2.glTexPageCommitmentARB(this.textureType, 0, 0, 0, 0, virtualDimensions[0], virtualDimensions[1], virtualDimensions[2],false);
 				//add commitments
 				GLErrorHandler.assertGL(gl2);
 
-				int [] tmp= new int[3];
+				int [] tmpSize= new int[3];
 				for(int i =0; i < virtualDimensions.length; i++){
-					tmp[i] = pagesizes[i]*(int)Math.ceil((float)sizes[i]/(float)pagesizes[i]);
+					tmpSize[i] = pagesizes[i]*(int)Math.ceil((float)sizes[i]/(float)pagesizes[i]);
 				}
-				gl2.glTexPageCommitmentARB(this.textureType, 0, offsets[0], offsets[1], offsets[2], tmp[0], tmp[1], tmp[2],true);
+				
+				int [] tmpOffset= new int[3];
+				for(int i =0; i < virtualDimensions.length; i++){
+					tmpOffset[i] = pagesizes[i]*(int)Math.floor((float)offsets[i]/(float)pagesizes[i]);
+				}
+				gl2.glTexPageCommitmentARB(this.textureType, 0, tmpOffset[0], tmpOffset[1], tmpOffset[2], tmpSize[0], tmpSize[1], tmpSize[2],true);
 				GLErrorHandler.assertGL(gl2);
-				IntBuffer clearBuffer = Buffers.newDirectIntBuffer(tmp[0]*tmp[1]*tmp[2]);
+				IntBuffer clearBuffer = Buffers.newDirectIntBuffer(tmpSize[0]*tmpSize[1]*tmpSize[2]);
 				for(int t= 0; t< clearBuffer.capacity(); t++){
 					clearBuffer.put(t, -1);
 				}
 				clearBuffer.rewind();
-				gl2.glTexSubImage3D(this.textureType, 0, offsets[0],offsets[1],offsets[2], tmp[0],tmp[1],tmp[2], this.pixelFormat, this.pixelDataType, clearBuffer);
+				gl2.glTexSubImage3D(this.textureType, 0, tmpOffset[0], tmpOffset[1], tmpOffset[2], tmpSize[0],tmpSize[1],tmpSize[2], this.pixelFormat, this.pixelDataType, clearBuffer);
 				gl2.glTexSubImage3D(this.textureType, 0, offsets[0],offsets[1],offsets[2], sizes[0],sizes[1],sizes[2], this.pixelFormat, this.pixelDataType, data);
 				GLErrorHandler.assertGL(gl2);
 				break;

@@ -95,8 +95,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 	
 	public void setDrawRect(AABBox rect){
+		drawCubeTransformation = getNewIdentityMatrix();
 		drawCubeTransformation.translate(rect.getMinX(),rect.getMinY(),rect.getMinZ());
 		drawCubeTransformation.scale(rect.getWidth(),rect.getHeight(),rect.getDepth());
+		
 		fireAllRect(rect);
 	}
 
@@ -444,6 +446,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 					1,false,localInverse.getMatrix(),0);
 		}
 	}
+
 
 	private void updateGlobalScale(GL4 gl2) {
 		

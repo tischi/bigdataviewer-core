@@ -54,8 +54,8 @@ public class VolumeRendererExtension {
 	private final AggregatorManager aggManager = new AggregatorManager();
 
 	private final BigDataViewerDataSelector selector;
-
-	private boolean cameraUpdatable = true;
+	
+	private AABBox hullVolume = null;
 	
 	private SceneControlsWindow controls;
 
@@ -79,7 +79,7 @@ public class VolumeRendererExtension {
 		}
 
 		this.bdv = bdv;
-		selector = new BigDataViewerDataSelector(bdv);
+
 		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
 		dataScene = new VolumeDataScene( dataManager,volumeRenderer);
@@ -87,20 +87,23 @@ public class VolumeRendererExtension {
 			
 			@Override
 			public void drawRectChanged(AABBox drawRect) {
-				if(!cameraUpdatable){
+				if(drawRect.equals(hullVolume)){
 					return;
 				}
 				updateCameraPoints(dataScene.getCamera(), drawRect);
-				cameraUpdatable = false;
+				
 			}
 		});
+		
 		
 		glWindow = new GLWindow(dataScene);
 	
 		volumeRenderer.setBackgroundColor(bgColor);
 		dataScene.setBackgroundColor(bgColor);
+	
 		
 		createControlWindow();
+		selector = new BigDataViewerDataSelector(bdv,volumeRenderer,glWindow,dataManager,controls);
 		createActionInToolBar();
 		createListeners();
 	
@@ -151,7 +154,7 @@ public class VolumeRendererExtension {
 			
 			@Override
 			public void addedData(Integer i) {
-				cameraUpdatable = true;
+				hullVolume = null;
 			}
 		});
 	}

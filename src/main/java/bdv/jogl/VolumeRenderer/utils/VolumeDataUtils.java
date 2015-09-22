@@ -105,8 +105,6 @@ public class VolumeDataUtils {
 			}
 		}
 
-
-
 		tmp.min(data.memOffset);
 		tmp.dimensions(data.memSize);
 		data.maxValue = maxValue;
@@ -117,6 +115,7 @@ public class VolumeDataUtils {
 		source.getSpimSource().getSourceTransform(currentTimePoint, midmap, sourceTransform3D);
 		Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);
 		data.setLocalTransformation(sourceTransformation);
+		data.setNeedsUpdate(true);
 		return data;
 	}
 

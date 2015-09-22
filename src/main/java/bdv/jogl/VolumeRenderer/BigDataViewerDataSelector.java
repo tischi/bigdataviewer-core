@@ -14,6 +14,7 @@ import bdv.BigDataViewer;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
+import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -30,16 +31,19 @@ public class BigDataViewerDataSelector {
 	
 	private final VolumeDataManager dataManager;
 	
+	private final SceneControlsWindow options;
+	
 	public BigDataViewerDataSelector(
 			final BigDataViewer bdv,
 			final MultiVolumeRenderer renderer,
 			final GLWindow drawWindow,
-			final VolumeDataManager dataManager){
+			final VolumeDataManager dataManager,
+			final SceneControlsWindow options){
 		this.bdv = bdv;	
 		this.dataManager = dataManager;
 		this.renderer = renderer;
 		this.drawWindow =drawWindow;
-
+		this.options = options;
 		initListener();
 	}
 
@@ -68,21 +72,27 @@ public class BigDataViewerDataSelector {
 	public void selectVolumePart(final Point p){
 		List<SourceState<?>> sources = bdv.getViewer().getState().getSources();
 		
-		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{10,10,10});
+		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{50,50,50});
 
+		renderer.setUseSparseVolumes(true);
+		renderer.setDrawRect(volumeRectangle);
 		
 		//TODO remove test
 		
 		for(int i =0; i < sources.size(); i++){
-			int midmapLevel = bdv.getViewer().getState().getSources().get(i).getSpimSource().getNumMipmapLevels()-1;
-			AABBox b = getInnerVolume(bdv, volumeRectangle, midmapLevel, bdv.getViewer().getState().getCurrentTimepoint(),i);
+			int midmapLevel = 0;//bdv.getViewer().getState().getSources().get(i).getSpimSource().getNumMipmapLevels()-1;
+			int time =bdv.getViewer().getState().getCurrentTimepoint();
+			AABBox b = getInnerVolume(bdv, volumeRectangle, midmapLevel, time,i);
 
 			System.out.println(b);
 			VolumeDataBlock data = getDataBlock(bdv, b, i, midmapLevel);
-
+			dataManager.forceVolumeUpdate(i, time, data);
 			System.out.println(data);
 			i++;
 		}
+		options.setVisible(true);
+		drawWindow.setVisible(true);
+		drawWindow.getGlCanvas().repaint();
 	}
 
 	/**

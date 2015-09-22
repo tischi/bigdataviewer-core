@@ -104,6 +104,18 @@ public class VolumeDataManager {
 		return volumes.get(i);
 	}
 
+	public void forceVolumeUpdate(Integer i, int time, VolumeDataBlock data){
+		boolean isAllreadyPresent = volumes.containsKey(i); 
+		volumes.put(i, data);
+		timestamps.put(i, time);
+		enabled.put(i, true);
+		updateGlobals();
+		if(!isAllreadyPresent){
+			fireAllAddedData(i);
+		}
+		
+		fireAllUpdatedData(i);
+	}
  
 	public void setVolume(Integer i, int time , VolumeDataBlock data){
 		if(time != this.currentTime){
