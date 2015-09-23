@@ -44,7 +44,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 	
 	private BlockingQueue<Boolean> sync = new ArrayBlockingQueue<Boolean>(1);
 	
-	private VolumeDataManager dataManager = new VolumeDataManager();
+	private VolumeDataManager dataManager = new VolumeDataManager(null);
 	
 	private GLEventListener renderListener =  new GLEventListener() {
 
@@ -189,7 +189,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 	
 	private void initTestWindow(){
 		testTransferFunction.setSampler(objectUnderTest);
-		dataManager = new VolumeDataManager();
+		dataManager = new VolumeDataManager(null);
 		testVolumeRenderer = new MultiVolumeRenderer(testTransferFunction, dataManager);
 		renderCanvas.addGLEventListener(renderListener);
 		

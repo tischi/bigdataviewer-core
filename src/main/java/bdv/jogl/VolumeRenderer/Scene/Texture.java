@@ -2,7 +2,9 @@ package bdv.jogl.VolumeRenderer.Scene;
 
 import java.nio.Buffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
@@ -36,8 +38,19 @@ public class Texture {
 	private final int pixelFormat;
 	
 	private final int pixelDataType;
+	
+	private final Map<Integer, Integer> parameteriMap = new HashMap<Integer, Integer>();
+	
+	private final Map<Integer, int[]> parameterivMap = new HashMap<Integer, int[]>();
+	
+	private final Map<Integer, float[]> parameterfvMap = new HashMap<Integer, float[]>();
+	
+	private final Map<Integer, Boolean> updatableTextureParameters = new HashMap<Integer, Boolean>();
+	
+	//sparse memory stuff
+	private int virtualDimensions[] = new int[3]; 
 
-	private boolean memoryAllocated = false;
+	private boolean sparseMemoryAllocated = false;
 
 	/**
 	 * Constructor
@@ -117,19 +130,36 @@ public class Texture {
 		if(!isSparseTextureSupported(gl2)){
 			throw new UnsupportedOperationException("sparse textures are not supported on your system!");
 		}
+		if(!sparseMemoryAllocated){
+			delete(gl2);
+			genTexture(gl2);		
+			rebindTexture(gl2);
+			setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_TRUE);
+			GLErrorHandler.assertGL(gl2);
+			setTexParameteri(gl2, GL4.GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, 0);
+			GLErrorHandler.assertGL(gl2);
+			gl2.glActiveTexture(textureUnit);
+			rebindTexture(gl2);		
+			
+			//stuff for un-commit
+			this.virtualDimensions = virtualDimensions.clone();
+			 
+		}
+		
+		GLErrorHandler.assertGL(gl2);
 		//activate context
 		gl2.glActiveTexture(textureUnit);
+		GLErrorHandler.assertGL(gl2);
 		rebindTexture(gl2);
-		if(!memoryAllocated){
-			setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_TRUE);
-			setTexParameteri(gl2, GL4.GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, 0);
-		}
+		updateTextureParameters(gl2);
+		GLErrorHandler.assertGL(gl2);
+
 		int pagesizes[] = new int[6];
 		gl2.glGetInternalformativ(textureType, internalFormat, GL4.GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 3,pagesizes,3);
 		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_X_ARB, 1,pagesizes, 0);
 		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_Y_ARB, 1,pagesizes, 1);
 		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_Z_ARB, 1,pagesizes, 2);
-		
+		GLErrorHandler.assertGL(gl2);
 		switch (virtualDimensions.length) {
 			case 1:
 				gl2.glTexStorage1D(this.textureType, 1, this.internalFormat, virtualDimensions[0]);
@@ -149,9 +179,9 @@ public class Texture {
 				break;
 			case 3:
 				GLErrorHandler.assertGL(gl2);
-				if(!memoryAllocated){
+				if(!sparseMemoryAllocated){
 					gl2.glTexStorage3D(this.textureType, 1, this.internalFormat, virtualDimensions[0],virtualDimensions[1],virtualDimensions[2]);
-					memoryAllocated = true;
+					sparseMemoryAllocated = true;
 				}
 				GLErrorHandler.assertGL(gl2);
 				//release all commitments
@@ -194,7 +224,18 @@ public class Texture {
 	public void update(GL4 gl2,int midmapLevel, Buffer data, int[] dimensions){
 		//activate context
 		gl2.glActiveTexture(textureUnit);
+		GLErrorHandler.assertGL(gl2);
 		rebindTexture(gl2);
+		GLErrorHandler.assertGL(gl2);
+		if(sparseMemoryAllocated){
+			delete(gl2);
+			genTexture(gl2);
+			setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_FALSE);
+	
+			gl2.glActiveTexture(textureUnit);
+			rebindTexture(gl2);		
+		}
+		updateTextureParameters(gl2);
 		
 		switch (dimensions.length) {
 		case 1:
@@ -233,6 +274,7 @@ public class Texture {
 		default:
 			break;
 		}
+		GLErrorHandler.assertGL(gl2);
 	}
 	
 	/**
@@ -242,15 +284,52 @@ public class Texture {
 	 * @param value
 	 */
 	public void setTexParameteri(GL4 gl2, int parameter, int value){
-		gl2.glTexParameteri(textureType, parameter, value);
+		parameteriMap.put(parameter, value);
+		updatableTextureParameters.put(parameter, true);
+		//gl2.glTexParameteri(textureType, parameter, value);
 	}
 
 	public void setTexParameteriv(GL4 gl2, int parameter, int[] values){
-		gl2.glTexParameteriv(textureType, parameter, values,0);
+		parameterivMap.put(parameter, values.clone());
+		updatableTextureParameters.put(parameter, true);
+		
+		//gl2.glTexParameteriv(textureType, parameter, values,0);
 	}
 	
 	public void setTexParameterfv(GL4 gl2, int parameter, float[] values){
-		gl2.glTexParameterfv(textureType, parameter, values, 0);
+		parameterfvMap.put(parameter, values.clone());
+		updatableTextureParameters.put(parameter, true);
+		
+		//gl2.glTexParameterfv(textureType, parameter, values, 0);
+	}
+	
+	/**
+	 * central update for parameters
+	 * @param gl
+	 */
+	public void updateTextureParameters(GL4 gl){
+		if(updatableTextureParameters.isEmpty()){
+			return;
+		}
+		
+		for(Integer parameter :updatableTextureParameters.keySet()){
+			
+			//int parameters
+			if(parameteriMap.containsKey(parameter)){
+				gl.glTexParameteri(textureType, parameter, parameteriMap.get(parameter));
+			}
+			
+			//intv parameters
+			if(parameterivMap.containsKey(parameter)){
+				gl.glTexParameteriv(textureType, parameter, parameterivMap.get(parameter),0);
+			}
+			
+			//intv parameters
+			if(parameterfvMap.containsKey(parameter)){
+				gl.glTexParameterfv(textureType, parameter, parameterfvMap.get(parameter),0);
+			}
+		}
+		updatableTextureParameters.clear();
 	}
 	
 	/**
@@ -264,6 +343,17 @@ public class Texture {
 		gl2.glDeleteTextures(1, textBuffer, 0);
 		
 		usedTextureUnits.remove(textureUnit);
+		
+		setParametersNeedsUpdate(parameteriMap.keySet());
+		setParametersNeedsUpdate(parameterivMap.keySet());
+		setParametersNeedsUpdate(parameterfvMap.keySet());
+		sparseMemoryAllocated = false;
+	}
+	
+	private void setParametersNeedsUpdate(Set<Integer> parameters){
+		for(Integer parameter: parameters){
+			updatableTextureParameters.put(parameter, true);
+		}
 	}
 	
 }

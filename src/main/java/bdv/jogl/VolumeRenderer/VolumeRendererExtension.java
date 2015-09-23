@@ -39,7 +39,7 @@ public class VolumeRendererExtension {
 
 	private final GLWindow glWindow;
 
-	private final VolumeDataManager dataManager = new VolumeDataManager(); 
+	private final VolumeDataManager dataManager; 
 
 	private final VolumeDataScene dataScene;
 
@@ -80,6 +80,7 @@ public class VolumeRendererExtension {
 
 		this.bdv = bdv;
 
+		dataManager = new VolumeDataManager(bdv);
 		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
 		dataScene = new VolumeDataScene( dataManager,volumeRenderer);

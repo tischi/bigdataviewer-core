@@ -17,6 +17,8 @@ import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.geom.AABBox;
 
 import bdv.BigDataViewer;
+import bdv.viewer.state.SourceState;
+import bdv.viewer.state.ViewerState;
 
 
 /**
@@ -38,7 +40,13 @@ public class VolumeDataManager {
 	
 	private int currentTime = -1;
 	
+	private final BigDataViewer bdv;
+	
 	private List<IVolumeDataManagerListener> listeners = new ArrayList<IVolumeDataManagerListener>();
+	
+	public VolumeDataManager(final BigDataViewer bdv){
+		this.bdv = bdv;
+	}
 	
 	private void fireAllRemovedData(Integer i ){
 		for(IVolumeDataManagerListener l:listeners){
@@ -192,5 +200,36 @@ public class VolumeDataManager {
 			fireAddedData(i, l);
 			fireUpdatedData(i, l);
 		}
+	}
+	
+	public void updateData(){	
+		ViewerState state = bdv.getViewer().getState();
+		int currentTimepoint = state.getCurrentTimepoint();
+		if(getCurrentTime() == currentTimepoint){
+			return;
+		}
+		
+		resetVolumeData();
+	}
+	
+	public void resetVolumeData() {
+		//mainly for new time points and data not realy for transform
+		ViewerState state = bdv.getViewer().getState();
+		List<SourceState<?>> sources = state.getSources();
+		int currentTimepoint = state.getCurrentTimepoint();
+		
+		
+		int i =-1;
+		for(SourceState<?> source : sources){
+
+			i++;
+
+			//block transform
+			int midMapLevel = source.getSpimSource().getNumMipmapLevels()-1;
+			VolumeDataBlock data = getDataBlock(bdv,new AABBox(new float[]{0,0,0,0},new float[]{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE}),i,midMapLevel);
+			forceVolumeUpdate(i,currentTimepoint, data);
+		
+		}
+		
 	}
 }

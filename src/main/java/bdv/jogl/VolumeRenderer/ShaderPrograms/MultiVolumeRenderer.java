@@ -493,7 +493,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private void updateGlobalScale(GL4 gl2) {
 		
 		//full volume assumption
-		if(null == drawCubeTransformation){
+		if(!useSparseVolume){
 
 			drawCubeTransformation = getNewIdentityMatrix();
 

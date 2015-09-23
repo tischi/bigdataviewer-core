@@ -42,7 +42,7 @@ public class MultiVolumeRendererTest {
 	
 	private SimpleScene testScene = new SimpleScene();
 	
-	private VolumeDataManager dataManager = new VolumeDataManager();
+	private VolumeDataManager dataManager = new VolumeDataManager(null);
 	
 	private BlockingQueue<Boolean> sync = new ArrayBlockingQueue<Boolean>(1);
 	
@@ -112,7 +112,7 @@ public class MultiVolumeRendererTest {
 
 	@Before
 	public void setUp(){
-		dataManager = new VolumeDataManager();
+		dataManager = new VolumeDataManager(null);
 		classUnderTest = new MultiVolumeRenderer(new TransferFunction1D(), dataManager);
 	}
 	

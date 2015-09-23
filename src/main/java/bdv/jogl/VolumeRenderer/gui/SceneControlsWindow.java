@@ -90,6 +90,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final JCheckBox useGradient = new JCheckBox("Use gradients as values",false);
 	
+	private final JButton resetButton = new JButton("Reset to full volume view"); 
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -126,6 +128,7 @@ public class SceneControlsWindow extends JFrame {
 		initShowSlice();
 		initSampleSpinner();
 		initUseGradient();
+		initResetButton();
 	
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		addComponetenToMainPanel(tfpanel);
@@ -134,17 +137,32 @@ public class SceneControlsWindow extends JFrame {
 		addComponetenToMainPanel(samplePanel);
 		addComponetenToMainPanel(rectBorderCheck);
 		addComponetenToMainPanel(showSlice);
+		addComponetenToMainPanel(resetButton);
 		addComponetenToMainPanel(backgroundPanel);
 		addComponetenToMainPanel(usePreIntegration);
 		addComponetenToMainPanel(isoPanel);
 		addComponetenToMainPanel(aggregationPanel);
 		addComponetenToMainPanel(useGradient);
 		
+		
 		tfDataPanel.setVisible(advancedCheck.isSelected());
 		
 		getContentPane().add(mainPanel);
 		pack();
 	}
+	private void initResetButton() {
+		resetButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				renderer.setUseSparseVolumes(false);
+				dataManager.resetVolumeData();
+				
+			}
+		});
+		
+	}
+
 	public void updateUseGradient(){
 		renderer.setUseGradient(this.useGradient.isSelected());
 		drawWindow.getGlCanvas().repaint();

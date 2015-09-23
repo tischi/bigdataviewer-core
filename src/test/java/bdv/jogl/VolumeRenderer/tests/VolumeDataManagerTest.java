@@ -9,7 +9,7 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 
 public class VolumeDataManagerTest {
 
-	private VolumeDataManager manager = new VolumeDataManager();
+	private VolumeDataManager manager = new VolumeDataManager(null);
 	@Test
 	public void dataAddingTest() {
 		
