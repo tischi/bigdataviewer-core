@@ -120,8 +120,10 @@ public class Texture {
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		rebindTexture(gl2);
-		setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_TRUE);
-		setTexParameteri(gl2, GL4.GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, 0);
+		if(!memoryAllocated){
+			setTexParameteri(gl2, GL4.GL_TEXTURE_SPARSE_ARB, GL2.GL_TRUE);
+			setTexParameteri(gl2, GL4.GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, 0);
+		}
 		int pagesizes[] = new int[6];
 		gl2.glGetInternalformativ(textureType, internalFormat, GL4.GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 3,pagesizes,3);
 		gl2.glGetInternalformativ(textureType, internalFormat,GL4.GL_VIRTUAL_PAGE_SIZE_X_ARB, 1,pagesizes, 0);
