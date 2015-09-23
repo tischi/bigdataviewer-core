@@ -61,20 +61,11 @@ public class VolumeDataUtils {
 		RandomAccessibleInterval<?> dataField = source.getSpimSource().getSource(currentTimePoint, midmap);
 		IterableInterval<?> tmp = Views.flatIterable(dataField);
 		tmp.dimensions( data.dimensions);
-		Long maxX = tmp.dimension(0);
-		Long maxY = tmp.dimension(1);
-		Long maxZ = tmp.dimension(2);
 
-
-		Long boxEntries[]= new Long[]{ ((Double)(Math.ceil((double)minBoundingBox.getMaxX())- Math.floor((double)minBoundingBox.getMinX()))).longValue(),
-				((Double)(Math.ceil((double)minBoundingBox.getMaxY())- Math.floor((double)minBoundingBox.getMinY()))).longValue(),
-				((Double)(Math.ceil((double)minBoundingBox.getMaxZ())- Math.floor((double)minBoundingBox.getMinZ()))).longValue()};
-		
-		long minMax[][] = new long[][]{{(long)Math.floor(minBoundingBox.getMinX()),(long)Math.floor(minBoundingBox.getMinY()),(long)Math.floor(minBoundingBox.getMinZ())},
+		long minMax[][] = new long[][]{{(long)Math.max(Math.floor(minBoundingBox.getMinX()),0),(long)Math.max(Math.floor(minBoundingBox.getMinY()),0),(long)Math.max(Math.floor(minBoundingBox.getMinZ()),0)},
 				{Math.min((long)Math.ceil(minBoundingBox.getMaxX()), data.dimensions[0])-1,Math.min((long)Math.ceil(minBoundingBox.getMaxY()), data.dimensions[1])-1,Math.min((long)Math.ceil(minBoundingBox.getMaxZ()), data.dimensions[2])-1}};
-		float[] block = new float[Math.min(maxX.intValue(),boxEntries[0].intValue())*
-		                          Math.min(maxY.intValue(),boxEntries[1].intValue())*
-		                          Math.min(maxZ.intValue(),boxEntries[2].intValue())];
+		float[] block = new float[(int)((minMax[1][0]+1-minMax[0][0]) * (minMax[1][1]+1-minMax[0][1]) * (minMax[1][2]+1-minMax[0][2]))];
+
 		tmp = Views.flatIterable(Views.interval(dataField, minMax[0], minMax[1]));
 
 		int maxOcc =0;
@@ -83,30 +74,31 @@ public class VolumeDataUtils {
 		float minValue = Float.MAX_VALUE;
 		float maxValue = Float.MIN_VALUE; 
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
-		for(long z = minMax[0][2]; z <  minMax[1][2]; z++){
-			for(long y = minMax[0][1]; y < minMax[1][1]; y++){
-				for(long x = minMax[0][0]; x < minMax[1][0]; x++ ){
+		for(long z = minMax[0][2]; z <=  minMax[1][2]; z++){
+			for(long y = minMax[0][1]; y <= minMax[1][1]; y++){
+				for(long x = minMax[0][0]; x <= minMax[1][0]; x++ ){
 					short value = (short)values.next().get();
-					if(minBoundingBox.contains(x, y, z)){
-						block[i++] = value ;
 
-						//update local distribution
-						if(!distr.containsKey((float)value)){
-							distr.put((float)value,0);
-						}
-						Integer curOcc= distr.get((float) value);
-						curOcc++;
-						distr.put((float)value,curOcc);
-						maxOcc = Math.max(curOcc, maxOcc);
-						minValue = Math.min(minValue, value);
-						maxValue = Math.max(maxValue, value);
+					block[i++] = value ;
+
+					//update local distribution
+					if(!distr.containsKey((float)value)){
+						distr.put((float)value,0);
 					}
+					Integer curOcc= distr.get((float) value);
+					curOcc++;
+					distr.put((float)value,curOcc);
+					maxOcc = Math.max(curOcc, maxOcc);
+					minValue = Math.min(minValue, value);
+					maxValue = Math.max(maxValue, value);
 				}
 			}
 		}
 
 		tmp.min(data.memOffset);
-		tmp.dimensions(data.memSize);
+		for(int d = 0;d < 3 ;d++){
+			data.memSize[d] = minMax[1][d]+1-minMax[0][d];
+		}
 		data.maxValue = maxValue;
 		data.minValue = minValue;
 		data.data = block;
