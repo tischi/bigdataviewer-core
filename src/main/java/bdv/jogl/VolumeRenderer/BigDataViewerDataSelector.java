@@ -7,6 +7,9 @@ import java.util.List;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.geom.AABBox;
 
@@ -16,10 +19,12 @@ import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
+import bdv.jogl.VolumeRenderer.utils.GLUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.viewer.Source;
 import bdv.viewer.state.SourceState;
+
 
 public class BigDataViewerDataSelector {
 
@@ -70,6 +75,20 @@ public class BigDataViewerDataSelector {
 	 * @param p point on the panel
 	 */
 	public void selectVolumePart(final Point p){
+		//test 
+	//	p.x = 252;
+	//	p.y = 284;
+		final String extensionName = "GL_ARB_sparse_texture";
+		final String  apology = "Sorry, sparse textures are not available on your sytems. "
+				+ "Scince these textures are used for the detailed view it is unusable on your system."
+				+ "You at least need Opengl version 4.3 and the "+extensionName+" gl extension";
+		
+		try{
+			GLProfile glp =  GLProfile.get(GLProfile.GL4);
+		}catch(Exception e){
+			System.out.println(apology);
+		}
+		
 		List<SourceState<?>> sources = bdv.getViewer().getState().getSources();
 		
 		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{50,50,50});
@@ -80,15 +99,16 @@ public class BigDataViewerDataSelector {
 		//TODO remove test
 		
 		for(int i =0; i < sources.size(); i++){
-			int midmapLevel = 0;//bdv.getViewer().getState().getSources().get(i).getSpimSource().getNumMipmapLevels()-1;
+			int midmapLevel =0; //bdv.getViewer().getState().getSources().get(i).getSpimSource().getNumMipmapLevels()-1;
 			int time =bdv.getViewer().getState().getCurrentTimepoint();
 			AABBox b = getInnerVolume(bdv, volumeRectangle, midmapLevel, time,i);
 
+			System.out.println(p);
 			System.out.println(b);
 			VolumeDataBlock data = getDataBlock(bdv, b, i, midmapLevel);
 			dataManager.forceVolumeUpdate(i, time, data);
 			System.out.println(data);
-			i++;
+			//break;
 		}
 		options.setVisible(true);
 		drawWindow.setVisible(true);
@@ -163,7 +183,7 @@ public class BigDataViewerDataSelector {
 					//update min max
 					for(int m = 0; m < 3; m++){
 						minMax[0][m] = Math.min(minMax[0][m], transformed[m]/transformed[3]);
-						minMax[1][m] = Math.max(minMax[0][m], transformed[m]/transformed[3]);
+						minMax[1][m] = Math.max(minMax[1][m], transformed[m]/transformed[3]);
 					}
 
 					x = outerVolume.getMaxX();
