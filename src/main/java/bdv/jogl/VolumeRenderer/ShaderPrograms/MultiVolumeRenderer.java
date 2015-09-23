@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.spec.OAEPParameterSpec;
+
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
@@ -86,6 +88,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private boolean useGradient= false;
 
+	private AABBox drawRect;
+	
 	private final List<IMultiVolumeRendererListener> listeners = new ArrayList<IMultiVolumeRendererListener>();
 
 	private boolean useSparseVolume = false;
@@ -98,7 +102,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		drawCubeTransformation = getNewIdentityMatrix();
 		drawCubeTransformation.translate(rect.getMinX(),rect.getMinY(),rect.getMinZ());
 		drawCubeTransformation.scale(rect.getWidth(),rect.getHeight(),rect.getDepth());
-		
+		drawRect  = rect;
 		fireAllRect(rect);
 	}
 
@@ -140,12 +144,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		if(update){
 
 			updateGlobalScale(gl2);
-
+			
+			updateLocalTransformationInverse(gl2);
+			
 			updateMaxDiagonalLength(gl2);
 
-			updateLocalTransformationInverse(gl2);
-
-			updateEyePositions(gl2);
+			updateLightPositions(gl2);
 		}
 
 		updateColor(gl2);
@@ -232,10 +236,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		float plane[] = new float[4];
 		//prepare return
-		for(int i =0; i < 3; i++){
+		for(int i =0; i < 4; i++){
 			plane[i]= transformedNormal[i]/n;
 		}
-		plane[3]= transformedNormal[3]/n;
+		
 		return plane;
 	}
 
@@ -334,7 +338,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isEyeUpdateable = false;
 	}
 
-	private void updateEyePositions(GL4 gl2) {
+	private void updateLightPositions(GL4 gl2) {
 		if(!isLightPositionUpdateable){
 			return;
 		}
@@ -435,6 +439,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private void updateLocalTransformationInverse(GL4 gl2) {
+		Map<Integer, Matrix4> localInverses = new HashMap<Integer, Matrix4>();
 		for(Integer index: dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(index);
 
@@ -443,9 +448,46 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			localInverse.invert();
 			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
+			localInverses.put(index,localInverse);
 		}
+		
+		updateClippingPlanes(gl2,localInverses);
 	}
 
+
+	private void updateClippingPlanes(GL4 gl,Map<Integer, Matrix4> localInverses) {
+		float planesInDrawRectSpace[][]= new float[][]{
+				{1,0,0,drawRect.getMaxX()},
+				{-1,0,0,drawRect.getMinX()},
+				{0,1,0,drawRect.getMaxY()},
+				{0,-1,0,drawRect.getMinY()},
+				{0,0,1,drawRect.getMaxX()},
+				{0,0,-1,drawRect.getMinX()}
+		};
+		
+		//transfer planes
+		//for(Integer i :  localInverses.keySet()){
+			
+		
+		//}
+		float planesInTexSpace1[][]= new float[6][4];
+		Matrix4 fromRectToText = copyMatrix(localInverses.get(0));
+		fromRectToText.invert();
+		fromRectToText.transpose();
+		
+		
+		//transform each plane
+		for(int p =0;p < planesInTexSpace1.length; p++){
+			fromRectToText.multVec(planesInDrawRectSpace[p], planesInTexSpace1[p]);
+			
+			float norm = VectorUtil.normVec3(planesInTexSpace1[p]);
+			for(int d =0; d < planesInTexSpace1[p].length; d++){
+				planesInTexSpace1[p][d]/=norm;
+			}
+			gl.glUniform4fv(getLocation(suvRenderRectClippingPlanes)+p, 1, planesInTexSpace1[p], 0);
+		}
+		
+	}
 
 	private void updateGlobalScale(GL4 gl2) {
 		
@@ -573,7 +615,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvNormalSlice,
 				suvShowSlice,
 				suvSamples,
-				suvUseGradient
+				suvUseGradient,
+				suvRenderRectClippingPlanes
 		});
 
 		int location = getLocation(suvVolumeTexture);

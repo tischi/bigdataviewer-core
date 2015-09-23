@@ -104,6 +104,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvMaxCubeSpace = "inMaxCubeSpace";
 	
+	public static final String suvRenderRectClippingPlanes = "inRectClippingPlanes";
+	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
 		setShaderLanguageVersion(130);
@@ -212,6 +214,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform int "+suvUseGradient+"=1;",
 				"uniform vec3 "+suvMinCubeSpace+"["+scvMaxNumberOfVolumes+"];",
 				"uniform vec3 "+suvMaxCubeSpace+"["+scvMaxNumberOfVolumes+"];",
+				"uniform vec4 "+suvRenderRectClippingPlanes+"[6];",
 				
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+"["+scvMaxNumberOfVolumes+"];",	
