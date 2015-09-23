@@ -55,12 +55,35 @@ public class ViewDirectionAccumulator extends AbstractVolumeAccumulator {
 	protected String[] colorAccDecl() {
 		// TODO Auto-generated method stub
 		return new String[]{
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 505",
 				"float["+scvMaxNumberOfVolumes+"] calcWeights(vec3 rayDirections["+scvMaxNumberOfVolumes+"]){",
 				"	float weights["+scvMaxNumberOfVolumes+"];",
 				"	for(int v=0; v < "+scvMaxNumberOfVolumes+"; v++){",
 				"		weights[v] = abs(dot(rayDirections[v],vec3(0,0,1)));",
 				"	}",
 				"	return weights;",
+				"}",
+				"",
+				"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"],vec4 refinedValues["+scvMaxNumberOfVolumes+"]){",
+				"	vec3  color = vec3(0.0);",		
+				"	float sum = 0.0;",
+				"	const int N = "+scvMaxNumberOfVolumes+";",
+				"	float weights[N] = calcWeights("+sgvRayDirections+");",
+				"	for(int n = 0; n< N; n++){",
+				"		if(refinedValues[n].a < 0.0){",
+				"			continue;",	
+				"		}",	
+				"		sum+=weights[n];",
+				"	}",	
+				"	for(int n = 0; n < N; n++){",
+				"		if(refinedValues[n].a < 0.0){",
+				"			continue;",	
+				"		}",	
+				"		float weight = (weights[n]/sum);",
+				"		color += weight * colors[n].rgb;",
+				"	}",
+				"	color = color*0.5 +vec3(0.5);",
+				"	return color;",	
 				"}"
 		};
 	}

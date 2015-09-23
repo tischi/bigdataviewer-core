@@ -418,6 +418,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			length = Math.max(currentLength, length);
 		}
 		gl2.glUniform1f(getLocation(suvMaxDiagonalLength), length);
+		isColorUpdateable = true;
 	}
 
 	private void updateActiveVolumes(GL4 gl2) {
