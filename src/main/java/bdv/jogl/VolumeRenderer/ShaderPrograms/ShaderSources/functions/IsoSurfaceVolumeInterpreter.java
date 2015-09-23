@@ -88,7 +88,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"				continue;",	
 				"				colors[volume].a=1.0;",
 				"			}",	
-				"			vec3 xNear = "+sgvRayPositions+"[volume] - "+sgvRayDirections+"[volume] * "+sgvSampleSize+";",
+				"			vec3 xNear = "+sgvRayPositions+"[volume] - "+sgvRayDirections+"[volume] * "+sgvSampleSize+"[volume];",
 				"			vec3 xFar = "+sgvRayPositions+"[volume];", 
 				"			vec4 refined[2] = refineIntersection(vm1,v,xNear,xFar,"+sgvNormIsoValue+","+suvVolumeTexture+"[volume], "+sgvTexTOffsets+"[volume], "+sgvTexTScales+"[volume]);",
 				"			if(distance("+sgvNormIsoValue+",refined[1].a)<distance("+sgvNormIsoValue+",refined[0].a)){",

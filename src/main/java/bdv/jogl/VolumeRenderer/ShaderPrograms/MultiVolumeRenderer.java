@@ -398,10 +398,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//get cube to global space
 		for(int i =0; i < globalUnitCubeHighLow.length;i++){
 			drawCubeTransformation.multVec(globalUnitCubeHighLow[i], globalUnitCubeHighLow[i]);
+			for(int j =0; j < 3; j++){
+				globalUnitCubeHighLow[i][j]/= globalUnitCubeHighLow[i][3];
+			}
 		}
+		//length = VectorUtil.distVec3(globalUnitCubeHighLow[0],globalUnitCubeHighLow[1]);
+		gl2.glUniform1f(getLocation(suvRenderRectStepSize), 1f/(float)samples);
 
 		//cube transform in texture space to get the maximum extend
-		for(VolumeDataBlock data: dataManager.getVolumes()){
+		for(Integer k : dataManager.getVolumeKeys()){
+			VolumeDataBlock data =  dataManager.getVolume(k);
 			float[][] coordsInTextureSpace = new float[2][4];
 
 			Matrix4 textureTransformation = copyMatrix(calcVolumeTransformation(data));
@@ -415,9 +421,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 			float currentLength = VectorUtil.distVec3(coordsInTextureSpace[0], coordsInTextureSpace[1]);
 
-			length = Math.max(currentLength, length);
+			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
+			
 		}
-		gl2.glUniform1f(getLocation(suvMaxDiagonalLength), length);
+		
 		isColorUpdateable = true;
 	}
 
@@ -453,8 +460,31 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 		
 		updateClippingPlanes(gl2,localInverses);
+		
+		updateNormalAxises(gl2,localInverses);
 	}
 
+
+	/**
+	 * transforms the xyz Axis of the bounding volume in the local texture coordinate systems
+	 * @param gl2 context to upload the data
+	 * @param localInverses the transformation matrices from draw rectangle space to texture space
+	 */
+	private void updateNormalAxises(GL4 gl2, Map<Integer, Matrix4> localInverses) {
+		float drawRectAxises[][] = {{1,0,0,0},{0,1,0,0},{0,0,1,0}};
+		
+		//transform and upload TODO
+		for(Integer volume: localInverses.keySet()){
+			float axisesInTextSpace[][] = new float[3][4]; 
+			Matrix4  transformation = localInverses.get(volume);
+			transformation.invert();
+			transformation.transpose();
+			
+			for(int axis=0; axis < drawRectAxises.length; axis++){
+				transformation.multVec(drawRectAxises[axis],axisesInTextSpace[axis]);
+			}
+		}
+	}
 
 	private void updateClippingPlanes(GL4 gl,Map<Integer, Matrix4> localInverses) {
 		float planesInDrawRectSpace[][]= new float[][]{
@@ -617,7 +647,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvShowSlice,
 				suvSamples,
 				suvUseGradient,
-				suvRenderRectClippingPlanes
+				suvRenderRectClippingPlanes,
+				suvRenderRectStepSize
 		});
 
 		int location = getLocation(suvVolumeTexture);
@@ -668,7 +699,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 		//get Buffer last key is the highest number 
-		FloatBuffer buffer = tf.getTexture(length/samples); 
+		FloatBuffer buffer = tf.getTexture(1f/(float)samples); 
 
 		//upload data
 		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});
