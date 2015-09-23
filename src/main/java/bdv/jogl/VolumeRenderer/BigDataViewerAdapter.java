@@ -67,25 +67,8 @@ public class BigDataViewerAdapter {
 	};
 	
 	private static void updateData(final BigDataViewer bdv,final VolumeDataManager manager){
-		//mainly for new time points and data not realy for transform
-		ViewerState state = bdv.getViewer().getState();
-		List<SourceState<?>> sources = state.getSources();
 
-		
-		int currentTimepoint = state.getCurrentTimepoint();
-		if(manager.getCurrentTime() == currentTimepoint){
-			return;
-		}
-		int i =-1;
-		for(SourceState<?> source : sources){
+		manager.updateData();
 
-			i++;
-
-			//block transform
-			int midMapLevel = getMidmapLevel(source);
-			VolumeDataBlock data = getDataBlock(bdv,new AABBox(new float[]{0,0,0,0},new float[]{2000,2000,2000}),i,midMapLevel);
-			manager.setVolume(i,currentTimepoint, data);
-		
-		}
 	}
 }

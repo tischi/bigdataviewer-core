@@ -103,11 +103,11 @@ public class BigDataViewerDataSelector {
 			int time =bdv.getViewer().getState().getCurrentTimepoint();
 			AABBox b = getInnerVolume(bdv, volumeRectangle, midmapLevel, time,i);
 
-			System.out.println(p);
-			System.out.println(b);
+	//		System.out.println(p);
+	//		System.out.println(b);
 			VolumeDataBlock data = getDataBlock(bdv, b, i, midmapLevel);
 			dataManager.forceVolumeUpdate(i, time, data);
-			System.out.println(data);
+		//	System.out.println(data);
 			//break;
 		}
 		options.setVisible(true);
