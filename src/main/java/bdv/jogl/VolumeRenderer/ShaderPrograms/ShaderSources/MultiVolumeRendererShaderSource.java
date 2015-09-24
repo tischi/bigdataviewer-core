@@ -111,7 +111,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
-		setShaderLanguageVersion(400);
+		setShaderLanguageVersion(330);
 	}
 	
 	/**
@@ -340,7 +340,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	int renderedSlice =0;",
 				"	float latestdDistanceToSlice = getPlaneDistance("+suvNormalSlice+","+sgvRayPositions+"[0] );",
 				//TODO find gpu killing bug of start steps
-				"  	for(int i = 0; i < "+suvSamples+"; i++){",
+				"  	for(int i = 0; i < steps/*"+suvSamples+"*/; i++){",
 				"",
 				"      	// note:", 
 				"      	// - ray_dir * "+sgvSampleSize+" can be precomputed",
@@ -366,7 +366,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"			if(sign(currentSliceDistance)!=sign(latestdDistanceToSlice)||sign(currentSliceDistance)==0 ){",
 				"				int residents = 0;",				
 				"				float densities["+scvMaxNumberOfVolumes+"] = getVolumeValues("+sgvRayPositions+");",
-				"				sliceColor =vec4(10.0*density ,0.5,0.5,1.0);",
+				"				sliceColor =vec4(10.0*densities[0] ,10.0*densities[0],10.0*densities[0],1.0);",
 				"				sliceColor.a  = 1.0;",
 				"				for(int n = 0; n < "+scvMaxNumberOfVolumes+";n++){",
 				"					if(densities[n]>0){",
@@ -389,13 +389,21 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		density = nextDensity;",
 				"   }",
 				//TODO DEBUG
-				"vec4 globalEye0 =toGlobal[0]*vec4("+sgvRayDirections+"[0].xyz,0.0); ",
-				"vec4 globalEye1 =toGlobal[1]*vec4("+sgvRayDirections+"[1].xyz,0.0); ",
-				/*"globalEye0.xyz/=globalEye0.w;",
-				"globalEye1.xyz/=globalEye1.w;",*/
-			/*	"if(dot(globalEye1.yxz, globalEye0.xyz) < 0.99 ){",
-				"	fragmentColor = vec4(globalEye0.xyz,1.0);",
-				"}else{",
+				//"vec4 globalVec0 =/*transpose(inverse(*/toGlobal[0]/*))*/*vec4("+sgvRayDirections+"[0].xyz,0.0);",
+			//	"vec4 globalVec1 =/*transpose(inverse(*/toGlobal[1]/*))*/*vec4("+sgvRayDirections+"[1].xyz,0.0);",
+				
+		//		"if(dot(globalVec1.xyz,globalVec0.xyz) < 1.0){",
+			//	"	fragmentColor = vec4(1.0,0.0,0.0,1.0);",
+				//"}",
+			//	"vec4 globalEye0 =toGlobal[0]*vec4("+svTextureCoordinate+"[0].xyz+10.0*"+sgvRayDirections+"[0] * "+suvRenderRectStepSize+",1.0); ",
+			//	"vec4 globalEye1 =toGlobal[1]*vec4("+svTextureCoordinate+"[1].xyz+10.0*"+sgvRayDirections+"[1] * "+suvRenderRectStepSize+",1.0); ",
+			
+			//	"globalEye0.xyz/=globalEye0.w;",
+			//	"globalEye1.xyz/=globalEye1.w;",
+			//	"if(length(globalEye1.xyz-globalEye0.xyz) > 10.0 ){",
+			//	"	fragmentColor = vec4(1.0,0.0,0.0,1.0);",
+			//	"}",
+				/*"}else{",
 				"	fragmentColor = vec4(0.0,1.0,0.0,1.0);",
 				"}",*/
 				//"fragmentColor = vec4();",

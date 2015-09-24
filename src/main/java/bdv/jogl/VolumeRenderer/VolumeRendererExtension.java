@@ -66,7 +66,7 @@ public class VolumeRendererExtension {
 	private void updateCameraPoints(Camera c,AABBox viewVolume){
 		float[] center = viewVolume.getCenter();
 
-		float[] eye = {center[0],center[1],	center[2] - 2f * (viewVolume.getDepth())};
+		float[] eye = {center[0],center[1],	center[2] - 3f * (viewVolume.getDepth())};
 		
 		c.setLookAtPoint(center);
 		c.setEyePoint(eye);
@@ -112,12 +112,12 @@ public class VolumeRendererExtension {
 
 	private void createListeners() {
 		//source changes 
-		volumeRenderer.getSource().setAccumulator(aggManager.getAccumulator( aggManager.getActiveAccumulator()));
+		volumeRenderer.setAccumulator(aggManager.getAccumulator( aggManager.getActiveAccumulator()));
 		aggManager.addListener(new IVolumeAggregationListener() {
 
 			@Override
 			public void aggregationChanged(AbstractVolumeAccumulator acc) {
-				volumeRenderer.getSource().setAccumulator(acc);
+				volumeRenderer.setAccumulator(acc);
 				glWindow.getGlCanvas().repaint();
 			}
 		});

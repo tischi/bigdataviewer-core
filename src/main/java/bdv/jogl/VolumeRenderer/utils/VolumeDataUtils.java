@@ -231,4 +231,66 @@ public class VolumeDataUtils {
 		//	trans.translate(1.f/(2.f*(float)dim[0]), 1.f/(2.f*(float)dim[1]), 1.f/(2.f*(float)dim[2]));
 		return trans;
 	}
+	
+
+	/**
+	 * convolves the data in x and y dimension since these dimension have the highest resolution
+	 * @param data
+	 * @return
+	 */
+	public static LaplaceContainer calulateLablacianSimple(final VolumeDataBlock data){
+		//assumeed kernel:
+		//-1 -1 -1
+		//-1  8 -1
+		//-1 -1 -1
+		float log2dKernel[][] = new float[][]{{-1,-1,-1},
+											  {-1,8,-1},
+											  {-1,-1,-1}};
+		int xyz[] = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
+		float convolved[] = new float[(int)(xyz[2]*xyz[1]*xyz[0])];
+		
+		LaplaceContainer ret = new LaplaceContainer();
+		ret.dimension = xyz.clone();
+		
+		//folding
+		for(int z = 0; z < xyz[2]; z++){
+			int zOffset = z*xyz[0]*xyz[1];
+			for(int y = 0; y < xyz[1]; y++){
+				float kernelValue = 0f;
+				int yOffset = y*xyz[0];
+				int vertOffset = xyz[0];
+				
+
+				for(int x=0; x < xyz[0]; x++){
+					//simple kernel evaluation
+					kernelValue =0;
+					for(int y1 = -1; y1 < 2; y1++){						
+						for(int x1 = -1; x1 < 2; x1++){
+							float dataValue;
+							//repeat at border
+							if((x == 0 && x1 ==-1) || (x == xyz[0]-1 && x1 ==1)||
+									(y == 0 && y1 ==-1)|| (y == xyz[1]-1 && y1 ==1)){
+								dataValue = data.data[zOffset + yOffset +x ];
+							}else{
+								dataValue = data.data[zOffset + yOffset  + vertOffset*y1 +x +x1];
+							}
+							float koeffizient;
+							
+							if(y1 == 0 && x1 == 0){
+								koeffizient = 8;
+							}else{
+								koeffizient = -1;
+							}
+							kernelValue+= koeffizient * dataValue;
+						}
+					}
+					ret.maxValue = Math.max(ret.maxValue, kernelValue);
+					ret.minValue = Math.min(ret.minValue, kernelValue);
+					convolved[zOffset+yOffset+x] = kernelValue;
+				}
+			}
+		}
+		ret.valueMesh3d = convolved;
+		return ret;
+	}
 }

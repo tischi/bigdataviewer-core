@@ -17,6 +17,8 @@ import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
@@ -94,6 +96,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private final List<IMultiVolumeRendererListener> listeners = new ArrayList<IMultiVolumeRendererListener>();
 
 	private boolean useSparseVolume = false;
+	
+	private AbstractVolumeAccumulator accumulator;
 
 	public void setUseSparseVolumes(boolean flag){
 		useSparseVolume = flag;
@@ -133,7 +137,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	@Override
 	protected void updateShaderAttributesSubClass(GL4 gl2) {
-
+		accumulator.updateData(gl2);
+		GLErrorHandler.assertGL(gl2);
 		updateBackgroundColor(gl2);
 		GLErrorHandler.assertGL(gl2);
 		updateActiveVolumes(gl2);
@@ -167,6 +172,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		GLErrorHandler.assertGL(gl2);
 		updateUseGradient(gl2);
 		GLErrorHandler.assertGL(gl2);
+		
+	
 	}
 
 	private void updateUseGradient(GL4 gl2) {
@@ -302,7 +309,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public MultiVolumeRenderer(TransferFunction1D tf, VolumeDataManager manager){
 		setVolumeDataManager(manager);
 		setTransferFunction(tf);
-
+		setAccumulator(new MaximumVolumeAccumulator());
 		sources.addSourceListener(new ISourceListener() {
 
 			@Override
@@ -431,7 +438,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
 		}
-		length = (float)Math.sqrt(3);
+		length = (float)Math.sqrt(30);
 
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), length/(float)samples);
 
@@ -662,6 +669,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvRenderRectClippingPlanes,
 				suvRenderRectStepSize
 		});
+		
+		accumulator.init(gl2);
 
 		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
@@ -780,6 +789,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(Texture texture: volumeTextureMap.values() ){
 			texture.delete(gl2);
 		}
+		
+		accumulator.disposeGL(gl2);
 		setAllUpdate(true);
 	}
 
@@ -802,5 +813,21 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isSamplesUpdatable = true;
 		isColorUpdateable = true;
 
+	}
+
+	/**
+	 * @param accumulatur the accumulator to set
+	 */
+	public void setAccumulator(AbstractVolumeAccumulator accumulator) {
+		this.accumulator = accumulator;
+		accumulator.setParent(this);
+		sources.setAccumulator(accumulator);
+	}
+
+	/**
+	 * return The associated data manager 
+	 */
+	public VolumeDataManager getDataManager() {
+		return dataManager;
 	}
 }

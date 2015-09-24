@@ -200,7 +200,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param gl2 gl context
 	 * @param uniforms List of uniform names to map 
 	 */
-	protected void mapUniforms(GL4 gl2, final String[] uniforms){
+	public void mapUniforms(GL4 gl2, final String[] uniforms){
 		int location = -1;
 		for(String uniform:uniforms){
 			location = gl2.glGetUniformLocation(shaderProgram.program(), uniform);
@@ -213,7 +213,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param gl2 gl context
 	 * @param uniforms List of uniform names to map 
 	 */
-	protected void mapAvertexAttributs(GL4 gl2, final String[] attributes){
+	public void mapAvertexAttributs(GL4 gl2, final String[] attributes){
 		int location = -1;
 		for(String attribute:attributes){
 			location = gl2.glGetAttribLocation(shaderProgram.program(), attribute);
@@ -227,7 +227,7 @@ public abstract class AbstractShaderSceneElement implements ISceneElements{
 	 * @param variableName Name of the shader variable
 	 * @return
 	 */
-	protected int getLocation(final String variableName){
+	public int getLocation(final String variableName){
 		return shaderVariableMapping.get(variableName);
 	}
 
