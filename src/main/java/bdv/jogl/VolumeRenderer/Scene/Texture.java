@@ -225,6 +225,7 @@ public class Texture {
 		//activate context
 		gl2.glActiveTexture(textureUnit);
 		GLErrorHandler.assertGL(gl2);
+
 		rebindTexture(gl2);
 		GLErrorHandler.assertGL(gl2);
 		if(sparseMemoryAllocated){
