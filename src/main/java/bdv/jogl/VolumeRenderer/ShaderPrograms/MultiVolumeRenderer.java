@@ -234,17 +234,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//to screen
 		bdvTransSafe.multMatrix(getModelTransformation());
 		bdvTransSafe.multMatrix(dataManager.getVolume(0).getLocalTransformation());
-		bdvTransSafe.scale(data.dimensions[0], data.dimensions[1], data.dimensions[2]);
 		bdvTransSafe.invert();
 
 		mat.multMatrix(bdvTransSafe);
-		mat.multMatrix(getProjection());
-		mat.multMatrix(getView());
-		mat.multMatrix(drawCubeTransformation);
-		mat.multMatrix(calcVolumeTransformation(data));
-		Matrix4 localInvert = calcVolumeTransformation(data);
-		localInvert.invert();
-		mat.multMatrix(localInvert);
 		mat.invert();
 		mat.transpose();
 
@@ -331,10 +323,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				break;
 			}
 			VolumeDataBlock data = dataManager.getVolume(i);
-			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
+			Matrix4 modelViewMatrix= copyMatrix(globalTransformation);
 
-			modelViewMatrixInverse.multMatrix(calcVolumeTransformation(data));
-			float eye[] = getEyeInCurrentSpace(modelViewMatrixInverse);
+			modelViewMatrix.multMatrix(fromVolumeToGlobalSpace(data));
+			float eye[] = getEyeInCurrentSpace(modelViewMatrix);
 
 			for(int j = 0; j < eye.length; j++){
 				eyePositionsObjectSpace[fieldOffset + j] = eye[j];
@@ -353,6 +345,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//eye position
 		gl2.glUniform3fv(getLocation(suvEyePosition), 
 				sources.getMaxNumberOfVolumes(),eyePositions,0);
+		GLErrorHandler.assertGL(gl2);
 
 		isEyeUpdateable = false;
 	}
@@ -382,8 +375,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			}
 			VolumeDataBlock data = dataManager.getVolume(i);
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
-
-			modelViewMatrixInverse.multMatrix(calcVolumeTransformation(data));
+			modelViewMatrixInverse.multMatrix(drawCubeTransformation);
+			modelViewMatrixInverse.multMatrix(fromCubeToVolumeSpace(data));
+	
 			modelViewMatrixInverse.invert();
 
 			float transformer[] = new float[]{lightPosition[0],lightPosition[1],lightPosition[2],1};
@@ -424,16 +418,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			VolumeDataBlock data =  dataManager.getVolume(k);
 
 			float newDiag[]=new float[4];
-			Matrix4 mat = fromCubeToNormalizedTextureSpace(data);
+			Matrix4 mat = fromCubeToVolumeSpace(data);
 			mat.multMatrix(copyMatrix(drawCubeTransformation));
 			mat.multVec(diagVec,newDiag);
 			float currentLength = VectorUtil.normVec3(newDiag);
 			
-	
-			
 			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
+			
 		}
-		length = (float)Math.sqrt(300);
+		length = (float)Math.sqrt(3d);
+		//length = VectorUtil.normVec3(newDiag);
 
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), length/(float)samples);
 
@@ -465,7 +459,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			VolumeDataBlock data = dataManager.getVolume(index);
 
 
-			Matrix4 localInverse = fromCubeToNormalizedTextureSpace( data);
+			Matrix4 localInverse = fromCubeToVolumeSpace( data);
 			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
 			localInverses.put(index,localInverse);
@@ -544,7 +538,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			for(VolumeDataBlock data: dataManager.getVolumes()){
 			
-				transformations.add(calcVolumeTransformation(data));
+				transformations.add(calcScaledVolumeTransformation(data));
 			}
 
 			setDrawRect(calculateCloseFittingBox(transformations));
@@ -667,6 +661,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	@Override
 	public void setModelTransformation(Matrix4 modelTransformations) {
+		if(modelTransformations.equals(getModelTransformation())){
+			return;
+		}
 		super.setModelTransformation(modelTransformations);
 
 		isSliceUpdateable = true;
@@ -674,6 +671,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	@Override
 	public void setView(Matrix4 view) {
+		if(view.equals(getView())){
+			return;
+		}
 		super.setView(view);
 
 		isEyeUpdateable = true;

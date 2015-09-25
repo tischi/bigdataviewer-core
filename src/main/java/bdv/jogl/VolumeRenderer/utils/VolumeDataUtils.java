@@ -216,7 +216,11 @@ public class VolumeDataUtils {
 		return volumeColor[i%volumeColor.length];
 	}
 
-	public static Matrix4 calcVolumeTransformation(final VolumeDataBlock block){
+	public static Matrix4 fromVolumeToGlobalSpace(final VolumeDataBlock block){
+		return copyMatrix( block.getLocalTransformation());
+	}
+	
+	public static Matrix4 calcScaledVolumeTransformation(final VolumeDataBlock block){
 		Matrix4 trans = getNewIdentityMatrix();
 
 		trans.multMatrix(block.getLocalTransformation());
@@ -225,14 +229,11 @@ public class VolumeDataUtils {
 		return trans;
 	}
 
-	public static Matrix4 fromCubeToNormalizedTextureSpace(final VolumeDataBlock block){
-		Matrix4 trans= calcVolumeTransformation(block);
-		//Matrix4 trans= copyMatrix(block.getLocalTransformation());
-		trans.invert();
+	public static Matrix4 fromCubeToVolumeSpace(final VolumeDataBlock block){
 		
-		Matrix4 tmp = getNewIdentityMatrix();
+		Matrix4 tmp = copyMatrix(block.getLocalTransformation());
 		//tmp.scale(block.dimensions[0], block.dimensions[1], block.dimensions[2]);
-		tmp.multMatrix(trans);
+		tmp.invert();
 		//long[] dim = block.dimensions;
 
 		//	trans.scale((float)(dim[0]-1)/((float)dim[0]), (float)(dim[1]-1)/((float)dim[1]), (float)(dim[2]-1)/((float)dim[2]));

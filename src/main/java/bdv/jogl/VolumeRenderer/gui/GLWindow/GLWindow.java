@@ -88,7 +88,7 @@ public class GLWindow extends JFrame {
 		glCanvas.addGLEventListener(new GLEventListener() {
 
 			@Override
-			public void reshape(GLAutoDrawable drawable, int x, int y, int width,
+			public synchronized void reshape(GLAutoDrawable drawable, int x, int y, int width,
 					int height) {
 				GL gl = drawable.getGL();
 				GL4 gl2 = gl.getGL4();
@@ -102,7 +102,7 @@ public class GLWindow extends JFrame {
 			 * init the test context
 			 */
 			@Override
-			public void init(GLAutoDrawable drawable) {
+			public synchronized void init(GLAutoDrawable drawable) {
 
 				GL gl = drawable.getGL();
 				//gl =drawable.setGL(new TraceGL2(drawable.getGL().getGL2(), System.err));
@@ -113,7 +113,7 @@ public class GLWindow extends JFrame {
 			}
 
 			@Override
-			public void dispose(GLAutoDrawable drawable) {
+			public synchronized void dispose(GLAutoDrawable drawable) {
 				GL gl = drawable.getGL();
 				GL4 gl2 = gl.getGL4();
 
@@ -124,7 +124,7 @@ public class GLWindow extends JFrame {
 
 
 			@Override
-			public void display(GLAutoDrawable drawable) {		
+			public synchronized void display(GLAutoDrawable drawable) {		
 
 				GL gl = drawable.getGL();
 				GL4 gl2 = gl.getGL4();

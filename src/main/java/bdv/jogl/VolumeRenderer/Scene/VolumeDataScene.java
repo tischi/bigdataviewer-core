@@ -53,7 +53,7 @@ public class VolumeDataScene extends AbstractScene{
 	
 	private void updateCubeBorderShader(Integer id, final VolumeDataBlock data){
 		UnitCube cubeShader = volumeBorders.get(id);
-		Matrix4 modelMatrix = calcVolumeTransformation(data);
+		Matrix4 modelMatrix = calcScaledVolumeTransformation(data);
 		cubeShader.setProjection(getCamera().getProjectionMatix());
 		cubeShader.setView(getCamera().getViewMatrix());
 		cubeShader.setModelTransformation(modelMatrix);

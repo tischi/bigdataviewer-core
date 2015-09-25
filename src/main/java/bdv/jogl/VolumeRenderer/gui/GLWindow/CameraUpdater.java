@@ -34,7 +34,7 @@ public class CameraUpdater {
 	private final MouseListener mouseListener = new MouseAdapter() {
 	
 		@Override
-		public void mousePressed(MouseEvent e) {
+		public synchronized void mousePressed(MouseEvent e) {
 			Point point = transformWindowNormalSpace(e.getPoint(),e.getComponent().getSize());
 			if(e.getButton() == orbitButton){
 				previousOrbitPoint = point;	
@@ -46,7 +46,7 @@ public class CameraUpdater {
 		};
 		
 		@Override
-		public void mouseReleased(MouseEvent e) {
+		public synchronized void mouseReleased(MouseEvent e) {
 			if(e.getButton() == orbitButton){
 				previousOrbitPoint = null;
 			}
@@ -59,8 +59,7 @@ public class CameraUpdater {
 	
 	private final MouseMotionListener mouseMotionListener = new MouseMotionAdapter() {
 		@Override
-		public void mouseDragged(MouseEvent e) {
-
+		public synchronized void  mouseDragged(MouseEvent e) {
 			Point currentPoint = transformWindowNormalSpace(e.getPoint(),e.getComponent().getSize());
 			if(previousOrbitPoint != null){
 				float alpha = -( currentPoint.y - previousOrbitPoint.y )*angleScale;
@@ -77,13 +76,14 @@ public class CameraUpdater {
 				previousTracPoint = currentPoint;
 				return;
 			}
+		
 		};
 	};
 	
 	private final MouseWheelListener mouseWheelListener = new MouseWheelListener() {
 		
 		@Override
-		public void mouseWheelMoved(MouseWheelEvent e) {
+		public synchronized void mouseWheelMoved(MouseWheelEvent e) {
 			float alpha = camera.getAlpha(); 
 			alpha += (float)e.getWheelRotation();
 			alpha = Math.min(Camera.maxAlpha,Math.max(Camera.minAlpha,alpha));
