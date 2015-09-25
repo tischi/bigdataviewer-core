@@ -428,8 +428,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			VolumeDataBlock data =  dataManager.getVolume(k);
 
 			float newDiag[]=new float[4];
-			Matrix4 mat = calcVolumeTransformation(data);
-			mat.invert();
+			Matrix4 mat = fromCubeToNormalizedTextureSpace(data);
 			mat.multMatrix(copyMatrix(drawCubeTransformation));
 			mat.multVec(diagVec,newDiag);
 			float currentLength = VectorUtil.normVec3(newDiag);
@@ -470,8 +469,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			VolumeDataBlock data = dataManager.getVolume(index);
 
 
-			Matrix4 localInverse = copyMatrix(calcVolumeTransformation(data));
-			localInverse.invert();
+			Matrix4 localInverse = fromCubeToNormalizedTextureSpace( data);
 			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
 					1,false,localInverse.getMatrix(),0);
 			localInverses.put(index,localInverse);
