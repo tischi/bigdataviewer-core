@@ -1,8 +1,10 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
 import net.imglib2.realtransform.AffineTransform3D;
 
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.geom.AABBox;
 
 /**
  * Class to provide matrix operations for affine and matrix4
@@ -69,5 +71,17 @@ public class MatrixUtils {
 		}
 		return eyePositionInCurrentSpace;
 
+	}
+	
+	/**
+	 * Calculates the transformation from 0 -1 Space to global space AABBox 
+	 * @param box The box to calculates the transformation from
+	 * @return The transformation
+	 */
+	public static Matrix4 getTransformationRepresentAABBox(final AABBox box){
+		Matrix4 transformation = getNewIdentityMatrix();
+		transformation.translate(box.getMinX(),box.getMinY(),box.getMinZ());
+		transformation.scale(box.getWidth(),box.getHeight(),box.getDepth());
+		return transformation;
 	}
 }

@@ -192,8 +192,10 @@ public class MultiVolumeRendererTest {
 
 		}
 		assertTrue(isSomethingDrawn);
-
-		
 	}
 
+	@Test
+	public void coordinateSpaceTransformationTest(){
+		
+	}
 }

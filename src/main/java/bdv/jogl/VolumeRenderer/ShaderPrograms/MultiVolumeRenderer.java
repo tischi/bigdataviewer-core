@@ -105,9 +105,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 	
 	public void setDrawRect(AABBox rect){
-		drawCubeTransformation = getNewIdentityMatrix();
-		drawCubeTransformation.translate(rect.getMinX(),rect.getMinY(),rect.getMinZ());
-		drawCubeTransformation.scale(rect.getWidth(),rect.getHeight(),rect.getDepth());
+		drawCubeTransformation = getTransformationRepresentAABBox(rect);
 		drawRect  = rect;
 		
 		fireAllRect(rect);
