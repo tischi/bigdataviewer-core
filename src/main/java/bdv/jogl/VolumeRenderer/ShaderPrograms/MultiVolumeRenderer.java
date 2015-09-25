@@ -337,12 +337,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
 
 			modelViewMatrixInverse.multMatrix(calcVolumeTransformation(data));
-			modelViewMatrixInverse.invert();
+			float eye[] = getEyeInCurrentSpace(modelViewMatrixInverse);
 
-			eyePositionsObjectSpace[fieldOffset] = modelViewMatrixInverse.getMatrix()[12];
-			eyePositionsObjectSpace[fieldOffset+1] = modelViewMatrixInverse.getMatrix()[13];
-			eyePositionsObjectSpace[fieldOffset+2] = modelViewMatrixInverse.getMatrix()[14];
-
+			for(int j = 0; j < eye.length; j++){
+				eyePositionsObjectSpace[fieldOffset + j] = eye[j];
+			}
 		}
 		return eyePositionsObjectSpace;
 	}
@@ -437,7 +436,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			
 			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
 		}
-		length = (float)Math.sqrt(30);
+		length = (float)Math.sqrt(300);
 
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), length/(float)samples);
 

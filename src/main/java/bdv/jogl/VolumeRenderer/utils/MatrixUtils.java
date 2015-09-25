@@ -52,4 +52,22 @@ public class MatrixUtils {
 		matrix.multMatrix(matrixToCopy);
 		return matrix;
 	}
+	
+	/**
+	 * Get the normalized eye position in the current space.
+	 * @param modelViewMatrix model view matrix defining the current space in gl format (transposed)
+	 * @return
+	 */
+	public static float[] getEyeInCurrentSpace(final Matrix4 modelViewMatrix){
+		float eyePositionInCurrentSpace[] = new float[3];
+		Matrix4 modelViewMatrixInverse = copyMatrix(modelViewMatrix);
+		modelViewMatrixInverse.invert();
+	
+		//translation part of model view
+		for(int i= 0; i < eyePositionInCurrentSpace.length; i++){
+			eyePositionInCurrentSpace[i] = modelViewMatrixInverse.getMatrix()[12 + i];
+		}
+		return eyePositionInCurrentSpace;
+
+	}
 }
