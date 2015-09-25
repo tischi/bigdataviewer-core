@@ -357,7 +357,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float textureLightPositions[] = calculateTextureLightPositions();
 
 		gl2.glUniform3fv(getLocation(suvLightPosition),sources.getMaxNumberOfVolumes(), textureLightPositions,0);
-
+		isLightPositionUpdateable = false;
 	}
 
 	private float[] calculateTextureLightPositions() {
@@ -365,8 +365,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float lightPositionsObjectSpace[] = new float[3*maxNumVolumes];
 
 		Matrix4 globalTransformation = getNewIdentityMatrix();
-		//globalTransformation.multMatrix(getView());
-		globalTransformation.multMatrix(getModelTransformation());
+		globalTransformation.multMatrix(getView());
+		globalTransformation.multMatrix(drawCubeTransformation);
 
 		for(int i =0; i< maxNumVolumes;i++){
 			int fieldOffset = 3*i;
@@ -375,7 +375,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			}
 			VolumeDataBlock data = dataManager.getVolume(i);
 			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
-			modelViewMatrixInverse.multMatrix(drawCubeTransformation);
+			
 			modelViewMatrixInverse.multMatrix(fromCubeToVolumeSpace(data));
 	
 			modelViewMatrixInverse.invert();
@@ -384,10 +384,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			float transformed[] = new float[4];
 			modelViewMatrixInverse.multVec(transformer, transformed);
 
-			lightPositionsObjectSpace[fieldOffset] = transformed[0]/transformed[3];
-			lightPositionsObjectSpace[fieldOffset+1] = transformed[1]/transformed[3];
-			lightPositionsObjectSpace[fieldOffset+2] = transformed[2]/transformed[3];
-
+			for(int d = 0; d < 3; d++){
+				lightPositionsObjectSpace[fieldOffset+d] = transformed[d]/transformed[3];
+			}
 		}
 		return lightPositionsObjectSpace;
 	}
@@ -426,7 +425,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
 			
 		}
-		length = (float)Math.sqrt(3d);
+		length = (float)Math.sqrt(30d);
 		//length = VectorUtil.normVec3(newDiag);
 
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), length/(float)samples);
