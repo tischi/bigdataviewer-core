@@ -63,15 +63,6 @@ public class VolumeRendererExtension {
 		controls =new SceneControlsWindow(transferFunction,aggManager, dataManager, volumeRenderer,glWindow,dataScene);
 	}
 
-	private void updateCameraPoints(Camera c,AABBox viewVolume){
-		float[] center = viewVolume.getCenter();
-
-		float[] eye = {center[0],center[1],	center[2] - 3f * (viewVolume.getDepth())};
-		
-		c.setLookAtPoint(center);
-		c.setEyePoint(eye);
-		c.updateViewMatrix();
-	}
 	
 	public VolumeRendererExtension(final BigDataViewer bdv){
 		if(bdv == null){
@@ -91,7 +82,7 @@ public class VolumeRendererExtension {
 				if(drawRect.equals(hullVolume)){
 					return;
 				}
-				updateCameraPoints(dataScene.getCamera(), drawRect);
+				dataScene.getCamera().centerOnBox(drawRect);
 				
 			}
 		});

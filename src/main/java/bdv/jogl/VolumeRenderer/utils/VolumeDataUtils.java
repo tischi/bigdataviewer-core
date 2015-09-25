@@ -14,8 +14,11 @@ import javax.naming.spi.DirStateFactory;
 
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.BigDataViewerDataSelector;
+import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.viewer.state.SourceState;
 
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.geom.AABBox;
 
@@ -298,5 +301,23 @@ public class VolumeDataUtils {
 		}
 		ret.valueMesh3d = convolved;
 		return ret;
+	}
+	
+	/**
+	 * Creates a default volume texture (interpolation, clamping , etc,)
+	 * @param gl The gl context.
+	 * @param programLocation The location of the uniform sampler.
+	 * @return The created texture object
+	 */
+	public static Texture createVolumeTexture(final GL4 gl, int programLocation){
+		Texture volumeTexture = new Texture(GL4.GL_TEXTURE_3D,programLocation,GL4.GL_R32F,GL4.GL_RED,GL4.GL_FLOAT);
+		volumeTexture.genTexture(gl);
+		volumeTexture.setTexParameteri(gl,GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+		volumeTexture.setTexParameteri(gl, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+		volumeTexture.setTexParameterfv(gl, GL4.GL_TEXTURE_BORDER_COLOR, new float[]{-1,-1,-1,-1});
+		volumeTexture.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
+		volumeTexture.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
+		return volumeTexture;
 	}
 }

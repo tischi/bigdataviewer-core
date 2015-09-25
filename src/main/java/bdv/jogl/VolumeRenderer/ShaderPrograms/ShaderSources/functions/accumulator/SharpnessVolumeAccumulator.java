@@ -149,21 +149,10 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 		for(Integer key:dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(key);
 			Texture t;
+			
 			//create texture objects
 			if(!laplacianTextures.containsKey(key)||needsReset){
-				t = new Texture(
-						GL4.GL_TEXTURE_3D, 
-						getParent().getLocation(suvLaplaceTextures)+key, 
-						GL4.GL_R32F,GL4.GL_RED,GL4.GL_FLOAT);
-				
-				t.genTexture(gl);
-				t.setTexParameteri(gl,GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-				t.setTexParameteri(gl, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-				t.setTexParameterfv(gl, GL4.GL_TEXTURE_BORDER_COLOR, new float[]{-1,-1,-1,-1});
-				t.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_BORDER);
-				t.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_BORDER);
-				t.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
-				
+				t = createVolumeTexture(gl, getParent().getLocation(suvLaplaceTextures)+key) ;
 				laplacianTextures.put(key, t);
 			}
 			t = laplacianTextures.get(key);

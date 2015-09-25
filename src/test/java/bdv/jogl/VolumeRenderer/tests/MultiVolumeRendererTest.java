@@ -13,13 +13,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.jogamp.opengl.GL;
-
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.math.Matrix4;
 
+import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.FrameBufferRedirector;
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.SimpleScene;
@@ -196,6 +196,8 @@ public class MultiVolumeRendererTest {
 
 	@Test
 	public void coordinateSpaceTransformationTest(){
+		Camera c = new Camera();
+		c.setZnear(1);
 		
 	}
 }

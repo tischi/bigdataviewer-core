@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.crypto.spec.OAEPParameterSpec;
 
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
@@ -26,8 +25,8 @@ import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
-import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.*;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
+import static bdv.jogl.VolumeRenderer.utils.GLUtils.*;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
@@ -541,34 +540,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		//full volume assumption
 		if(!useSparseVolume && drawCubeTransformation == null){
 
-			drawCubeTransformation = getNewIdentityMatrix();
-
-			//iterate data for get bounding volume
-			float lowhighPoint[][] = {
-					{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE},
-					{Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE}
-			};
-
-
-			for(int index: dataManager.getVolumeKeys()){
-				VolumeDataBlock data = dataManager.getVolume(index);
-				long [] foo= new long[]{1,1,1};
-
-				AABBox box = getAABBOfTransformedBox(foo, calcVolumeTransformation(data));
-
-				for(int d =0; d < 3; d++){
-					lowhighPoint[0][d] = Math.min(lowhighPoint[0][d], box.getLow()[d]);
-					lowhighPoint[1][d] = Math.max(lowhighPoint[1][d], box.getHigh()[d]); 
-				}
+			List<Matrix4> transformations = new ArrayList<Matrix4>();
+			
+			for(VolumeDataBlock data: dataManager.getVolumes()){
+			
+				transformations.add(calcVolumeTransformation(data));
 			}
 
-			AABBox boundingVolume = new AABBox(lowhighPoint[0],lowhighPoint[1]);
-
-			setDrawRect(boundingVolume);
-			//correct origo
-			//fireAllRect(boundingVolume);
-			//drawCubeTransformation.translate(boundingVolume.getMinX(),boundingVolume.getMinY(),boundingVolume.getMinZ());
-			//drawCubeTransformation.scale(boundingVolume.getWidth(),boundingVolume.getHeight(),boundingVolume.getDepth());
+			setDrawRect(calculateCloseFittingBox(transformations));
 		}
 		gl2.glUniformMatrix4fv(getLocation(suvDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
 	}
@@ -612,14 +591,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 						(int)data.dimensions[2]};
 				volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
 			}else{
+				
+				long tmp[] = calculateSparseVirtualTextures(gl2,volumeTextureMap.get(i),data.dimensions);
+				data.dimensions = tmp.clone();
 				int pagesizes[]  = volumeTextureMap.get(i).getVirtPageSizes(gl2);
-				for(int k =0;k < 3; k++){
-					data.dimensions[k] = pagesizes[k]*(int)Math.ceil((float)data.dimensions[k]/(float)pagesizes[k]);
-
-				}
-				dim = new int[]{(int)data.dimensions[0], 
-						(int)data.dimensions[1], 
-						(int)data.dimensions[2]};
+		
+				dim = new int[]{(int)data.dimensions[0],(int)data.dimensions[1],(int)data.dimensions[2]};
 				int[] offsets = new int[]{(int)data.memOffset[0],(int)data.memOffset[1],(int)data.memOffset[2]};
 				int[] sizes = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
 				volumeTextureMap.get(i).updateSparse(gl2, 0,buffer, dim, offsets, sizes);
@@ -669,15 +646,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
-			Texture volumeTexture = new Texture(GL2.GL_TEXTURE_3D,location+i,GL2.GL_R32F,GL2.GL_RED,GL2.GL_FLOAT);
-			volumeTexture.genTexture(gl2);
-			volumeTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-			volumeTexture.setTexParameterfv(gl2, GL2.GL_TEXTURE_BORDER_COLOR, new float[]{-1,-1,-1,-1});
-			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
-			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_BORDER);
-			volumeTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_R, GL2.GL_CLAMP_TO_BORDER);
-			volumeTextureMap.put(i, volumeTexture);
+
+			volumeTextureMap.put(i, createVolumeTexture(gl2, location + i));
 		}
 		location = getLocation(suvColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);

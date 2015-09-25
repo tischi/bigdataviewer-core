@@ -1,6 +1,11 @@
 package bdv.jogl.VolumeRenderer.utils;
 
+import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.getAABBOfTransformedBox;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.getNewIdentityMatrix;
+import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.calcVolumeTransformation;
+
+import java.util.Collection;
+
 import net.imglib2.realtransform.AffineTransform3D;
 
 import com.jogamp.opengl.math.Matrix4;
@@ -83,5 +88,33 @@ public class MatrixUtils {
 		transformation.translate(box.getMinX(),box.getMinY(),box.getMinZ());
 		transformation.scale(box.getWidth(),box.getHeight(),box.getDepth());
 		return transformation;
+	}
+	
+	/**
+	 * Calculates a closely fitting bounding box of transformations 
+	 * @param transformations The list of transformations of 0-1 space coordinates
+	 * @return The bounding box
+	 */
+	public static AABBox calculateCloseFittingBox(final Collection<Matrix4> transformations){
+
+		float lowhighPoint[][] = {
+				{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE},
+				{Float.MIN_VALUE,Float.MIN_VALUE,Float.MIN_VALUE}
+		};
+
+		//iterate transformation for get bounding box
+		for(Matrix4 transformation: transformations){
+			long [] foo= new long[]{1,1,1};
+
+			AABBox box = getAABBOfTransformedBox(foo, transformation);
+
+			for(int d =0; d < 3; d++){
+				lowhighPoint[0][d] = Math.min(lowhighPoint[0][d], box.getLow()[d]);
+				lowhighPoint[1][d] = Math.max(lowhighPoint[1][d], box.getHigh()[d]); 
+			}
+		}
+
+		AABBox boundingBox = new AABBox(lowhighPoint[0],lowhighPoint[1]);
+		return boundingBox;
 	}
 }

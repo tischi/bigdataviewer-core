@@ -8,6 +8,7 @@ import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
+import com.jogamp.opengl.math.geom.AABBox;
 
 /**
  * Class to calculate the camera matrices for opengl
@@ -261,7 +262,7 @@ public class Camera {
 	 * update the angle based perspective
 	 */
 	public void updatePerspectiveMatrix() {
-		float alphaInRad = (float) (alpha * (Math.PI / 180));
+		float alphaInRad = (float)Math.toRadians(alpha);
 		
 		FloatUtil.makePerspective(projectionMatrix.getMatrix(), 0, true, 
 				alphaInRad,width.floatValue()/height.floatValue(), znear, zfar);
@@ -368,6 +369,21 @@ public class Camera {
 				upVector, 0, mat4Tmp);
 
 	};
+	
+	/**
+	 * Centers the camera view on the center of a AABBox 
+	 * @param box The box to center on
+	 */
+	public void centerOnBox(final AABBox box){
+		float[] center = box.getCenter();
+
+		float[] eye = {center[0],center[1],	center[2] - 3f * (box.getDepth())};
+		
+		setLookAtPoint(center);
+		setEyePoint(eye);
+		updateViewMatrix();
+	}
+	
 
 }
 
