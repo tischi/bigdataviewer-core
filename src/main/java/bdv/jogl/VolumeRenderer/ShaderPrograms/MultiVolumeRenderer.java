@@ -412,21 +412,29 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		
 		//length = (float)Math.sqrt(3d);
 		//cube transform in texture space to get the maximum extend
-		float diagVec[]={1,1,1,0};
+		float diagVec[]={drawRect.getWidth(),drawRect.getHeight(),drawRect.getDepth(),0};
 		for(Integer k : dataManager.getVolumeKeys()){
 			VolumeDataBlock data =  dataManager.getVolume(k);
 
 			float newDiag[]=new float[4];
 			Matrix4 mat = fromCubeToVolumeSpace(data);
-			mat.multMatrix(copyMatrix(drawCubeTransformation));
 			mat.multVec(diagVec,newDiag);
 			float currentLength = VectorUtil.normVec3(newDiag);
 			
 			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
 			
 		}
-		length = (float)Math.sqrt(30d);
-		//length = VectorUtil.normVec3(newDiag);
+		
+		//create a logical stepsize for the the classifications
+		float minDim = Float.MAX_VALUE;
+		for(int i = 0; i < 3; i ++){
+			minDim = Math.min(minDim, diagVec[i]);
+		} 
+		for(int i = 0; i< 3; i++){
+			diagVec[i]/=minDim;
+		}
+		
+		length = VectorUtil.normVec3(diagVec);
 
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), length/(float)samples);
 

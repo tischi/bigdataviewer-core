@@ -374,7 +374,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"						residents++;",		
 				"					}",
 				"				}",
-				"				sliceColor.rgb *= gamma;",
+				"				//sliceColor.rgb *= gamma;",
 				"				",
 				"				//for(int n = 0; n < "+scvMaxNumberOfVolumes+";n++){",
 				"					//"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n]*float(abs(latestdDistanceToSlice))*"+sgvSampleSize+"[n]/"+sgvSampleSize+"[0];",
@@ -399,14 +399,14 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				//"vec4 globalEye0 =toGlobal[0]*vec4("+suvEyePosition+"[0].xyz,1.0); ",
 				//"vec4 globalEye1 =toGlobal[1]*vec4("+suvEyePosition+"[1].xyz,1.0); ",
 			
-				"vec4 globalEye0 =toGlobal[0]*vec4("+svTextureCoordinate+"[0].xyz+30.0*"+sgvRayDirections+"[0] * "+sgvSampleSize+"[0],1.0); ",
-				"vec4 globalEye1 =toGlobal[1]*vec4("+svTextureCoordinate+"[1].xyz+30.0*"+sgvRayDirections+"[1] * "+sgvSampleSize+"[1],1.0); ",
+				/*"vec4 globalEye0 =toGlobal[0]*vec4("+svTextureCoordinate+"[0].xyz+256.0*"+sgvRayDirections+"[0] * "+suvRenderRectStepSize+",1.0); ",
+				"vec4 globalEye1 =toGlobal[1]*vec4("+svTextureCoordinate+"[1].xyz+256.0*"+sgvRayDirections+"[1] * "+suvRenderRectStepSize+",1.0); ",
 			
 				"globalEye0.xyz/=globalEye0.w;",
 				"globalEye1.xyz/=globalEye1.w;",
-				"if(length(globalEye1.xyz-globalEye0.xyz) > 1.0 ){",
-				//"	fragmentColor = vec4(1.0,0.0,0.0,1.0);",
-				"}",
+				"if(length(globalEye1.xyz-globalEye0.xyz) > 40.0 ){",
+				"	fragmentColor = vec4(1.0,0.0,0.0,1.0);",
+				"}",*/
 				/*"}else{",
 				"	fragmentColor = vec4(0.0,1.0,0.0,1.0);",
 				"}",*/
