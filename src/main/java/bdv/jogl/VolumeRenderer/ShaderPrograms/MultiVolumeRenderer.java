@@ -233,10 +233,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		//to screen
 		bdvTransSafe.multMatrix(getModelTransformation());
-		bdvTransSafe.multMatrix(dataManager.getVolume(0).getLocalTransformation());
+	//	bdvTransSafe.multMatrix(data.getLocalTransformation());
 		bdvTransSafe.invert();
 
 		mat.multMatrix(bdvTransSafe);
+		mat.multMatrix(getProjection());
+		mat.multMatrix(getView());
+		//mat.multMatrix(drawCubeTransformation);
+		//mat.multMatrix(fromCubeToVolumeSpace(data));
 		mat.invert();
 		mat.transpose();
 
@@ -312,12 +316,21 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float[] calculateEyePositions(){
 		final int maxNumVolumes = sources.getMaxNumberOfVolumes();
-		float eyePositionsObjectSpace[] = new float[3*maxNumVolumes];
+		float eyePositionsObjectSpace[] = new float[3];
 
 		Matrix4 globalTransformation = getNewIdentityMatrix();
 		globalTransformation.multMatrix(getView());
-
-		for(int i =0; i< maxNumVolumes;i++){
+		globalTransformation.multMatrix(drawCubeTransformation);
+		float eye[] = getEyeInCurrentSpace(globalTransformation);
+		float eyeTransformer[] ={eye[0] ,eye[1],eye[2],1}; 
+		float eyeTransformed[] = new float[4];
+		
+		drawCubeTransformation.multVec(eyeTransformer, eyeTransformed);
+		for(int j = 0; j < eye.length; j++){
+		//	eyePositionsObjectSpace[j] = eye[j];
+			eyePositionsObjectSpace[j] = eyeTransformed[j]/eyeTransformed[3];
+		}
+		/*for(int i =0; i< maxNumVolumes;i++){
 			int fieldOffset = 3*i;
 			if(!dataManager.getVolumeKeys().contains(i)){
 				break;
@@ -331,7 +344,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			for(int j = 0; j < eye.length; j++){
 				eyePositionsObjectSpace[fieldOffset + j] = eye[j];
 			}
-		}
+		}*/
 		return eyePositionsObjectSpace;
 	}
 
@@ -344,7 +357,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		//eye position
 		gl2.glUniform3fv(getLocation(suvEyePosition), 
-				sources.getMaxNumberOfVolumes(),eyePositions,0);
+				1,eyePositions,0);
 		GLErrorHandler.assertGL(gl2);
 
 		isEyeUpdateable = false;
@@ -412,7 +425,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		
 		//length = (float)Math.sqrt(3d);
 		//cube transform in texture space to get the maximum extend
-		float diagVec[]={drawRect.getWidth(),drawRect.getHeight(),drawRect.getDepth(),0};
+		final float diagVec[]={drawRect.getWidth(),drawRect.getHeight(),drawRect.getDepth(),0};
 		for(Integer k : dataManager.getVolumeKeys()){
 			VolumeDataBlock data =  dataManager.getVolume(k);
 
@@ -421,10 +434,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			mat.multVec(diagVec,newDiag);
 			float currentLength = VectorUtil.normVec3(newDiag);
 			
-			gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
+			//gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
+			GLErrorHandler.assertGL(gl2);
 			
 		}
+		float runLength = VectorUtil.normVec3(diagVec);
 		
+		gl2.glUniform1f(getLocation(suvRenderRectStepSize), runLength/(float)samples);
+		GLErrorHandler.assertGL(gl2);
 		//create a logical stepsize for the the classifications
 		float minDim = Float.MAX_VALUE;
 		for(int i = 0; i < 3; i ++){
@@ -435,8 +452,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 		
 		length = VectorUtil.normVec3(diagVec);
+		
+		gl2.glUniform1f(getLocation(suvTransferFuntionSize), length);
+		GLErrorHandler.assertGL(gl2);
 
-		gl2.glUniform1f(getLocation(suvRenderRectStepSize), length/(float)samples);
+		
 
 		
 		isColorUpdateable = true;
@@ -595,7 +615,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				
 				long tmp[] = calculateSparseVirtualTextures(gl2,volumeTextureMap.get(i),data.dimensions);
 				data.dimensions = tmp.clone();
-				int pagesizes[]  = volumeTextureMap.get(i).getVirtPageSizes(gl2);
 		
 				dim = new int[]{(int)data.dimensions[0],(int)data.dimensions[1],(int)data.dimensions[2]};
 				int[] offsets = new int[]{(int)data.memOffset[0],(int)data.memOffset[1],(int)data.memOffset[2]};
@@ -640,7 +659,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvSamples,
 				suvUseGradient,
 				suvRenderRectClippingPlanes,
-				suvRenderRectStepSize
+				suvRenderRectStepSize,
+				suvTransferFuntionSize
 		});
 		
 		accumulator.init(gl2);

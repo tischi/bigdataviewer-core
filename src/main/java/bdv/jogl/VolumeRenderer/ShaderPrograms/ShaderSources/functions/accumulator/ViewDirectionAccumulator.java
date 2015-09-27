@@ -1,6 +1,6 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator;
 
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.scvMaxNumberOfVolumes;
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.sgvRayDirections;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.addCodeArrayToList;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
@@ -56,10 +56,12 @@ public class ViewDirectionAccumulator extends AbstractVolumeAccumulator {
 		// TODO Auto-generated method stub
 		return new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 505",
-				"float["+scvMaxNumberOfVolumes+"] calcWeights(vec3 rayDirections["+scvMaxNumberOfVolumes+"]){",
+				"float["+scvMaxNumberOfVolumes+"] calcWeights(vec3 rayDirections){",
 				"	float weights["+scvMaxNumberOfVolumes+"];",
 				"	for(int v=0; v < "+scvMaxNumberOfVolumes+"; v++){",
-				"		weights[v] = abs(dot(rayDirections[v],vec3(0,0,1)));",
+				"		vec4 rayDirInVolumeSpace = vec4(rayDirections,0.0);",
+				"		rayDirInVolumeSpace = "+suvTextureTransformationInverse+"[v] * rayDirInVolumeSpace;",
+				"		weights[v] = abs(dot(rayDirInVolumeSpace.xyz,vec3(0,0,1)));",
 				"	}",
 				"	return weights;",
 				"}",
@@ -70,13 +72,13 @@ public class ViewDirectionAccumulator extends AbstractVolumeAccumulator {
 				"	const int N = "+scvMaxNumberOfVolumes+";",
 				"	float weights[N] = calcWeights("+sgvRayDirections+");",
 				"	for(int n = 0; n< N; n++){",
-				"		if(refinedValues[n].a < 0.0){",
+				"		if(refinedValues[n].a < 0.0 || colors[n].a < 0.0){",
 				"			continue;",	
 				"		}",	
 				"		sum+=weights[n];",
 				"	}",	
 				"	for(int n = 0; n < N; n++){",
-				"		if(refinedValues[n].a < 0.0){",
+				"		if(refinedValues[n].a < 0.0|| colors[n].rgb == vec3(0.0)){",
 				"			continue;",	
 				"		}",	
 				"		float weight = (weights[n]/sum);",
