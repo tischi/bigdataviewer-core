@@ -25,7 +25,7 @@ public class MaxDifferenceAccumulator extends AbstractVolumeAccumulator {
 			"			continue;",
 			"		}",
 			"		float value = refinedValues[v].a;",
-			"		if(value < 0.0|| colors[v].rgb < 0.0){",
+			"		if(value < 0.0|| colors[v].a < 0.0){",
 			"			continue;",	
 			"		}",
 			"		if(maxValue < value){",
