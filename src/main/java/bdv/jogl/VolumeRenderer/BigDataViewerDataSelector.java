@@ -192,6 +192,13 @@ public class BigDataViewerDataSelector {
 			}
 			z = outerVolume.getMaxZ();
 		}
+		
+		//get a little offset for surpressing render artefacts of the sparse textures
+		float offset = 10f;
+		for (int i =0; i < 3; i++){
+			minMax[0][i]-=offset;
+			minMax[1][i]+=offset;
+		}
 		return new AABBox(minMax[0], minMax[1]);
 	}
 }

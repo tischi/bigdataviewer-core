@@ -49,7 +49,6 @@ public class ViewDirectionAccumulator extends AbstractVolumeAccumulator {
 				"		float weight = (weights[n]/sum);",
 				"		density += weight * densities[n];",
 				"	}",
-				"	density = density*0.5 +0.5;",
 				"	return density;",	
 				"}"
 		};

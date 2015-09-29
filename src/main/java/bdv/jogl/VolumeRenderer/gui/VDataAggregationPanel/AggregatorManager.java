@@ -50,7 +50,7 @@ public class AggregatorManager {
 		addAccumulator(new MaximumVolumeAccumulator());
 		addAccumulator(new MinimumVolumeAccumulator());
 		addAccumulator(new MaxDifferenceAccumulator());
-		addAccumulator(new VoxelDistanceAccumulator());
+	//	addAccumulator(new VoxelDistanceAccumulator());
 		addAccumulator(new ViewDirectionAccumulator());
 		addAccumulator(new SharpnessVolumeAccumulator());
 		setActiveAcumulator(max.getFunctionName());

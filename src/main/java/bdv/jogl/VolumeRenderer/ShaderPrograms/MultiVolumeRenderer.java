@@ -221,7 +221,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float[] plane=calcSlicePlane();
 
 		gl2.glUniform4fv(getLocation(suvNormalSlice), 1, plane, 0);
-
+		isSliceUpdateable=false;
 	}
 
 	/**
@@ -230,19 +230,25 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 */
 	private float[] calcSlicePlane() {
 		float normVector[] = {0,0,1,0};
-
+		
+		//viewer to global
 		Matrix4 bdvTransSafe = getNewIdentityMatrix();
-
-		Matrix4 mat = getNewIdentityMatrix();
-
-		//to screen
 		bdvTransSafe.multMatrix(getModelTransformation());
 		bdvTransSafe.invert();
+		
+		
+		Matrix4 mat = getNewIdentityMatrix();
 
+	//	mat.multMatrix(scaleInv);
+	//	mat.multMatrix(calcScaledVolumeTransformation(data));
+		
 		mat.multMatrix(bdvTransSafe);
 		mat.multMatrix(getProjection());
 		mat.multMatrix(getView());
-		//mat.multMatrix(drawCubeTransformation);
+		
+				
+
+
 		mat.invert();
 		mat.transpose();
 
@@ -256,7 +262,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(int i =0; i < 4; i++){
 			plane[i]= transformedNormal[i]/n;
 		}
-		
+		//no idea but works
+		plane[3] *= -1.f;
 		return plane;
 	}
 
@@ -426,12 +433,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), runLength/(float)samples);
 		GLErrorHandler.assertGL(gl2);
 		//create a logical stepsize for the the classifications
-		float minDim = Float.MAX_VALUE;
+		float sizeDim = 0;
 		for(int i = 0; i < 3; i ++){
-			minDim = Math.min(minDim, diagVec[i]);
+			sizeDim = Math.max(sizeDim, diagVec[i]);
 		} 
 		for(int i = 0; i< 3; i++){
-			diagVec[i]/=minDim;
+			diagVec[i]/=sizeDim;
 		}
 		
 		length = VectorUtil.normVec3(diagVec);
@@ -513,11 +520,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		
 		float planesInDrawRectSpace[]= new float[]{
 				1,0,0,drawRect.getMaxX(),
-				-1,0,0,drawRect.getMinX(),
+				-1,0,0,-drawRect.getMinX(),
 				0,1,0,drawRect.getMaxY(),
-				0,-1,0,drawRect.getMinY(),
-				0,0,1,drawRect.getMaxX(),
-				0,0,-1,drawRect.getMinX()
+				0,-1,0,-drawRect.getMinY(),
+				0,0,1,drawRect.getMaxZ(),
+				0,0,-1,-drawRect.getMinZ()
 		};
 		
 		if(getLocation(suvRenderRectClippingPlanes) != -1){

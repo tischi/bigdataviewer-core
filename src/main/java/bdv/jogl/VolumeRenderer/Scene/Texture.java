@@ -52,6 +52,7 @@ public class Texture {
 
 	private boolean sparseMemoryAllocated = false;
 
+
 	/**
 	 * Constructor
 	 * @param textureType type of the texture (GL_TEXTURE_<N>D)
@@ -146,6 +147,7 @@ public class Texture {
 			 
 		}
 		
+		
 		GLErrorHandler.assertGL(gl2);
 		//activate context
 		gl2.glActiveTexture(textureUnit);
@@ -204,6 +206,7 @@ public class Texture {
 				for(int t= 0; t< clearBuffer.capacity(); t++){
 					clearBuffer.put(t, -1);
 				}
+				
 				clearBuffer.rewind();
 				gl2.glTexSubImage3D(this.textureType, 0, tmpOffset[0], tmpOffset[1], tmpOffset[2], tmpSize[0],tmpSize[1],tmpSize[2], this.pixelFormat, this.pixelDataType, clearBuffer);
 				gl2.glTexSubImage3D(this.textureType, 0, offsets[0],offsets[1],offsets[2], sizes[0],sizes[1],sizes[2], this.pixelFormat, this.pixelDataType, data);
