@@ -48,6 +48,20 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 		List<String> code = new ArrayList<String>();
 		String[] dec= new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 909",
+				"uniform sampler3D "+suvLaplaceTextures+"["+scvMaxNumberOfVolumes+"];",
+				"uniform float "+suvLaplaceMinValue+";",
+				"uniform float "+suvLaplaceMaxValue+";",
+				"float laplaceNormFactor = 1.0 /("+suvLaplaceMaxValue+"-"+suvLaplaceMinValue+");",
+				"",
+				"float ["+scvMaxNumberOfVolumes+"] calcWeights(){",
+				"	float weights["+scvMaxNumberOfVolumes+"];",
+				"	for(int v = 0; v < "+scvMaxNumberOfVolumes+"; v++){",
+				"		vec3 texC = getCorrectedTexturePositions("+sgvRayPositions+", v);",
+				"		weights[v] =  laplaceNormFactor*(texture("+suvLaplaceTextures+"[v],texC).r +"+suvLaplaceMinValue+") ;",
+				"	}",
+				"	return weights;",
+				"}",
+				"",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
 				"	float density = 0.0;",		
 				"	float sum = 0.0;",
@@ -70,55 +84,11 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 				"	return density;",	
 				"}"
 		};
-		addCodeArrayToList(colorAccDecl(), code);
 		addCodeArrayToList(dec, code);
 		String[] codeArray = new String[code.size()];
 		code.toArray(codeArray);
 		appendNewLines(codeArray);
 		return codeArray;
-	}
-
-	@Override
-	protected String[] colorAccDecl() {
-		// TODO Auto-generated method stub
-		return new String[]{
-				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 908",
-				"uniform sampler3D "+suvLaplaceTextures+"["+scvMaxNumberOfVolumes+"];",
-				"uniform float "+suvLaplaceMinValue+";",
-				"uniform float "+suvLaplaceMaxValue+";",
-				"float laplaceNormFactor = 1.0 /("+suvLaplaceMaxValue+"-"+suvLaplaceMinValue+");",
-				"",
-				"float ["+scvMaxNumberOfVolumes+"] calcWeights(){",
-				"	float weights["+scvMaxNumberOfVolumes+"];",
-				"	for(int v = 0; v < "+scvMaxNumberOfVolumes+"; v++){",
-				"		vec3 texC = getCorrectedTexturePositions("+sgvRayPositions+", v);",
-				"		weights[v] =  laplaceNormFactor*(texture("+suvLaplaceTextures+"[v],texC).r +"+suvLaplaceMinValue+") ;",
-				"	}",
-				"	return weights;",
-				"}",
-				"",
-				"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"],vec4 refinedValues["+scvMaxNumberOfVolumes+"]){",
-				"	vec3  color = vec3(0.0);",		
-				"	float sum = 0.0;",
-				"	const int N = "+scvMaxNumberOfVolumes+";",
-				"	float weights[N] = calcWeights();",
-				"	for(int n = 0; n< N; n++){",
-				"		if(refinedValues[n].a < 0.0|| colors[n].a < 0.0){",
-				"			continue;",	
-				"		}",	
-				"		sum+=weights[n];",
-				"	}",	
-				"	for(int n = 0; n < N; n++){",
-				"		if(refinedValues[n].a < 0.0){",
-				"			continue;",	
-				"		}",	
-				"		float weight = (weights[n]/sum);",
-				"		color += weight * colors[n].rgb;",
-				"	}",
-				"	color = color;",
-				"	return color;",	
-				"}"
-				};
 	}
 	
 	@Override

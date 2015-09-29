@@ -98,6 +98,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	
 	private AbstractVolumeAccumulator accumulator;
 
+	private boolean isClippingUpdatable = true;
+	
+	private boolean islengthUpdatable = true;
+
 	public void setUseSparseVolumes(boolean flag){
 		useSparseVolume = flag;
 		drawCubeTransformation = null;
@@ -106,7 +110,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public void setDrawRect(AABBox rect){
 		drawCubeTransformation = getTransformationRepresentAABBox(rect);
 		drawRect  = rect;
-		
+		isClippingUpdatable = true;
+		islengthUpdatable = true;
 		fireAllRect(rect);
 	}
 
@@ -152,14 +157,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			GLErrorHandler.assertGL(gl2);
 			updateLocalTransformationInverse(gl2);
 			GLErrorHandler.assertGL(gl2);
-			updateMaxDiagonalLength(gl2);
+
 			GLErrorHandler.assertGL(gl2);
 			updateLightPositions(gl2);
 		}
-
+		GLErrorHandler.assertGL(gl2);
+		updateClippingPlanes(gl2);
+		updateMaxDiagonalLength(gl2);
 		updateColor(gl2);
 		GLErrorHandler.assertGL(gl2);
-		updateEyes(gl2);
+		updateEye(gl2);
 		GLErrorHandler.assertGL(gl2);
 		updateSliceShown(gl2);
 		GLErrorHandler.assertGL(gl2);
@@ -224,23 +231,18 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private float[] calcSlicePlane() {
 		float normVector[] = {0,0,1,0};
 
-
-		VolumeDataBlock data = dataManager.getVolume(0);
-
 		Matrix4 bdvTransSafe = getNewIdentityMatrix();
 
 		Matrix4 mat = getNewIdentityMatrix();
 
 		//to screen
 		bdvTransSafe.multMatrix(getModelTransformation());
-	//	bdvTransSafe.multMatrix(data.getLocalTransformation());
 		bdvTransSafe.invert();
 
 		mat.multMatrix(bdvTransSafe);
 		mat.multMatrix(getProjection());
 		mat.multMatrix(getView());
 		//mat.multMatrix(drawCubeTransformation);
-		//mat.multMatrix(fromCubeToVolumeSpace(data));
 		mat.invert();
 		mat.transpose();
 
@@ -267,6 +269,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		return sources;
 	}
 
+	/**
+	 * reset all update flags. Insert new updates here 
+	 * @param flag
+	 */
 	private void setAllUpdate(boolean flag){
 
 		isColorUpdateable = flag;
@@ -276,6 +282,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isLightPositionUpdateable = flag;
 		isSliceUpdateable = flag;
 		isSamplesUpdatable = flag;
+		isClippingUpdatable = flag;
+		islengthUpdatable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -314,8 +322,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		});
 	}
 
-	private float[] calculateEyePositions(){
-		final int maxNumVolumes = sources.getMaxNumberOfVolumes();
+	private float[] calculateEyePosition(){
 		float eyePositionsObjectSpace[] = new float[3];
 
 		Matrix4 globalTransformation = getNewIdentityMatrix();
@@ -327,33 +334,18 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		
 		drawCubeTransformation.multVec(eyeTransformer, eyeTransformed);
 		for(int j = 0; j < eye.length; j++){
-		//	eyePositionsObjectSpace[j] = eye[j];
 			eyePositionsObjectSpace[j] = eyeTransformed[j]/eyeTransformed[3];
 		}
-		/*for(int i =0; i< maxNumVolumes;i++){
-			int fieldOffset = 3*i;
-			if(!dataManager.getVolumeKeys().contains(i)){
-				break;
-			}
-			VolumeDataBlock data = dataManager.getVolume(i);
-			Matrix4 modelViewMatrix= copyMatrix(globalTransformation);
 
-			modelViewMatrix.multMatrix(fromVolumeToGlobalSpace(data));
-			float eye[] = getEyeInCurrentSpace(modelViewMatrix);
-
-			for(int j = 0; j < eye.length; j++){
-				eyePositionsObjectSpace[fieldOffset + j] = eye[j];
-			}
-		}*/
 		return eyePositionsObjectSpace;
 	}
 
-	private void updateEyes(GL4 gl2){
+	private void updateEye(GL4 gl2){
 		if(!isEyeUpdateable ){
 			return;
 		}
 
-		float [] eyePositions = calculateEyePositions();
+		float [] eyePositions = calculateEyePosition();
 
 		//eye position
 		gl2.glUniform3fv(getLocation(suvEyePosition), 
@@ -421,23 +413,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 * @param gl2
 	 */
 	private void updateMaxDiagonalLength(GL4 gl2) {
-		length = Float.MIN_VALUE;
+		if(!islengthUpdatable){
+			return;
+		}
 		
+		length = Float.MIN_VALUE;
 		//length = (float)Math.sqrt(3d);
 		//cube transform in texture space to get the maximum extend
 		final float diagVec[]={drawRect.getWidth(),drawRect.getHeight(),drawRect.getDepth(),0};
-		for(Integer k : dataManager.getVolumeKeys()){
-			VolumeDataBlock data =  dataManager.getVolume(k);
-
-			float newDiag[]=new float[4];
-			Matrix4 mat = fromCubeToVolumeSpace(data);
-			mat.multVec(diagVec,newDiag);
-			float currentLength = VectorUtil.normVec3(newDiag);
-			
-			//gl2.glUniform1f(getLocation(suvMaxDiagonalLength)+k, currentLength);
-			GLErrorHandler.assertGL(gl2);
-			
-		}
 		float runLength = VectorUtil.normVec3(diagVec);
 		
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), runLength/(float)samples);
@@ -458,7 +441,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		
 
-		
+		islengthUpdatable = false;
 		isColorUpdateable = true;
 	}
 
@@ -491,8 +474,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 					1,false,localInverse.getMatrix(),0);
 			localInverses.put(index,localInverse);
 		}
-		GLErrorHandler.assertGL(gl2);
-		updateClippingPlanes(gl2,localInverses);
+
 		GLErrorHandler.assertGL(gl2);
 		updateNormalAxises(gl2,localInverses);GLErrorHandler.assertGL(gl2);
 	}
@@ -519,41 +501,30 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 	}
 
-	private void updateClippingPlanes(GL4 gl,Map<Integer, Matrix4> localInverses) {
-		float planesInDrawRectSpace[][]= new float[][]{
-				{1,0,0,drawRect.getMaxX()},
-				{-1,0,0,drawRect.getMinX()},
-				{0,1,0,drawRect.getMaxY()},
-				{0,-1,0,drawRect.getMinY()},
-				{0,0,1,drawRect.getMaxX()},
-				{0,0,-1,drawRect.getMinX()}
-		};
-		
-		//transfer planes
-		//for(Integer i :  localInverses.keySet()){
-			
-		
-		//}
-		float planesInTexSpace1[][]= new float[6][4];
-		Matrix4 fromRectToText = copyMatrix(localInverses.get(0));
-		fromRectToText.invert();
-		fromRectToText.transpose();
-		
-		
-		//transform each plane
-		for(int p =0;p < planesInTexSpace1.length; p++){
-			fromRectToText.multVec(planesInDrawRectSpace[p], planesInTexSpace1[p]);
-			
-			float norm = VectorUtil.normVec3(planesInTexSpace1[p]);
-			for(int d =0; d < planesInTexSpace1[p].length; d++){
-				planesInTexSpace1[p][d]/=norm;
-			}
-			
-			if(getLocation(suvRenderRectClippingPlanes) != -1){
-				gl.glUniform4fv(getLocation(suvRenderRectClippingPlanes)+p, 1, planesInTexSpace1[p], 0);
-			}
+	/**
+	 * Calculates the clipping planes for the ray based of drawing rects
+	 * @param gl
+	 * @param localInverses
+	 */
+	private void updateClippingPlanes(GL4 gl) {
+		if(!isClippingUpdatable){
+			return;
 		}
 		
+		float planesInDrawRectSpace[]= new float[]{
+				1,0,0,drawRect.getMaxX(),
+				-1,0,0,drawRect.getMinX(),
+				0,1,0,drawRect.getMaxY(),
+				0,-1,0,drawRect.getMinY(),
+				0,0,1,drawRect.getMaxX(),
+				0,0,-1,drawRect.getMinX()
+		};
+		
+		if(getLocation(suvRenderRectClippingPlanes) != -1){
+			gl.glUniform4fv(getLocation(suvRenderRectClippingPlanes), planesInDrawRectSpace.length, planesInDrawRectSpace, 0);
+		}
+		
+		isClippingUpdatable = false;
 	}
 
 	private void updateGlobalScale(GL4 gl2) {
@@ -650,7 +621,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvMaxVolumeValue,
 				suvVolumeTexture,
 				suvColorTexture,
-				suvMaxDiagonalLength,
 				suvIsoValue, 
 				suvBackgroundColor,
 				suvLightPosition,

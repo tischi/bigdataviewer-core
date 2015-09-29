@@ -13,35 +13,6 @@ public class AverageVolumeAccumulator extends AbstractVolumeAccumulator {
 		super("average");
 	}
 	
-	@Override
-	protected String[] colorAccDecl() {
-		String[] dec = {
-			"vec3 "+getColorFunctionName()+"(vec4 colors["+scvMaxNumberOfVolumes+"], vec4 refinedValues["+scvMaxNumberOfVolumes+"]){",
-			"	vec3 color = vec3(0.0);",
-			"	int n=0;",	
-			"	for(int v =0; v < "+scvMaxNumberOfVolumes+"; v++){",
-			"		if("+suvActiveVolumes+"[v]==0 ){",
-			"			continue;",
-			"		}",
-			"		float value = refinedValues[v].a;",
-			"		if(value < 0.0|| colors[v].a < 0.0){",
-			"			continue;",	
-			"		}",
-			"		float threshold = 0.1;",
-			"		if(value < "+sgvNormIsoValue+"-threshold||value > "+sgvNormIsoValue+" + threshold){",
-			"			continue;",
-			"		}",
-			"		color+=colors[v].rgb;",
-			"		n++;",
-			"	}",
-			"	if(n!=0){",
-			"		color /= float(n);",
-			"	}",	
-			"	return color;",
-			"}"
-		};
-		return dec;
-	}
 	
 	@Override
 	public String[] declaration() {
@@ -65,7 +36,6 @@ public class AverageVolumeAccumulator extends AbstractVolumeAccumulator {
 				"	return density;",	
 				"}"
 		};
-		addCodeArrayToList(colorAccDecl(), code);
 		addCodeArrayToList(dec, code);
 		String[] codeArray = new String[code.size()];
 		code.toArray(codeArray);

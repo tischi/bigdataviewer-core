@@ -65,8 +65,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 
 	public static final String suvMaxVolumeValue = "inMaxVolumeValue";
 
-	public static final String suvMaxDiagonalLength = "inMaxDiagonalLength";
-
 	public static final String scvMaxNumberOfVolumes = "maxNumberOfVolumes";
 	
 	public static final String sgvNormIsoValue = "normIsoValue";
@@ -78,8 +76,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String sgvRayDirections = "ray_dirs";
 	
 	public static final String sgvVolumeNormalizeFactor = "volumeNormalizeFactor";
-	
-	public static final String sgvSampleSize = "sample_step";
 	
 	public static final String suvBackgroundColor = "inBackgroundColorFragmentShader";
 	
@@ -100,10 +96,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String sgvTexTScales = "vtextScales";
 	
 	public static final String suvUseGradient = "inUseGradient";
-	
-	public static final String suvMinCubeSpace = "inMinCubeSpace";
-	
-	public static final String suvMaxCubeSpace = "inMaxCubeSpace";
 	
 	public static final String suvRenderRectClippingPlanes = "inRectClippingPlanes";
 	 
@@ -209,7 +201,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform float "+suvMinVolumeValue+";",
 				"uniform vec3 "+suvEyePosition+";",
 				"uniform sampler3D "+suvVolumeTexture+"["+scvMaxNumberOfVolumes+"];",
-				"uniform float "+suvMaxDiagonalLength+"["+scvMaxNumberOfVolumes+"] ;",
 				"uniform float "+suvIsoValue+";",
 				"uniform vec3 "+suvBackgroundColor+";",
 				"uniform vec3 "+suvLightPosition+"["+scvMaxNumberOfVolumes+"];",
@@ -218,16 +209,13 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform int "+suvShowSlice+";",
 				"uniform int "+suvSamples+";",
 				"uniform int "+suvUseGradient+"=1;",
-				"uniform vec3 "+suvMinCubeSpace+"["+scvMaxNumberOfVolumes+"];",
-				"uniform vec3 "+suvMaxCubeSpace+"["+scvMaxNumberOfVolumes+"];",
 				"uniform vec4 "+suvRenderRectClippingPlanes+"[6];",
 				"uniform float "+suvRenderRectStepSize+";",
-				/*TODO remove debug*/"uniform mat4x4 "+suvTextureTransformationInverse+"["+scvMaxNumberOfVolumes+"];",//TODO remove debug
+				"uniform mat4x4 "+suvTextureTransformationInverse+"["+scvMaxNumberOfVolumes+"];",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+";",	
 				"vec3 "+sgvRayPositions+";",
 				"float "+sgvVolumeNormalizeFactor+";",
-				"float "+sgvSampleSize+"["+scvMaxNumberOfVolumes+"];",
 				"float "+suvTransferFuntionSize+";",
 				"",
 				"in vec3 "+svRayStartCoordinate+";",
@@ -256,28 +244,30 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	distance+=dot(plane.xyz,position);",
 				"	return distance;",
 				"}",
-				//TODO"//int getStepsTillClipp(){",
-				"//	int steps = "+Integer.MAX_VALUE+";",
+				"",
+				"int getStepsTillClipp(){",
+				"	int steps = "+Integer.MAX_VALUE+";",
 				"	//render cube clipping plane",
-				"//	vec3 pointAfterTinyStep = "+sgvRayPositions+"+ "+sgvRayDirections+" * "+suvRenderRectStepSize+";",
-				"//	for(int p = 0; p < 6; p++){",
-				"		//move away from plane",
-				"//		vec4 plane = "+suvRenderRectClippingPlanes+"[p];",
-				"//		float distPosition0 = abs(getPlaneDistance(plane,"+sgvRayPositions+"[0]));",
-				"//		float distPosition1 = abs(getPlaneDistance(plane,pointAfterTinyStep));",
-				"//		if(distPosition0 <= distPosition1){",
-				"//			continue;",
-				"//		}",
-				"//		int stepsInRect = int(ceil(distPosition0/ "+sgvSampleSize+"[0]));",
-				"///		steps = min(steps, stepsInRect)+1;",
-				"//	}",
-				"//	return steps;",
-				"//}",//TODO
+				"	for(int p = 0; p < 3; p++){",
+				"		vec4 plane = "+suvRenderRectClippingPlanes+"[p];",
+				"		float dist = "+Integer.MAX_VALUE+";",
+				"		for(int i = 0; i < 2;i++){",
+				"			dist = min(dist, getPlaneDistance("+suvRenderRectClippingPlanes+"[p*2 + i], "+sgvRayPositions+"));",
+				"		}",
+				"		if(dist > 0.0){",
+				"			continue;",
+				"		}",
+				"",
+				"		int stepsInRect = int(floor(abs(dist)/ (abs("+sgvRayDirections+"[p]) * "+suvRenderRectStepSize+")))+1;",
+				"		steps = min(steps, stepsInRect);",
+				"	}",
+				"	return steps;",
+				"}",
 				"",
 
 		};
 
-		String[] body ={
+		String[] dependingFunctions ={
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() + " 1",
 				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions ){",
 				"	float volumeValues["+scvMaxNumberOfVolumes+"];",
@@ -288,13 +278,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		if("+suvActiveVolumes+"[i]==1",
 				"			&& all(greaterThanEqual(normtexturePos,vtextOffsets[i]))",
 				"			&& all(lessThanEqual(normtexturePos, vec3(1.0)-vtextOffsets[i] ))){",
-				"			float value;",
-				"			if("+suvUseGradient+"== 0){",	
-				"				value = texture("+suvVolumeTexture+"[i], normtexturePos ).r;",	
-				"			}else{",
-				"				vec3 posInTexSpace = getCoordinateInVolumeSpace(positions,i);",
-				"				value = 7.0*length("+gradient.call(new String[]{"posInTexSpace", suvVolumeTexture+"[i]",sgvTexTOffsets+"[i]", sgvTexTScales+"[i]"})+".xyz);",
-				"			}",
+				"			float value = texture("+suvVolumeTexture+"[i], normtexturePos ).r;",	
 				"			volumeValues[i] = value;",
 				"		}else{",
 				"			volumeValues[i]=-1.0;",	
@@ -308,6 +292,20 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	return "+accumulator.call(new String[]{"densities"})+" * "+sgvVolumeNormalizeFactor+";",		
 				"}",
 				"",
+				"float getValue(vec3 positionOnRay);",
+				
+				};
+				
+			String body[] = {	
+				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() + " 1111",
+				"float getValue(vec3 positionOnRay){",
+				"	if("+suvUseGradient+"== 0){",
+				"		return getNormalizedAndAggregatedVolumeValue(positionOnRay );",
+				"	}else{",
+				"		return 7.0*length("+gradient.call(new String[]{"positionOnRay"})+".xyz);",
+				"	}",
+				"}",
+				"",
 				"void main(void)",
 				"{",	
 				"",	
@@ -315,7 +313,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	"+sgvVolumeNormalizeFactor+" = 1.0/ ("+suvMaxVolumeValue+");",
 				"	"+sgvNormIsoValue+"="+suvIsoValue+"*"+sgvVolumeNormalizeFactor+";",
 				"	//get rays of volumes",
-				"	int steps = 0;",
+				"	int steps = "+Short.MAX_VALUE+";",
 				"	int startStep = "+Short.MAX_VALUE+";",	
 				"",
 				"	//init positions, directions ,etc",
@@ -327,13 +325,12 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		vec3 tmp = "+suvVoxelCount+"[n];",
 				"	    vtextOffsets[n] = vec3(1.0/tmp);",
 				"	    vtextScales[n] = (vec3("+suvVoxelCount+"[n]-ivec3(1)))/(vec3("+suvVoxelCount+"[n])*vec3("+suvVoxelCount+"[n]-ivec3(1)));",
-				"	 	"+sgvSampleSize+"[n] ="+suvMaxDiagonalLength+"[n]/float("+suvSamples+");",
 				"",   
-				"    	//steps = max(steps,"+stepsFunction.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
-				"		//startStep = min(startStep,"+stepsToVolume.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
+				//"    	//steps = max(steps,"+stepsFunction.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
+				//"		//startStep = min(startStep,"+stepsToVolume.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
 				"	}",
 				"	//steps = min(steps,getStepsTillClipp());",
-				"   steps =min(steps, "+suvSamples+");",
+				"   steps = min(steps, "+suvSamples+");",
 				"	startStep = max(startStep,steps-1);",	
 				"	//end init",
 				"",
@@ -341,14 +338,14 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"  	float density =0; ",
 				"	int renderedSlice =0;",
 				"	float latestdDistanceToSlice = getPlaneDistance("+suvNormalSlice+","+sgvRayPositions+" );",	//TODO find gpu killing bug of start steps
-				"  	for(int i = 0; i < /*steps*/"+suvSamples+"; i++){",
+				"  	for(int i = 0; i < steps; i++){",
 				"",
 				"      	// note:", 
-				"      	// - ray_dir * "+sgvSampleSize+" can be precomputed",
+				"      	// - ray_dir * "+suvRenderRectStepSize+" can be precomputed",
 				"      	// - we assume the volume has a cube-like shape",
 				"",
 				"      	// break out if ray reached the end of the cube.",
-				"		float nextDensity = getNormalizedAndAggregatedVolumeValue("+sgvRayPositions+");",
+				"		float nextDensity = getValue("+sgvRayPositions+");",
 				"",
 				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity",suvRenderRectStepSize})+";",
 				"      	vec4 c_out =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
@@ -367,10 +364,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"				sliceColor.a  = 1.0;",
 				"				sliceColor.rgb *= gamma;",
 				"				",
-				"				//for(int n = 0; n < "+scvMaxNumberOfVolumes+";n++){",
-				"					//"+sgvRayPositions+"[n] += "+sgvRayDirections+"[n]*float(abs(latestdDistanceToSlice))*"+sgvSampleSize+"[n]/"+sgvSampleSize+"[0];",
-				"				//}",
-				"					fragmentColor = fragmentColor + (1.0 - fragmentColor.a)*sliceColor;",
+				"				fragmentColor = fragmentColor + (1.0 - fragmentColor.a)*sliceColor;",
 				"				renderedSlice = 1;",
 				"			}",
 				"			latestdDistanceToSlice = currentSliceDistance;",
@@ -408,11 +402,13 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"}"
 		};
 		addCodeArrayToList(head, code);
-		addCodeArrayToList(gradient.declaration(), code);
+
 		addCodeArrayToList(stepsToVolume.declaration(), code);
 		addCodeArrayToList(stepsFunction.declaration(), code);
 		addCodeArrayToList(accumulator.declaration(), code);
 		addCodeArrayToList(transferFunctionCode.declaration(), code);
+		addCodeArrayToList(dependingFunctions, code);
+		addCodeArrayToList(gradient.declaration(), code);
 		addCodeArrayToList(interpreter.declaration(), code);
 		addCodeArrayToList(body, code);
 		String[] codeArray = new String[code.size()];
