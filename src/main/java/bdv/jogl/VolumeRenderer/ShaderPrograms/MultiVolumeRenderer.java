@@ -799,4 +799,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public VolumeDataManager getDataManager() {
 		return dataManager;
 	}
+
+	/**
+	 * 
+	 * @return the current bounding volume to draw
+	 */
+	public AABBox getDrawRect() {
+		
+		return drawRect;
+	}
 }

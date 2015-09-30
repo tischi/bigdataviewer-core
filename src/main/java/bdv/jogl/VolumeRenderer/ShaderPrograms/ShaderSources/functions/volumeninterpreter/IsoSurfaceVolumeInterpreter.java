@@ -1,10 +1,12 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.volumeninterpreter;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.addCodeArrayToList;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.VolumeGradientEvaluationFunction;
 
 
 public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
@@ -104,7 +106,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"		c.rgb = color.rgb;",
 				"		c.a = 1.0;",
 				"	}",	
-				"	return c;",
+				"	return c_in + (1.0 - c_in.a)*c;",
 				"}"
 		},code);
 		String[] codeArray = new String[code.size()];

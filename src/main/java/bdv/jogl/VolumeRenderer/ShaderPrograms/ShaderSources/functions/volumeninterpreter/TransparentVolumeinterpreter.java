@@ -1,4 +1,5 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.volumeninterpreter;
+
 
 public class TransparentVolumeinterpreter extends AbstractVolumeInterpreter {
 	public TransparentVolumeinterpreter(){
@@ -10,7 +11,7 @@ public class TransparentVolumeinterpreter extends AbstractVolumeInterpreter {
 		return new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() +" 4",
 				"vec4 "+getFunctionName()+"(vec4 c_in, vec4 c, float vm1, float v ){",
-				"	return c;",
+				"	return c_in + (1.0 - c_in.a)*c;",
 				"}"
 		};
 	};

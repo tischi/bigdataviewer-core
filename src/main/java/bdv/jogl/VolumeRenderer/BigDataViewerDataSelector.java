@@ -38,6 +38,8 @@ public class BigDataViewerDataSelector {
 	
 	private final SceneControlsWindow options;
 	
+	private AABBox currentGlobalSelection = null;
+	
 	public BigDataViewerDataSelector(
 			final BigDataViewer bdv,
 			final MultiVolumeRenderer renderer,
@@ -52,6 +54,21 @@ public class BigDataViewerDataSelector {
 		initListener();
 	}
 
+	/**
+	 * prints the selected volume box in the bigDataView
+	 */
+	private void printBox(){
+		if(currentGlobalSelection==null){
+			return;
+		}
+		if(!renderer.getDrawRect().equals(currentGlobalSelection)){
+			currentGlobalSelection = null;
+			return;
+		}
+		
+		//todo
+	}
+	
 	/**
 	 * init all needed listeners
 	 */
@@ -93,6 +110,8 @@ public class BigDataViewerDataSelector {
 		
 		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{50,50,50});
 
+		currentGlobalSelection = volumeRectangle;
+		
 		renderer.setUseSparseVolumes(true);
 		renderer.setDrawRect(volumeRectangle);
 		

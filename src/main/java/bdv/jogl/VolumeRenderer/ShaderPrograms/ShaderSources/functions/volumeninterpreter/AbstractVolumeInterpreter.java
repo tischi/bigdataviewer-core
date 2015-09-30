@@ -1,5 +1,6 @@
-package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions;
+package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.volumeninterpreter;
 
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractShaderFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 
 public abstract class AbstractVolumeInterpreter extends AbstractShaderFunction{

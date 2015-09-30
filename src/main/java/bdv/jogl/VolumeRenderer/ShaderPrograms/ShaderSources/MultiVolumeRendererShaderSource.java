@@ -10,14 +10,14 @@ import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRe
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvRenderRectClippingPlanes;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvVolumeTexture;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.AbstractVolumeInterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetStepsToVolumeFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.TransparentVolumeinterpreter;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.VolumeGradientEvaluationFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.volumeninterpreter.AbstractVolumeInterpreter;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.volumeninterpreter.TransparentVolumeinterpreter;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.glsl.ShaderCode;
@@ -345,10 +345,11 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"		float nextDensity = getValue("+sgvRayPositions+");",
 				"",
 				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity",suvRenderRectStepSize})+";",
-				"      	vec4 c_out =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
+				"      	fragmentColor =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
 				"",		
-				"		fragmentColor = fragmentColor + (1.0 - fragmentColor.a)*c_out;",
-				"		if(c_out.a +"+scvMinDelta+" >= 1.0){",
+
+				"		if(fragmentColor.a +"+scvMinDelta+" >= 1.0){",
+				"			fragmentColor.a = 1.0;",
 				"			break;",
 				"		}",	
 				"		//render slice",

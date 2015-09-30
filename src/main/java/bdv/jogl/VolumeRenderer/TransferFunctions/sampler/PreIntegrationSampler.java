@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import com.jogamp.common.nio.Buffers;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.interpreter.PreIntegrationInterpreter;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.transferfunctioninterpreter.PreIntegrationInterpreter;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
 
