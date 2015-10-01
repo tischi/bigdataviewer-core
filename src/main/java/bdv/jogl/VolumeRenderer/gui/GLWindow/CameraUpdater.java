@@ -25,8 +25,6 @@ public class CameraUpdater {
 	
 	private Point previousTracPoint = null;
 	
-	private final static float angleScale = 0.1f;
-	
 	private final static int orbitButton = MouseEvent.BUTTON1;
 	
 	private final static int tracButton = MouseEvent.BUTTON3;
@@ -62,8 +60,10 @@ public class CameraUpdater {
 		public synchronized void  mouseDragged(MouseEvent e) {
 			Point currentPoint = transformWindowNormalSpace(e.getPoint(),e.getComponent().getSize());
 			if(previousOrbitPoint != null){
-				float alpha = -( currentPoint.y - previousOrbitPoint.y )*angleScale;
-				float beta = ( currentPoint.x - previousOrbitPoint.x )*angleScale;
+				float angleScaleX = 90f / (float)(8* e.getComponent().getWidth());
+				float angleScaleY = 90f / (float)(8* e.getComponent().getHeight());
+				float alpha = -( currentPoint.y - previousOrbitPoint.y )*angleScaleY;
+				float beta = ( currentPoint.x - previousOrbitPoint.x )*angleScaleX;
 				camera.orbit(alpha, beta);
 				previousOrbitPoint = currentPoint;
 				return;

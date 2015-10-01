@@ -52,6 +52,8 @@ public class Texture {
 
 	private boolean sparseMemoryAllocated = false;
 
+	private boolean shouldGenerateMidmaps = false;
+	
 
 	/**
 	 * Constructor
@@ -155,6 +157,10 @@ public class Texture {
 		rebindTexture(gl2);
 		updateTextureParameters(gl2);
 		GLErrorHandler.assertGL(gl2);
+		if(shouldGenerateMidmaps){
+			gl2.glGenerateMipmap(textureType);
+		}
+		GLErrorHandler.assertGL(gl2);
 
 		int pagesizes[] = new int[6];
 		gl2.glGetInternalformativ(textureType, internalFormat, GL4.GL_NUM_VIRTUAL_PAGE_SIZES_ARB, 3,pagesizes,3);
@@ -240,7 +246,11 @@ public class Texture {
 			rebindTexture(gl2);		
 		}
 		updateTextureParameters(gl2);
-		
+		GLErrorHandler.assertGL(gl2);
+		if(shouldGenerateMidmaps){
+			gl2.glGenerateMipmap(textureType);
+		}
+		GLErrorHandler.assertGL(gl2);
 		switch (dimensions.length) {
 		case 1:
 
@@ -358,6 +368,20 @@ public class Texture {
 		for(Integer parameter: parameters){
 			updatableTextureParameters.put(parameter, true);
 		}
+	}
+
+	/**
+	 * @return the shouldGenerateMidmaps
+	 */
+	public boolean isShouldGenerateMidmaps() {
+		return shouldGenerateMidmaps;
+	}
+
+	/**
+	 * @param shouldGenerateMidmaps the shouldGenerateMidmaps to set
+	 */
+	public void setShouldGenerateMidmaps(boolean shouldGenerateMidmaps) {
+		this.shouldGenerateMidmaps = shouldGenerateMidmaps;
 	}
 	
 }
