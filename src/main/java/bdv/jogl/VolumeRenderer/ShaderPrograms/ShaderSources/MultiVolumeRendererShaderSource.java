@@ -103,6 +103,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvTransferFuntionSize = "inTransferFunctionSize";
 	
+	public static final String suvOpacity3D = "inOpacity3D"; 
+	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
 		setShaderLanguageVersion(330);
@@ -206,6 +208,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform vec4 "+suvRenderRectClippingPlanes+"[6];",
 				"uniform float "+suvRenderRectStepSize+";",
 				"uniform mat4x4 "+suvTextureTransformationInverse+"["+scvMaxNumberOfVolumes+"];",
+				"uniform float "+suvOpacity3D+";",
 				"float "+sgvNormIsoValue+";",
 				"vec3 "+sgvRayDirections+";",	
 				"vec3 "+sgvRayPositions+";",
@@ -347,11 +350,17 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"      	vec4 color = "+transferFunctionCode.call(new String[]{"density","nextDensity",suvRenderRectStepSize})+";",
 				"      	fragmentColor =  "+interpreter.call(new String[]{"fragmentColor","color","density","nextDensity"})+";",
 				"",		
-
+				"",
+				"",
 				"		if(fragmentColor.a +"+scvMinDelta+" >= 1.0){",
 				"			fragmentColor.a = 1.0;",
 				"			break;",
 				"		}",	
+				"",
+				"		//blending for animation",
+				"		if("+suvOpacity3D+" < 0.99){",
+				"			fragmentColor *= "+suvOpacity3D+";",
+				"		}",
 				"		//render slice",
 				"		vec4 sliceColor= vec4(0.0);  ",
 				"		if("+suvShowSlice+" == 1 && renderedSlice != 1){",

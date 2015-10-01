@@ -4,6 +4,8 @@ import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.getAABBOfTransformedBo
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -11,9 +13,11 @@ import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
+import java.awt.event.KeyAdapter;
 import com.jogamp.opengl.math.geom.AABBox;
 
 import bdv.BigDataViewer;
+import bdv.jogl.VolumeRenderer.Scene.InteraktionAnimator;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.IMultiVolumeRendererListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
@@ -58,6 +62,8 @@ public class VolumeRendererExtension {
 	private AABBox hullVolume = null;
 	
 	private SceneControlsWindow controls;
+	
+	private final InteraktionAnimator animator;
 
 	private void createControlWindow(){
 		controls =new SceneControlsWindow(transferFunction,aggManager, dataManager, volumeRenderer,glWindow,dataScene);
@@ -92,7 +98,7 @@ public class VolumeRendererExtension {
 	
 		volumeRenderer.setBackgroundColor(bgColor);
 		dataScene.setBackgroundColor(bgColor);
-	
+		animator = new InteraktionAnimator(volumeRenderer, glWindow);
 		
 		createControlWindow();
 		selector = new BigDataViewerDataSelector(bdv,volumeRenderer,glWindow,dataManager,controls);
@@ -149,6 +155,17 @@ public class VolumeRendererExtension {
 				hullVolume = null;
 			}
 		});
+		
+		//stop all animations
+		this.glWindow.getGlCanvas().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+					animator.stopAllAnimations();
+				}
+			}
+		
+		}); 
 	}
 
 	/**
@@ -174,7 +191,7 @@ public class VolumeRendererExtension {
 			preferedMenu = new JMenu(preferedMenuName);
 		}
 
-		Action open3DViewAction = new OpenVolumeRendererAction(actionName, glWindow, controls);
+		Action open3DViewAction = new OpenVolumeRendererAction(actionName, glWindow, controls, animator);
 		preferedMenu.add(open3DViewAction);
 		preferedMenu.updateUI();
 	}

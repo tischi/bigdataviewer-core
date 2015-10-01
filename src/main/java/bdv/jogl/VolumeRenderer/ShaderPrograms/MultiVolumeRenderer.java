@@ -101,6 +101,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isClippingUpdatable = true;
 	
 	private boolean islengthUpdatable = true;
+	
+	private boolean isOpacity3DUpdateable = true;
+	
+	private float opacity3D = 1.f;
 
 	public void setUseSparseVolumes(boolean flag){
 		useSparseVolume = flag;
@@ -148,8 +152,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		updateIsoValue(gl2);
 		GLErrorHandler.assertGL(gl2);
+		updateOpacity3D(gl2);
+		
 		boolean update = updateTextureData(gl2);
-
+		
 		GLErrorHandler.assertGL(gl2);
 		if(update){
 
@@ -178,6 +184,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		GLErrorHandler.assertGL(gl2);
 		
 	
+	}
+
+	/**
+	 * Updates the opacity of the 3D volume for animations 
+	 * @param gl2
+	 */
+	private void updateOpacity3D(GL4 gl2) {
+		gl2.glUniform1f(getLocation(suvOpacity3D), opacity3D);
 	}
 
 	private void updateUseGradient(GL4 gl2) {
@@ -291,6 +305,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isSamplesUpdatable = flag;
 		isClippingUpdatable = flag;
 		islengthUpdatable = flag;
+		isOpacity3DUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -637,7 +652,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvUseGradient,
 				suvRenderRectClippingPlanes,
 				suvRenderRectStepSize,
-				suvTransferFuntionSize
+				suvTransferFuntionSize,
+				suvOpacity3D
 		});
 		
 		accumulator.init(gl2);
@@ -809,5 +825,20 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public AABBox getDrawRect() {
 		
 		return drawRect;
+	}
+
+	/**
+	 * @return the opacity3D
+	 */
+	public float getOpacity3D() {
+		return opacity3D;
+	}
+
+	/**
+	 * @param opacity3d the opacity3D to set
+	 */
+	public void setOpacity3D(float opacity3d) {
+		opacity3D = opacity3d;
+		isOpacity3DUpdateable = true;
 	}
 }

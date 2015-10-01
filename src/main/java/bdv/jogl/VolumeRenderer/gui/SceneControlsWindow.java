@@ -96,7 +96,7 @@ public class SceneControlsWindow extends JFrame {
 
 	private final JRadioButton maximumIntensityProjectionRadioButton = new JRadioButton("Maximum intensity projection");
 
-	private final JCheckBox showSlice = new JCheckBox("Show slice in 3D View");
+	private final JCheckBox showSlice = new JCheckBox("Show slice in 3D View", true);
 
 	private final JPanel samplePanel = new JPanel();
 
