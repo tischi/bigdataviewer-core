@@ -321,4 +321,19 @@ public class VolumeDataUtils {
 		volumeTexture.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 		return volumeTexture;
 	}
+	
+	
+	/**
+	 * Calculates eye and center positions of a camera defined by a hull volume
+	 * @param hull the hull volume
+	 * @return float[2][3] defining eye and center positions
+	 */
+	public static float[][] calcEyeAndCenterByGivenHull(final AABBox hull){
+		float[] center = hull.getCenter();
+
+		float[] eye = {center[0],center[1],	center[2] - 3f * (hull.getDepth())};
+		
+		return new float[][]{eye.clone(),center.clone()}; 
+	}
 }
+

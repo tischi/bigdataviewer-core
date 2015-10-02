@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
+import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.calcEyeAndCenterByGivenHull;
+
 
 import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.math.Matrix4;
@@ -375,12 +377,11 @@ public class Camera {
 	 * @param box The box to center on
 	 */
 	public void centerOnBox(final AABBox box){
-		float[] center = box.getCenter();
-
-		float[] eye = {center[0],center[1],	center[2] - 3f * (box.getDepth())};
 		
-		setLookAtPoint(center);
-		setEyePoint(eye);
+		float eyeCenter [][] = calcEyeAndCenterByGivenHull(box);
+		
+		setEyePoint(eyeCenter[0]);
+		setLookAtPoint(eyeCenter[1]);
 		updateViewMatrix();
 	}
 	

@@ -4,6 +4,8 @@ import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.getAABBOfTransformedBo
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -14,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import java.awt.event.KeyAdapter;
+
 import com.jogamp.opengl.math.geom.AABBox;
 
 import bdv.BigDataViewer;
@@ -166,6 +169,19 @@ public class VolumeRendererExtension {
 			}
 		
 		}); 
+		
+	
+		//on reset go to full view
+		controls.getResetButton().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				volumeRenderer.setUseSparseVolumes(false);
+				dataManager.resetVolumeData();
+				animator.startInitAnimation();
+
+			}
+		});
 	}
 
 	/**

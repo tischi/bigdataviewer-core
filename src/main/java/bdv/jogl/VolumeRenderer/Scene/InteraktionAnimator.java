@@ -4,16 +4,32 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 
 public class InteraktionAnimator {
-	private final MultiVolumeRenderer renderer;
-	private final GLWindow renderWindow;
-	private int currentAnimationPercentage =0;
-	private final int percentageIncrement = 10;
 	
+	private final MultiVolumeRenderer renderer;
+	
+	private final GLWindow renderWindow;
+	
+	private int currentAnimationPercentage =0;
+	
+	private final int percentageIncrement = 5;
+	
+	private Thread initAnimationThread = null;
+	
+	private Thread motionToTargetThread = null;
+	
+	/**
+	 * Animation constructor
+	 * @param renderer
+	 * @param renderWindow
+	 */
 	public InteraktionAnimator(final MultiVolumeRenderer renderer, final GLWindow renderWindow){
 		this.renderer = renderer;
 		this.renderWindow = renderWindow;
 	}
 	
+	/**
+	 * stop init animation thread
+	 */
 	public void interruptInitAnimation(){
 		if(initAnimationThread == null){
 			return;
@@ -21,8 +37,11 @@ public class InteraktionAnimator {
 		initAnimationThread.interrupt();
 	};
 	
-	private Thread initAnimationThread = null;
 
+
+	/**
+	 * blending of 3D on 3D
+	 */
 	private void doInitAnimationStep(){
 		
 		renderer.setOpacity3D((float)(currentAnimationPercentage)/ 100f);
@@ -30,6 +49,9 @@ public class InteraktionAnimator {
 
 	}
 	
+	/**
+	 * Starts the big volume in fading 
+	 */
 	public void startInitAnimation(){
 		if(initAnimationThread!= null){
 			if(initAnimationThread.isAlive()){
@@ -40,20 +62,16 @@ public class InteraktionAnimator {
 		initAnimationThread = new Thread(){
 				public void run(){
 					for(currentAnimationPercentage =0; currentAnimationPercentage< 100; currentAnimationPercentage+=percentageIncrement){
-						System.out.println("test "+ currentAnimationPercentage);
 						doInitAnimationStep();
 						try {
-							sleep(200);
+							sleep(100);
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							System.out.println("interrupt"); 
 							break;
 						}
 					}
 					
 					//make 100% animation mode
 						currentAnimationPercentage = 100;
-						System.out.println("fix");
 						doInitAnimationStep();
 						
 				}
@@ -61,7 +79,11 @@ public class InteraktionAnimator {
 		
 		initAnimationThread.start();
 	}
-
+	
+	
+	/**
+	 * stops all running animation threads 
+	 */
 	public void stopAllAnimations() {
 		interruptInitAnimation();
 		

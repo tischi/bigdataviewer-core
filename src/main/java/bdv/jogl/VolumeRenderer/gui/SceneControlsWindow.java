@@ -121,6 +121,13 @@ public class SceneControlsWindow extends JFrame {
 		createTFWindow(tf,agm,dataManager);
 	}
 
+	/**
+	 * @return the reset button instance for defining listeners on it
+	 */
+	public JButton getResetButton(){
+		return resetButton;
+	}
+	
 	private void addComponetenToMainPanel(JComponent c){
 		c.setAlignmentX(LEFT_ALIGNMENT);
 		mainPanel.add(c);
@@ -142,7 +149,6 @@ public class SceneControlsWindow extends JFrame {
 		initShowSlice();
 		initSampleSpinner();
 		initUseGradient();
-		initResetButton();
 		initVolumeInterpreterPanel();
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -189,19 +195,6 @@ public class SceneControlsWindow extends JFrame {
 
 	}
 
-
-	private void initResetButton() {
-		resetButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				renderer.setUseSparseVolumes(false);
-				dataManager.resetVolumeData();
-
-			}
-		});
-
-	}
 
 	public void updateUseGradient(){
 		renderer.setUseGradient(this.useGradient.isSelected());
