@@ -1,12 +1,12 @@
 package bdv.jogl.VolumeRenderer.utils;
 
-import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.convertToJoglTransform;
+
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.getDataBlock;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

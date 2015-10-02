@@ -92,8 +92,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private AABBox drawRect;
 	
-	private final List<IMultiVolumeRendererListener> listeners = new ArrayList<IMultiVolumeRendererListener>();
-
 	private boolean useSparseVolume = false;
 	
 	private AbstractVolumeAccumulator accumulator;
@@ -104,11 +102,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	
 	private boolean isOpacity3DUpdateable = true;
 	
+	private boolean isHullVolumeUpdateable = true;
+
 	private float opacity3D = 1.f;
 
 	public void setUseSparseVolumes(boolean flag){
 		useSparseVolume = flag;
-		drawCubeTransformation = null;
+
 	}
 	
 	public void setDrawRect(AABBox rect){
@@ -116,7 +116,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		drawRect  = rect;
 		isClippingUpdatable = true;
 		islengthUpdatable = true;
-		fireAllRect(rect);
+		isHullVolumeUpdateable=true;
 	}
 
 	/**
@@ -126,24 +126,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		this.useGradient = useGradient;
 		isUseGradientUpdateable = true;
 	}
-
-	private void fireAllRect(AABBox rect){
-		for(IMultiVolumeRendererListener l : listeners){
-			fireRect(l, rect);
-		}
-	}
-
-	private void fireRect(IMultiVolumeRendererListener l, AABBox rect){
-		l.drawRectChanged(rect);
-	}
-
-	public void addMultiVolumeListener(IMultiVolumeRendererListener l){
-		listeners.add(l);
-	}
-
 	@Override
 	protected void updateShaderAttributesSubClass(GL4 gl2) {
+		
 		accumulator.updateData(gl2);
+		
 		GLErrorHandler.assertGL(gl2);
 		updateBackgroundColor(gl2);
 		GLErrorHandler.assertGL(gl2);
@@ -191,7 +178,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 * @param gl2
 	 */
 	private void updateOpacity3D(GL4 gl2) {
+		if(!isOpacity3DUpdateable){
+			return;
+		}
 		gl2.glUniform1f(getLocation(suvOpacity3D), opacity3D);
+		isOpacity3DUpdateable=false;
 	}
 
 	private void updateUseGradient(GL4 gl2) {
@@ -306,6 +297,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isClippingUpdatable = flag;
 		islengthUpdatable = flag;
 		isOpacity3DUpdateable = flag;
+		isHullVolumeUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -551,19 +543,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private void updateGlobalScale(GL4 gl2) {
 		
-		//full volume assumption
-		if(!useSparseVolume && drawCubeTransformation == null){
-
-			List<Matrix4> transformations = new ArrayList<Matrix4>();
-			
-			for(VolumeDataBlock data: dataManager.getVolumes()){
-			
-				transformations.add(calcScaledVolumeTransformation(data));
-			}
-
-			setDrawRect(calculateCloseFittingBox(transformations));
+		if(!isHullVolumeUpdateable){
+			return;
 		}
 		gl2.glUniformMatrix4fv(getLocation(suvDrawCubeTransformation),1,false,drawCubeTransformation.getMatrix(),0);
+		isHullVolumeUpdateable = false;
 	}
 
 	private void updateIsoValue(GL4 gl2){

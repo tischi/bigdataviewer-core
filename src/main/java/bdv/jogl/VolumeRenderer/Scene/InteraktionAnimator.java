@@ -84,14 +84,15 @@ public class InteraktionAnimator {
 					}
 					
 					//make 100% animation mode
-						currentAnimationPercentage = 100;
-						doInitAnimationStep();
+					currentAnimationPercentage = 100;
+					doInitAnimationStep();
 						
 				}
 		};
 		
 		initAnimationThread.start();
 	}
+	
 	
 	/**
 	 * Motion to data and update partial data
@@ -109,11 +110,19 @@ public class InteraktionAnimator {
 		final List<float[][]> motionPositions = calcEyeAndCenterPath(hullVolume, 100 /percentageIncrement);
 		motionToTargetThread = new Thread(){
 			public void run(){
+				boolean updatedData= false;
 				Camera c = renderWindow.getScene().getCamera();
+				AABBox currentHullVolume = renderer.getDrawRect();
 				int n = 0;
 				for(currentAnimationPercentage = 0; currentAnimationPercentage < 100; currentAnimationPercentage+=percentageIncrement){
 					try {
 						float eyeCenter[][] = motionPositions.get(n);
+						//enter hull volume -> invalid fragments
+						/*if(currentAnimationPercentage == 70){
+							renderer.setDrawRect(hullVolume);
+							System.out.println("Done");
+							updatedData=true;
+						}*/
 						c.setEyePoint(eyeCenter[0]);
 						c.setLookAtPoint(eyeCenter[1]);
 						c.updateViewMatrix();
@@ -132,6 +141,7 @@ public class InteraktionAnimator {
 				for(int i =0; i < partialVolumesInHullVolume.size(); i++){
 					manager.forceVolumeUpdate(i, time, partialVolumesInHullVolume.get(i));
 				}
+				renderWindow.getScene().getCamera().centerOnBox(hullVolume);
 				renderWindow.getGlCanvas().repaint();
 			}
 		};

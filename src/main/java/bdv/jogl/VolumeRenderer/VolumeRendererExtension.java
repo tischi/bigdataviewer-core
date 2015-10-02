@@ -1,6 +1,8 @@
 package bdv.jogl.VolumeRenderer;
 
 import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.getAABBOfTransformedBox;
+import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.calculateCloseFittingBox;
+import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.calcScaledVolumeTransformation;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -16,15 +18,16 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import java.awt.event.KeyAdapter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.geom.AABBox;
 
 import bdv.BigDataViewer;
 import bdv.jogl.VolumeRenderer.Scene.InteraktionAnimator;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.IMultiVolumeRendererListener;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
@@ -87,17 +90,7 @@ public class VolumeRendererExtension {
 		Color bgColor = Color.BLACK;
 		volumeRenderer = new MultiVolumeRenderer(transferFunction, dataManager);
 		dataScene = new VolumeDataScene( dataManager,volumeRenderer);
-		volumeRenderer.addMultiVolumeListener(new IMultiVolumeRendererListener() {
-			
-			@Override
-			public void drawRectChanged(AABBox drawRect) {
-				if(drawRect.equals(hullVolume)){
-					return;
-				}
-				dataScene.getCamera().centerOnBox(drawRect);
-				
-			}
-		});
+
 		
 		
 		glWindow = new GLWindow(dataScene);
@@ -175,12 +168,13 @@ public class VolumeRendererExtension {
 		
 	
 		//on reset go to full view
+		resetToFullView();
 		controls.getResetButton().addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				volumeRenderer.setUseSparseVolumes(false);
-				dataManager.resetVolumeData();
+				resetToFullView();
+				
 				animator.startInitAnimation();
 			}
 		});
@@ -192,8 +186,7 @@ public class VolumeRendererExtension {
 			public void selectedDataAvailable(AABBox hullVolume,
 					List<VolumeDataBlock> partialVolumesInHullVolume, int time) {			
 				
-				volumeRenderer.setUseSparseVolumes(false);
-				dataManager.resetVolumeData();
+				resetToFullView();
 				animator.startMoveToSelectionAnimation(hullVolume, partialVolumesInHullVolume, time);
 				controls.setVisible(true);
 				glWindow.setVisible(true);
@@ -203,6 +196,25 @@ public class VolumeRendererExtension {
 		});
 	}
 
+	private void resetToFullView(){
+		dataManager.resetVolumeData();
+		List<Matrix4> transformations = new ArrayList<Matrix4>();
+		
+		for(VolumeDataBlock data: dataManager.getVolumes()){
+		
+			transformations.add(calcScaledVolumeTransformation(data));
+		}
+		AABBox drawRect = calculateCloseFittingBox(transformations);
+		volumeRenderer.setUseSparseVolumes(false);
+		
+		volumeRenderer.setDrawRect(drawRect);
+		
+		if(drawRect.equals(hullVolume)){
+			return;
+		}
+		dataScene.getCamera().centerOnBox(drawRect);
+	}
+	
 	/**
 	 * creates an action for the volume renderer in the bdv toolbar
 	 * @param parent The BigDataViewer to connect to
