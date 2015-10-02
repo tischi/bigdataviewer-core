@@ -325,6 +325,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		setVolumeDataManager(manager);
 		setTransferFunction(tf);
 		setAccumulator(new MaximumVolumeAccumulator());
+		setDrawRect(new AABBox(0, 0, 0, 1, 1, 1));
 		sources.addSourceListener(new ISourceListener() {
 
 			@Override
