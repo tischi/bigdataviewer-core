@@ -16,6 +16,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import java.awt.event.KeyAdapter;
+import java.util.Collection;
+import java.util.List;
 
 import com.jogamp.opengl.math.geom.AABBox;
 
@@ -32,6 +34,7 @@ import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
 import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.OpenVolumeRendererAction;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 
@@ -101,10 +104,10 @@ public class VolumeRendererExtension {
 	
 		volumeRenderer.setBackgroundColor(bgColor);
 		dataScene.setBackgroundColor(bgColor);
-		animator = new InteraktionAnimator(volumeRenderer, glWindow);
+		animator = new InteraktionAnimator(volumeRenderer, glWindow, dataManager);
 		
 		createControlWindow();
-		selector = new BigDataViewerDataSelector(bdv,volumeRenderer,glWindow,dataManager,controls);
+		selector = new BigDataViewerDataSelector(bdv);
 		createActionInToolBar();
 		createListeners();
 	
@@ -179,7 +182,23 @@ public class VolumeRendererExtension {
 				volumeRenderer.setUseSparseVolumes(false);
 				dataManager.resetVolumeData();
 				animator.startInitAnimation();
-
+			}
+		});
+		
+		//listener on new selected data
+		selector.addBigDataViewerDataSelectorListener(new IBigDataViewerDataSelectorListener() {
+			
+			@Override
+			public void selectedDataAvailable(AABBox hullVolume,
+					List<VolumeDataBlock> partialVolumesInHullVolume, int time) {			
+				
+				volumeRenderer.setUseSparseVolumes(false);
+				dataManager.resetVolumeData();
+				animator.startMoveToSelectionAnimation(hullVolume, partialVolumesInHullVolume, time);
+				controls.setVisible(true);
+				glWindow.setVisible(true);
+				
+				
 			}
 		});
 	}

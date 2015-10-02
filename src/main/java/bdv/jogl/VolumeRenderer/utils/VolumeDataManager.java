@@ -43,6 +43,8 @@ public class VolumeDataManager {
 	private final BigDataViewer bdv;
 	
 	private List<IVolumeDataManagerListener> listeners = new ArrayList<IVolumeDataManagerListener>();
+
+	private float minGlobalValue;
 	
 	public VolumeDataManager(final BigDataViewer bdv){
 		this.bdv = bdv;
@@ -72,6 +74,7 @@ public class VolumeDataManager {
 	private void updateGlobals(){
 		globalMaxVolume = 0;
 		globalMaxOccurance = 0;
+		minGlobalValue = Float.MAX_VALUE;
 		
 		for(VolumeDataBlock data: volumes.values()){
 			
@@ -81,7 +84,9 @@ public class VolumeDataManager {
 				continue;
 			}
 			Float cmax =data.getValueDistribution().lastKey();
+			Float cmin = data.getValueDistribution().firstKey();
 			globalMaxVolume = Math.max(globalMaxVolume,cmax.floatValue());
+			minGlobalValue = Math.max(0.0f,Math.min(minGlobalValue, cmin.floatValue()));
 		}
 	}
 	
@@ -235,5 +240,10 @@ public class VolumeDataManager {
 		
 		}
 		
+	}
+
+	public float getGlobalLowestVolumeValue() {
+		
+		return minGlobalValue;
 	}
 }

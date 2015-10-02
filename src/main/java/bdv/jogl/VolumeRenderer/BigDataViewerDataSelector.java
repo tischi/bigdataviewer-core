@@ -3,12 +3,13 @@ package bdv.jogl.VolumeRenderer;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import net.imglib2.realtransform.AffineTransform3D;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL4;
+
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.geom.AABBox;
@@ -16,12 +17,7 @@ import com.jogamp.opengl.math.geom.AABBox;
 import bdv.BigDataViewer;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
-import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
-import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
-import bdv.jogl.VolumeRenderer.utils.GLUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
-import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.viewer.Source;
 import bdv.viewer.state.SourceState;
 
@@ -30,30 +26,26 @@ public class BigDataViewerDataSelector {
 
 	private final BigDataViewer bdv;
 
-	private final MultiVolumeRenderer renderer;
-	
-	private final GLWindow drawWindow;
-	
-	private final VolumeDataManager dataManager;
-	
-	private final SceneControlsWindow options;
 	
 	private AABBox currentGlobalSelection = null;
 	
-	public BigDataViewerDataSelector(
-			final BigDataViewer bdv,
-			final MultiVolumeRenderer renderer,
-			final GLWindow drawWindow,
-			final VolumeDataManager dataManager,
-			final SceneControlsWindow options){
+	private final Collection<IBigDataViewerDataSelectorListener> listeners = new ArrayList<IBigDataViewerDataSelectorListener>();
+	
+	public BigDataViewerDataSelector(final BigDataViewer bdv){
 		this.bdv = bdv;	
-		this.dataManager = dataManager;
-		this.renderer = renderer;
-		this.drawWindow =drawWindow;
-		this.options = options;
 		initListener();
 	}
+	
+	private void fireDataAvailable(IBigDataViewerDataSelectorListener l, AABBox hullVolume, List<VolumeDataBlock> partialVolumes,int time){
+		l.selectedDataAvailable(hullVolume, partialVolumes, time);
+	}
 
+	private void fireAllDataAvailable(AABBox hullVolume, List<VolumeDataBlock> partialVolumes,int time){
+		for(IBigDataViewerDataSelectorListener l :listeners){
+			fireDataAvailable(l, hullVolume, partialVolumes, time);
+		}
+	}
+	
 	/**
 	 * prints the selected volume box in the bigDataView
 	 */
@@ -61,11 +53,11 @@ public class BigDataViewerDataSelector {
 		if(currentGlobalSelection==null){
 			return;
 		}
-		if(!renderer.getDrawRect().equals(currentGlobalSelection)){
+/*		if(!renderer.getDrawRect().equals(currentGlobalSelection)){
 			currentGlobalSelection = null;
 			return;
 		}
-		
+	*/	
 		//todo
 	}
 	
@@ -88,6 +80,14 @@ public class BigDataViewerDataSelector {
 	}
 
 	/**
+	 * Adds listener
+	 * @param l
+	 */
+	public void addBigDataViewerDataSelectorListener(IBigDataViewerDataSelectorListener l){
+		listeners.add(l);
+	}
+	
+	/**
 	 * event to select a appropriate part of the volumes
 	 * @param p point on the panel
 	 */
@@ -109,29 +109,27 @@ public class BigDataViewerDataSelector {
 		List<SourceState<?>> sources = bdv.getViewer().getState().getSources();
 		
 		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{50,50,50});
-
+		ArrayList<VolumeDataBlock> partialVolumes = new ArrayList<VolumeDataBlock>();
 		currentGlobalSelection = volumeRectangle;
 		
-		renderer.setUseSparseVolumes(true);
-		renderer.setDrawRect(volumeRectangle);
-		
-		//TODO remove test
-		
+
+		int time =bdv.getViewer().getState().getCurrentTimepoint();
 		for(int i =0; i < sources.size(); i++){
 			int midmapLevel =0; //bdv.getViewer().getState().getSources().get(i).getSpimSource().getNumMipmapLevels()-1;
-			int time =bdv.getViewer().getState().getCurrentTimepoint();
+
 			AABBox b = getInnerVolume(bdv, volumeRectangle, midmapLevel, time,i);
 
 	//		System.out.println(p);
 	//		System.out.println(b);
+			
 			VolumeDataBlock data = getDataBlock(bdv, b, i, midmapLevel);
-			dataManager.forceVolumeUpdate(i, time, data);
+			partialVolumes.add(data);
+
 		//	System.out.println(data);
 			//break;
 		}
-		options.setVisible(true);
-		drawWindow.setVisible(true);
-		drawWindow.getGlCanvas().repaint();
+
+		fireAllDataAvailable(volumeRectangle, partialVolumes, time);
 	}
 
 	/**

@@ -10,6 +10,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulato
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxDifferenceAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MidmapMaxDifference;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MinimumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.SharpnessVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.ViewDirectionAccumulator;
@@ -50,6 +51,7 @@ public class AggregatorManager {
 		addAccumulator(new MaximumVolumeAccumulator());
 		addAccumulator(new MinimumVolumeAccumulator());
 		addAccumulator(new MaxDifferenceAccumulator());
+		addAccumulator(new MidmapMaxDifference());
 	//	addAccumulator(new VoxelDistanceAccumulator());
 		addAccumulator(new ViewDirectionAccumulator());
 		addAccumulator(new SharpnessVolumeAccumulator());
