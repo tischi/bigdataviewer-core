@@ -1,5 +1,6 @@
 package bdv.jogl.VolumeRenderer.gui;
 
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
-import javax.swing.JSplitPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -106,6 +106,10 @@ public class SceneControlsWindow extends JFrame {
 
 	private final JButton resetButton = new JButton("Reset to full volume view"); 
 
+	private final JPanel transferFunktionEditorPanel = new JPanel();
+	
+	private final JPanel sceneConfigurationPanel = new JPanel();
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -144,28 +148,21 @@ public class SceneControlsWindow extends JFrame {
 		initAdvancedBox();
 		initBackgroundPanel();
 		initUsePreIntegration();
+		initTransferFunctionEditorPanel();
 		initShowIsoSurface();
 		initBorderCheck();
 		initShowSlice();
 		initSampleSpinner();
 		initUseGradient();
 		initVolumeInterpreterPanel();
+		initSceneControlsPanel();
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		addComponetenToMainPanel(tfpanel);
-		addComponetenToMainPanel(advancedCheck);
-		addComponetenToMainPanel(tfDataPanel);
-		addComponetenToMainPanel(samplePanel);
-		addComponetenToMainPanel(rectBorderCheck);
-		addComponetenToMainPanel(showSlice);
-		addComponetenToMainPanel(resetButton);
-		addComponetenToMainPanel(backgroundPanel);
-		addComponetenToMainPanel(usePreIntegration);
-		addComponetenToMainPanel(volumeInterpreterPanel);
-		//TOOD addComponetenToMainPanel(isoPanel);
 
+		addComponetenToMainPanel(transferFunktionEditorPanel);
+		addComponetenToMainPanel(sceneConfigurationPanel);
+		addComponetenToMainPanel(volumeInterpreterPanel);
 		addComponetenToMainPanel(aggregationPanel);
-		addComponetenToMainPanel(useGradient);
 
 
 		tfDataPanel.setVisible(advancedCheck.isSelected());
@@ -174,6 +171,37 @@ public class SceneControlsWindow extends JFrame {
 		pack();
 	}
 
+
+	private void initSceneControlsPanel() {
+		sceneConfigurationPanel.setBorder(BorderFactory.createTitledBorder("Scene configurations"));
+		sceneConfigurationPanel.setLayout(new BoxLayout(sceneConfigurationPanel, BoxLayout.Y_AXIS));
+		
+		samplePanel.setAlignmentX(LEFT_ALIGNMENT);
+		rectBorderCheck.setAlignmentX(LEFT_ALIGNMENT);
+		showSlice.setAlignmentX(LEFT_ALIGNMENT);
+		useGradient.setAlignmentX(LEFT_ALIGNMENT);
+		backgroundPanel.setAlignmentX(LEFT_ALIGNMENT);
+		resetButton.setAlignmentX(LEFT_ALIGNMENT);
+		
+		
+		sceneConfigurationPanel.add(samplePanel);
+		sceneConfigurationPanel.add(rectBorderCheck);
+		sceneConfigurationPanel.add(showSlice);
+		sceneConfigurationPanel.add(useGradient);
+		sceneConfigurationPanel.add(backgroundPanel);
+		sceneConfigurationPanel.add(resetButton);
+	}
+
+	private void initTransferFunctionEditorPanel() {
+		transferFunktionEditorPanel.setBorder(BorderFactory.createTitledBorder("Transferfunction Editor"));
+		transferFunktionEditorPanel.setLayout(new BoxLayout(transferFunktionEditorPanel, BoxLayout.Y_AXIS));
+		
+		transferFunktionEditorPanel.add(tfpanel);
+		transferFunktionEditorPanel.add(usePreIntegration);
+		transferFunktionEditorPanel.add(advancedCheck);
+		transferFunktionEditorPanel.add(tfDataPanel);
+		
+	}
 
 	private void initVolumeInterpreterPanel() {
 		volumeInterpreterPanel.setBorder(BorderFactory.createTitledBorder("Volume interpreters"));
