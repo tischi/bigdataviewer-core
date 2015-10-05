@@ -1,6 +1,7 @@
 package bdv.jogl.VolumeRenderer.gui.TFDataPanel;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
 import javax.swing.AbstractCellEditor;
@@ -36,6 +37,8 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 		editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
 		editorPanel.add(new JLabel("x:"));
 		editorPanel.add(xSpinner);
+		xSpinner.setPreferredSize(new Dimension(250, xSpinner.getHeight()));
+		ySpinner.setPreferredSize(new Dimension(250, ySpinner.getHeight()));
 		editorPanel.add(new JLabel("y:"));
 		editorPanel.add(ySpinner);
 	};
@@ -90,9 +93,9 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 	@Override
 	public Component getTableCellRendererComponent(JTable arg0, Object value, boolean arg2, boolean arg3, int arg4,
 			int arg5) {  	       
-		Point2D.Float tmpPoint = (Point2D.Float)value;
-		xSpinner.setValue(tmpPoint.x);
-		ySpinner.setValue(tmpPoint.y);  
+		currentPoint = (Point2D.Float)value;
+		xSpinner.setValue(currentPoint.x);
+		ySpinner.setValue(currentPoint.y);  
 		return editorPanel ;
 	}
 
