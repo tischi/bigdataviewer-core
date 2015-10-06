@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import javax.swing.JComponent;
+
 
 
 /**
@@ -36,4 +38,10 @@ public class WindowUtils {
 		color.getColorComponents(rgba);
 		return rgba;
 	}
+	
+	public static JComponent aligneLeft(final JComponent c){
+		c.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+		return c;
+	}
+	
 }

@@ -39,6 +39,7 @@ import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPanel;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.aligneLeft;
 
 /**
  * Class for providing tf scene controls
@@ -110,6 +111,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final JPanel sceneConfigurationPanel = new JPanel();
 	
+	private final DetailViewConfiguration detailViewConfig = new DetailViewConfiguration();
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AggregatorManager agm, 
@@ -161,6 +164,7 @@ public class SceneControlsWindow extends JFrame {
 
 		addComponetenToMainPanel(aligneLeft(transferFunktionEditorPanel));
 		addComponetenToMainPanel(aligneLeft(sceneConfigurationPanel));
+		addComponetenToMainPanel(aligneLeft(detailViewConfig));
 		addComponetenToMainPanel(aligneLeft(volumeInterpreterPanel));
 		addComponetenToMainPanel(aligneLeft(aggregationPanel));
 
@@ -346,6 +350,7 @@ public class SceneControlsWindow extends JFrame {
 
 			@Override
 			public void dataEnabled(Integer i, Boolean flag) {
+				
 				drawWindow.getGlCanvas().repaint();
 			}
 		});	
@@ -426,13 +431,15 @@ public class SceneControlsWindow extends JFrame {
 
 	}
 
-	private JComponent aligneLeft(final JComponent c){
-		c.setAlignmentX(LEFT_ALIGNMENT);
-		return c;
-	}
-	
 	public void destroyTFWindow() {
 		dispose();
 		tfpanel = null;
+	}
+
+	/**
+	 * @return the detailViewConfig
+	 */
+	public DetailViewConfiguration getDetailViewConfig() {
+		return detailViewConfig;
 	}
 }

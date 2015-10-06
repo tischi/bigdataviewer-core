@@ -16,6 +16,8 @@ import java.awt.event.WindowEvent;
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import java.awt.event.KeyAdapter;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
+import bdv.jogl.VolumeRenderer.gui.DetailViewConfiguration;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
@@ -194,8 +197,44 @@ public class VolumeRendererExtension {
 				
 			}
 		});
-	}
+		
+		
+		//update seletor sizes
+		updateSectionSize();
+		controls.getDetailViewConfig().getWidthSpinner().addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateSectionSize();
+			}
+		});
+		controls.getDetailViewConfig().getHeightSpinner().addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateSectionSize();
+			}
+		});
+		controls.getDetailViewConfig().getDepthSpinner().addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateSectionSize();
+			}
+		});
 
+	}
+	
+	private void updateSectionSize(){
+		DetailViewConfiguration view = controls.getDetailViewConfig();
+		float dim[] = {
+				((Number)view.getWidthSpinner().getValue()).floatValue(),
+				((Number)view.getHeightSpinner().getValue()).floatValue(),
+				((Number)view.getDepthSpinner().getValue()).floatValue()
+				};
+		selector.setHullVolumeDimensions(dim);
+	}
+	
 	private void resetToFullView(){
 		dataManager.resetVolumeData();
 		List<Matrix4> transformations = new ArrayList<Matrix4>();

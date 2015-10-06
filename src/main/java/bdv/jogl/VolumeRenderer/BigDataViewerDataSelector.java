@@ -26,6 +26,7 @@ public class BigDataViewerDataSelector {
 
 	private final BigDataViewer bdv;
 
+	private float HullVolumeDimensions[] = new float[]{100,100,100};
 	
 	private AABBox currentGlobalSelection = null;
 	
@@ -108,7 +109,7 @@ public class BigDataViewerDataSelector {
 		
 		List<SourceState<?>> sources = bdv.getViewer().getState().getSources();
 		
-		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{50,50,50});
+		AABBox volumeRectangle = getVolumeRegion(bdv, p, new float[]{HullVolumeDimensions[0]/2f,HullVolumeDimensions[1]/2f,HullVolumeDimensions[2]/2f});
 		ArrayList<VolumeDataBlock> partialVolumes = new ArrayList<VolumeDataBlock>();
 		currentGlobalSelection = volumeRectangle;
 		
@@ -217,5 +218,19 @@ public class BigDataViewerDataSelector {
 			minMax[1][i]+=offset;
 		}
 		return new AABBox(minMax[0], minMax[1]);
+	}
+
+	/**
+	 * @return the hullVolumeDimensions
+	 */
+	public float[] getHullVolumeDimensions() {
+		return HullVolumeDimensions;
+	}
+
+	/**
+	 * @param hullVolumeDimensions the hullVolumeDimensions to set
+	 */
+	public void setHullVolumeDimensions(float[] hullVolumeDimensions) {
+		HullVolumeDimensions = hullVolumeDimensions.clone();
 	}
 }
