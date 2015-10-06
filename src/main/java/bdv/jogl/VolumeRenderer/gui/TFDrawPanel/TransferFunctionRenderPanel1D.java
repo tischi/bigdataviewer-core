@@ -14,8 +14,6 @@ import java.util.TreeSet;
 
 import javax.swing.JPanel;
 
-import com.jogamp.opengl.math.geom.AABBox;
-
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
@@ -39,7 +37,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 	
 	private VolumeDataManager volumeDataManager = null;
 	
-	private final TransferFunctionContexMenu contextMenue = new TransferFunctionContexMenu(this);
+	private final TransferFunctionContexMenu contextMenue;
 
 	private final TransferFunctionPointInteractor pointInteractor = new TransferFunctionPointInteractor(this);
 
@@ -67,7 +65,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 		setVolumeDataManager(dataManager);
 		
 		//resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),transferFunction);
-
+		contextMenue = new TransferFunctionContexMenu(this);
 		addControls();
 	}
 

@@ -1,6 +1,5 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -10,8 +9,6 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 
 import javax.swing.AbstractAction;
-import javax.swing.JColorChooser;
-import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
@@ -40,6 +37,8 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 
 	private Point colorPickPoint = null;
 	
+	private ColorMenuActionContainer colorActions;
+	
 	private final MouseListener mouseListenrer = new MouseAdapter() {
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -48,6 +47,7 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 				return;
 			}
 			colorPickPoint = new Point(e.getPoint());
+			colorActions.setInteractionPoint(colorPickPoint);
 			show(parent, e.getX(), e.getY());
 			e.consume();
 
@@ -73,27 +73,7 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 
 			}
 		});
-		add(new AbstractAction("Insert color") {
-
-			/**
-			 * default version
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Color color = JColorChooser.showDialog(new JFrame(), "color dialog", Color.black);
-
-				//nothing choosen
-				if(color == null){
-					return;
-				}
-				TransferFunction1D tf = parent.getTransferFunction();
-				Dimension winSize = parent.getSize();
-				Point2D.Float colorPoint = calculateTransferFunctionPoint(new Point(colorPickPoint.x,0), tf, winSize);
-				tf.setColor(colorPoint, color);
-			}
-		});
+		add(colorActions.getInsertAction());
 
 		add(new AbstractAction("Reset Points") {
 
@@ -108,23 +88,12 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 			}
 		});
 
-		add(new AbstractAction("Reset colors") {
-
-			/**
-			 * default version
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				parent.getTransferFunction().resetColors();
-			}
-		});
+		add(colorActions.getResetAction());
 	}
 
 	public TransferFunctionContexMenu(final TransferFunctionRenderPanel1D parent){
 		this.parent = parent;
-
+		this.colorActions = new ColorMenuActionContainer(parent, parent.getTransferFunction()); 
 		initActions();
 	}
 	
