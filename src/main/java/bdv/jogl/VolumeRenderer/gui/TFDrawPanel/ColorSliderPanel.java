@@ -23,10 +23,13 @@ public class ColorSliderPanel extends JPanel {
 	
 	private final TransferFunctionColorPositionInteractor interactor;
 	
+	private final ColorSliderContextMenu contextMenu;
+	
 	public ColorSliderPanel(TransferFunction1D tf){
 		setTransferFuntion(tf);
 		interactor = new TransferFunctionColorPositionInteractor(this);
-		
+		contextMenu = new ColorSliderContextMenu(this);
+		addMouseListener(contextMenu.getMouseListener());
 		addMouseListener(interactor.getMouseListener());
 		addMouseMotionListener(interactor.getMouseMotionListener());
 		setPreferredSize(new Dimension(getPreferredSize().width, 20));
