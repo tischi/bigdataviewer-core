@@ -173,7 +173,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 			latestPoint = currentPoint;
 		}
 	}
-
+	
 	private void drawPointIcon(Graphics2D painter, final Point point){
 
 		painter.setStroke(new BasicStroke(3));

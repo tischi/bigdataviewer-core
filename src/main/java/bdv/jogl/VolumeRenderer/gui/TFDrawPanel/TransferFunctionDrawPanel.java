@@ -62,6 +62,8 @@ public class TransferFunctionDrawPanel extends JPanel {
 	
 	private final JSpinner zoomSpinnery  = new JSpinner(new SpinnerNumberModel(1,1,1000,1));
 	
+	private final ColorSliderPanel colorSlidePanel;
+	
 	private JCheckBox logarithmicOccuranceCheck = new JCheckBox("Logarithmic distribution");
 	
 	/**
@@ -73,7 +75,7 @@ public class TransferFunctionDrawPanel extends JPanel {
 		this.dataManager = dataManager;
 		this.legend = new VolumeLegend(dataManager);
 		logarithmicOccuranceCheck.setSelected(true);
-		
+		colorSlidePanel = new ColorSliderPanel(tf);
 		renderPanel = new TransferFunctionRenderPanel1D(tf, dataManager);
 		renderPanel.setLogscaleDistribution(logarithmicOccuranceCheck.isSelected());
 		initUI();
@@ -93,24 +95,29 @@ public class TransferFunctionDrawPanel extends JPanel {
 		yTauAxis.setLeftAxis(true);
 		//render area + axis
 		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx =1;
+		c.gridy =0;
+		renderAndAxisArea.add(colorSlidePanel,c);
+		
 		c.fill = GridBagConstraints.VERTICAL;
 		c.gridx =0;
-		c.gridy = 0;
+		c.gridy = 1;
 		renderAndAxisArea.add(yTauAxis,c);
 		
 		c.fill = GridBagConstraints.VERTICAL;
 		c.gridx =2;
-		c.gridy = 0;
+		c.gridy = 1;
 		renderAndAxisArea.add(yDistributionAxis,c);
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx =1;
-		c.gridy = 1;
+		c.gridy = 2;
 		renderAndAxisArea.add(xAxis,c);
 		
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx =1;
-		c.gridy = 0;
+		c.gridy = 1;
 		renderAndAxisArea.add(renderPanel,c);
 		//renderAndAxisArea.setPreferredSize(new Dimension(2000,180));
 		
