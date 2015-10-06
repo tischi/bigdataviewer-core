@@ -159,10 +159,10 @@ public class SceneControlsWindow extends JFrame {
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-		addComponetenToMainPanel(transferFunktionEditorPanel);
-		addComponetenToMainPanel(sceneConfigurationPanel);
-		addComponetenToMainPanel(volumeInterpreterPanel);
-		addComponetenToMainPanel(aggregationPanel);
+		addComponetenToMainPanel(aligneLeft(transferFunktionEditorPanel));
+		addComponetenToMainPanel(aligneLeft(sceneConfigurationPanel));
+		addComponetenToMainPanel(aligneLeft(volumeInterpreterPanel));
+		addComponetenToMainPanel(aligneLeft(aggregationPanel));
 
 
 		tfDataPanel.setVisible(advancedCheck.isSelected());
@@ -176,30 +176,22 @@ public class SceneControlsWindow extends JFrame {
 		sceneConfigurationPanel.setBorder(BorderFactory.createTitledBorder("Scene configurations"));
 		sceneConfigurationPanel.setLayout(new BoxLayout(sceneConfigurationPanel, BoxLayout.Y_AXIS));
 		
-		samplePanel.setAlignmentX(LEFT_ALIGNMENT);
-		rectBorderCheck.setAlignmentX(LEFT_ALIGNMENT);
-		showSlice.setAlignmentX(LEFT_ALIGNMENT);
-		useGradient.setAlignmentX(LEFT_ALIGNMENT);
-		backgroundPanel.setAlignmentX(LEFT_ALIGNMENT);
-		resetButton.setAlignmentX(LEFT_ALIGNMENT);
-		
-		
-		sceneConfigurationPanel.add(samplePanel);
-		sceneConfigurationPanel.add(rectBorderCheck);
-		sceneConfigurationPanel.add(showSlice);
-		sceneConfigurationPanel.add(useGradient);
-		sceneConfigurationPanel.add(backgroundPanel);
-		sceneConfigurationPanel.add(resetButton);
+		sceneConfigurationPanel.add(aligneLeft(samplePanel));
+		sceneConfigurationPanel.add(aligneLeft(rectBorderCheck));
+		sceneConfigurationPanel.add(aligneLeft(showSlice));
+		sceneConfigurationPanel.add(aligneLeft(useGradient));
+		sceneConfigurationPanel.add(aligneLeft(backgroundPanel));
+		sceneConfigurationPanel.add(aligneLeft(resetButton));
 	}
 
 	private void initTransferFunctionEditorPanel() {
 		transferFunktionEditorPanel.setBorder(BorderFactory.createTitledBorder("Transferfunction Editor"));
 		transferFunktionEditorPanel.setLayout(new BoxLayout(transferFunktionEditorPanel, BoxLayout.Y_AXIS));
 		
-		transferFunktionEditorPanel.add(tfpanel);
-		transferFunktionEditorPanel.add(usePreIntegration);
-		transferFunktionEditorPanel.add(advancedCheck);
-		transferFunktionEditorPanel.add(tfDataPanel);
+		transferFunktionEditorPanel.add(aligneLeft(tfpanel));
+		transferFunktionEditorPanel.add(aligneLeft(usePreIntegration));
+		transferFunktionEditorPanel.add(aligneLeft(advancedCheck));
+		transferFunktionEditorPanel.add(aligneLeft(tfDataPanel));
 		
 	}
 
@@ -208,18 +200,14 @@ public class SceneControlsWindow extends JFrame {
 		volumeInterpreterPanel.setLayout(new BoxLayout(volumeInterpreterPanel, BoxLayout.Y_AXIS));
 
 		emissionsAbsorbationRadioButton.setSelected(true);
-
-		emissionsAbsorbationRadioButton.setAlignmentX(LEFT_ALIGNMENT);
-		maximumIntensityProjectionRadioButton.setAlignmentX(LEFT_ALIGNMENT);
-		isoPanel.setAlignmentX(LEFT_ALIGNMENT);
 		
 		volumenInterpreterGroup.add(emissionsAbsorbationRadioButton);
 		volumenInterpreterGroup.add(isoRadioButton);
 		volumenInterpreterGroup.add(maximumIntensityProjectionRadioButton);
 
-		volumeInterpreterPanel.add(emissionsAbsorbationRadioButton);
-		volumeInterpreterPanel.add(isoPanel);
-		volumeInterpreterPanel.add(maximumIntensityProjectionRadioButton);
+		volumeInterpreterPanel.add(aligneLeft(emissionsAbsorbationRadioButton));
+		volumeInterpreterPanel.add(aligneLeft(isoPanel));
+		volumeInterpreterPanel.add(aligneLeft(maximumIntensityProjectionRadioButton));
 
 	}
 
@@ -438,6 +426,11 @@ public class SceneControlsWindow extends JFrame {
 
 	}
 
+	private JComponent aligneLeft(final JComponent c){
+		c.setAlignmentX(LEFT_ALIGNMENT);
+		return c;
+	}
+	
 	public void destroyTFWindow() {
 		dispose();
 		tfpanel = null;
