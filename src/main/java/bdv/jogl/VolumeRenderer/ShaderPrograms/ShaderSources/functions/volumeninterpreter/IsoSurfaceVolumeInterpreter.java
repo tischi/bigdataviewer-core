@@ -27,7 +27,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 		addCodeArrayToList( new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 101",
 				"float isoPainted =0;",
-				"uniform vec3 "+suvLightIntensiy+" = vec3(0.0,1.0,0.0);",
+				"uniform vec3 "+suvLightIntensiy+";",
 				"",
 				"//bisection form http://onlinelibrary.wiley.com/doi/10.1111/j.1467-8659.2005.00855.x/abstract",
 				"vec3 bisection(float fNear, float fFar, vec3 xNear, vec3 xFar, float isoValue){",

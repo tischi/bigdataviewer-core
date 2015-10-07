@@ -68,7 +68,6 @@ public class SceneControlsWindow extends JFrame {
 
 	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
 
-	private JSpinner isoValueSpinner = new JSpinner();
 
 	private JButton backgroundColorButton = new JButton("");
 
@@ -87,6 +86,8 @@ public class SceneControlsWindow extends JFrame {
 	//interpreter panels
 
 	private final JPanel isoPanel = new JPanel();
+	
+	private final IsoSurfaceConfigurations isoMenu;
 
 	private final JPanel volumeInterpreterPanel = new JPanel(); 
 
@@ -131,6 +132,7 @@ public class SceneControlsWindow extends JFrame {
 		transferFunction = tf;
 		this.dataManager = dataManager;
 		this.legend = new VolumeLegend(dataManager);
+		this.isoMenu = new IsoSurfaceConfigurations(drawWindow, renderer);
 		createTFWindow(tf,agm,dataManager);
 	}
 
@@ -352,12 +354,9 @@ public class SceneControlsWindow extends JFrame {
 		}
 
 	}
-	private void updateIsoSurface(){
-		renderer.setIsoSurface(((Number)isoValueSpinner.getValue()).floatValue());
-	}
 
 	private void initShowIsoSurface() {
-		isoValueSpinner.setModel(new SpinnerNumberModel(0.0,0.0, 10000, 1.0f));
+
 		dataManager.addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
 
 			@Override
@@ -405,26 +404,10 @@ public class SceneControlsWindow extends JFrame {
 			}
 		});
 
-		updateIsoSurface();
-		isoValueSpinner.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				updateIsoSurface();
-				drawWindow.getGlCanvas().repaint();
-			}
-		});
-
-		//isoValueSpinner.setAlignmentY(TOP_ALIGNMENT);
-		//isoRadioButton.setAlignmentY(TOP_ALIGNMENT);
-		isoValueSpinner.setPreferredSize(isoValueSpinner.getMinimumSize());
-		isoValueSpinner.setMaximumSize(isoValueSpinner.getPreferredSize());
+		isoRadioButton.setAlignmentY(BOTTOM_ALIGNMENT);
 		isoPanel.setLayout(new BoxLayout(isoPanel, BoxLayout.X_AXIS));
 		isoPanel.add(isoRadioButton);
-		isoPanel.add(isoValueSpinner);
-		
-		
-		//isoValueSpinner.setSize(isoValueSpinner.getMinimumSize());
+		isoPanel.add(isoMenu);
 		
 	}
 

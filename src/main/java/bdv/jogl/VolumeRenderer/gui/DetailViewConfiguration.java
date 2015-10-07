@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
+import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.aligneLeft;
 
 public class DetailViewConfiguration extends JPanel{

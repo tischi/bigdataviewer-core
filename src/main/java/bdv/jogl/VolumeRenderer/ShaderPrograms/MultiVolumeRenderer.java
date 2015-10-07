@@ -101,6 +101,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isHullVolumeUpdateable = true;
 
 	private float opacity3D = 1.f;
+	
+	private boolean isLightColorUpdateable = true;
+	
+	private Color lightColorForIsoSurface = Color.GREEN;
 
 	public void setUseSparseVolumes(boolean flag){
 		useSparseVolume = flag;
@@ -114,6 +118,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		islengthUpdatable = true;
 		isHullVolumeUpdateable=true;
 	}
+	
+	
 
 	/**
 	 * @param useGradient the useGradient to set
@@ -126,7 +132,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	protected void updateShaderAttributesSubClass(GL4 gl2) {
 		
 		accumulator.updateData(gl2);
-		
+		updateLightColor(gl2);
 		GLErrorHandler.assertGL(gl2);
 		updateBackgroundColor(gl2);
 		GLErrorHandler.assertGL(gl2);
@@ -164,6 +170,18 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		GLErrorHandler.assertGL(gl2);
 		
 	
+	}
+
+	private void updateLightColor(GL4 gl2) {
+		if(!isLightColorUpdateable){
+			return;
+		}
+		float color[] = getNormalizedColor(lightColorForIsoSurface);
+		
+		gl2.glUniform3fv(getLocation(suvLightIntensiy),1, color,0);
+		
+		isLightColorUpdateable = false; 
+		
 	}
 
 	/**
@@ -290,6 +308,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		islengthUpdatable = flag;
 		isOpacity3DUpdateable = flag;
 		isHullVolumeUpdateable = flag;
+		isLightColorUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -588,7 +607,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvRenderRectClippingPlanes,
 				suvRenderRectStepSize,
 				suvTransferFuntionSize,
-				suvOpacity3D
+				suvOpacity3D,
+				suvLightIntensiy
 		});
 		
 		accumulator.init(gl2);
@@ -775,5 +795,20 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public void setOpacity3D(float opacity3d) {
 		opacity3D = opacity3d;
 		isOpacity3DUpdateable = true;
+	}
+
+	/**
+	 * @return the lightColorForIsoSurface
+	 */
+	public Color getLightColorForIsoSurface() {
+		return lightColorForIsoSurface;
+	}
+
+	/**
+	 * @param lightColorForIsoSurface the lightColorForIsoSurface to set
+	 */
+	public void setLightColorForIsoSurface(Color lightColorForIsoSurface) {
+		this.lightColorForIsoSurface = lightColorForIsoSurface;
+		isLightColorUpdateable = true;
 	}
 }
