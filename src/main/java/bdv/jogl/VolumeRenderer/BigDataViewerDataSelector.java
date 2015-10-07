@@ -96,16 +96,6 @@ public class BigDataViewerDataSelector {
 		//test 
 	//	p.x = 252;
 	//	p.y = 284;
-		final String extensionName = "GL_ARB_sparse_texture";
-		final String  apology = "Sorry, sparse textures are not available on your sytems. "
-				+ "Scince these textures are used for the detailed view it is unusable on your system."
-				+ "You at least need Opengl version 4.3 and the "+extensionName+" gl extension";
-		
-		try{
-			GLProfile glp =  GLProfile.get(GLProfile.GL4);
-		}catch(Exception e){
-			System.out.println(apology);
-		}
 		
 		List<SourceState<?>> sources = bdv.getViewer().getState().getSources();
 		

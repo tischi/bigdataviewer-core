@@ -6,9 +6,7 @@ import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
 import java.awt.Color;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -87,32 +85,25 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean useGradient= false;
 
 	private AABBox drawRect;
-	
-	private boolean useSparseVolume = false;
-	
+
 	private AbstractVolumeAccumulator accumulator;
 
 	private boolean isClippingUpdatable = true;
-	
+
 	private boolean islengthUpdatable = true;
-	
+
 	private boolean isOpacity3DUpdateable = true;
-	
+
 	private boolean isHullVolumeUpdateable = true;
 
 	private float opacity3D = 1.f;
-	
+
 	private boolean isLightColorUpdateable = true;
-	
+
 	private Color lightColorForIsoSurface = Color.GREEN;
 
 	private float[] slice2Dplane;
 
-	public void setUseSparseVolumes(boolean flag){
-		useSparseVolume = flag;
-
-	}
-	
 	public void setDrawRect(AABBox rect){
 		drawCubeTransformation = getTransformationRepresentAABBox(rect);
 		drawRect  = rect;
@@ -120,8 +111,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		islengthUpdatable = true;
 		isHullVolumeUpdateable=true;
 	}
-	
-	
+
+
 
 	/**
 	 * @param useGradient the useGradient to set
@@ -132,7 +123,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 	@Override
 	protected void updateShaderAttributesSubClass(GL4 gl2) {
-		
+
 		accumulator.updateData(gl2);
 		updateLightColor(gl2);
 		GLErrorHandler.assertGL(gl2);
@@ -144,9 +135,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		updateIsoValue(gl2);
 		GLErrorHandler.assertGL(gl2);
 		updateOpacity3D(gl2);
-		
+
 		boolean update = updateTextureData(gl2);
-		
+
 		GLErrorHandler.assertGL(gl2);
 		if(update){
 
@@ -171,8 +162,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		GLErrorHandler.assertGL(gl2);
 		updateUseGradient(gl2);
 		GLErrorHandler.assertGL(gl2);
-		
-	
+
+
 	}
 
 	private void updateLightColor(GL4 gl2) {
@@ -180,11 +171,11 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			return;
 		}
 		float color[] = getNormalizedColor(lightColorForIsoSurface);
-		
+
 		gl2.glUniform3fv(getLocation(suvLightIntensiy),1, color,0);
-		
+
 		isLightColorUpdateable = false; 
-		
+
 	}
 
 	/**
@@ -249,23 +240,23 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 */
 	private float[] calcSlicePlane() {
 		float normVector[] = {0,0,1,0};
-		
+
 		//viewer to global
 		Matrix4 bdvTransSafe = getNewIdentityMatrix();
 		bdvTransSafe.multMatrix(getModelTransformation());
 		bdvTransSafe.invert();
-		
-		
+
+
 		Matrix4 mat = getNewIdentityMatrix();
 
-	//	mat.multMatrix(scaleInv);
-	//	mat.multMatrix(calcScaledVolumeTransformation(data));
-		
+		//	mat.multMatrix(scaleInv);
+		//	mat.multMatrix(calcScaledVolumeTransformation(data));
+
 		mat.multMatrix(bdvTransSafe);
 		mat.multMatrix(getProjection());
 		mat.multMatrix(getView());
-		
-				
+
+
 
 
 		mat.invert();
@@ -333,8 +324,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			}
 		});
 	}
-	
-	
+
+
 	public MultiVolumeRenderer(TransferFunction1D tf, VolumeDataManager manager){
 		setVolumeDataManager(manager);
 		setTransferFunction(tf);
@@ -360,7 +351,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		float eye[] = getEyeInCurrentSpace(globalTransformation);
 		float eyeTransformer[] ={eye[0] ,eye[1],eye[2],1}; 
 		float eyeTransformed[] = new float[4];
-		
+
 		drawCubeTransformation.multVec(eyeTransformer, eyeTransformed);
 		for(int j = 0; j < eye.length; j++){
 			eyePositionsObjectSpace[j] = eyeTransformed[j]/eyeTransformed[3];
@@ -404,13 +395,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		if(!islengthUpdatable){
 			return;
 		}
-		
+
 		length = Float.MIN_VALUE;
 		//length = (float)Math.sqrt(3d);
 		//cube transform in texture space to get the maximum extend
 		final float diagVec[]={drawRect.getWidth(),drawRect.getHeight(),drawRect.getDepth(),0};
 		float runLength = VectorUtil.normVec3(diagVec);
-		
+
 		gl2.glUniform1f(getLocation(suvRenderRectStepSize), runLength/(float)samples);
 		GLErrorHandler.assertGL(gl2);
 		//create a logical stepsize for the the classifications
@@ -421,13 +412,13 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(int i = 0; i< 3; i++){
 			diagVec[i]/=sizeDim;
 		}
-		
+
 		length = VectorUtil.normVec3(diagVec);
-		
+
 		gl2.glUniform1f(getLocation(suvTransferFuntionSize), length);
 		GLErrorHandler.assertGL(gl2);
 
-		
+
 
 		islengthUpdatable = false;
 		isColorUpdateable = true;
@@ -475,14 +466,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 */
 	private void updateNormalAxises(GL4 gl2, Map<Integer, Matrix4> localInverses) {
 		float drawRectAxises[][] = {{1,0,0,0},{0,1,0,0},{0,0,1,0}};
-		
+
 		//transform and upload TODO
 		for(Integer volume: localInverses.keySet()){
 			float axisesInTextSpace[][] = new float[3][4]; 
 			Matrix4  transformation = localInverses.get(volume);
 			transformation.invert();
 			transformation.transpose();
-			
+
 			for(int axis=0; axis < drawRectAxises.length; axis++){
 				transformation.multVec(drawRectAxises[axis],axisesInTextSpace[axis]);
 			}
@@ -498,7 +489,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		if(!isClippingUpdatable){
 			return;
 		}
-		
+
 		float planesInDrawRectSpace[]= new float[]{
 				1,0,0,drawRect.getMaxX(),
 				-1,0,0,-drawRect.getMinX(),
@@ -507,16 +498,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				0,0,1,drawRect.getMaxZ(),
 				0,0,-1,-drawRect.getMinZ()
 		};
-		
+
 		if(getLocation(suvRenderRectClippingPlanes) != -1){
 			gl.glUniform4fv(getLocation(suvRenderRectClippingPlanes), planesInDrawRectSpace.length, planesInDrawRectSpace, 0);
 		}
-		
+
 		isClippingUpdatable = false;
 	}
 
 	private void updateGlobalScale(GL4 gl2) {
-		
+
 		if(!isHullVolumeUpdateable){
 			return;
 		}
@@ -558,20 +549,19 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 			//uploade data
 			int dim[];
-			if(!useSparseVolume ){
-				dim = new int[]{(int)data.dimensions[0], 
-						(int)data.dimensions[1], 
-						(int)data.dimensions[2]};
-				volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
-			}else{
-				
-				long tmp[] = calculateSparseVirtualTextures(gl2,volumeTextureMap.get(i),data.dimensions);
-				data.dimensions = tmp.clone();
-		
-				dim = new int[]{(int)data.dimensions[0],(int)data.dimensions[1],(int)data.dimensions[2]};
-				int[] offsets = new int[]{(int)data.memOffset[0],(int)data.memOffset[1],(int)data.memOffset[2]};
-				int[] sizes = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
-				volumeTextureMap.get(i).updateSparse(gl2, 0,buffer, dim, offsets, sizes);
+
+			dim = new int[]{(int)data.memSize[0], 
+					(int)data.memSize[1], 
+					(int)data.memSize[2]};
+			volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
+
+			if(getLocation(suvVoxelOffsets)!=-1){
+				int off[] = new int[]{
+						(int)data.memOffset[0],
+						(int)data.memOffset[1],
+						(int)data.memOffset[2]
+				};
+				gl2.glUniform3iv(getLocation(suvVoxelOffsets)+i, 1,off,0 );
 			}
 			if(getLocation(suvVoxelCount)!=-1){
 				gl2.glUniform3iv(getLocation(suvVoxelCount)+i, 1,dim,0 );
@@ -612,15 +602,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvRenderRectStepSize,
 				suvTransferFuntionSize,
 				suvOpacity3D,
-				suvLightIntensiy
+				suvLightIntensiy,
+				suvVoxelOffsets
 		});
-		
+
 		accumulator.init(gl2);
 
 		int location = getLocation(suvVolumeTexture);
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
 			Texture t = createVolumeTexture(gl2, location + i);
-		//	t.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
+			//	t.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
 			t.setShouldGenerateMidmaps(true);
 			volumeTextureMap.put(i, t);
 		}
@@ -735,7 +726,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(Texture texture: volumeTextureMap.values() ){
 			texture.delete(gl2);
 		}
-		
+
 		accumulator.disposeGL(gl2);
 		setAllUpdate(true);
 	}
@@ -782,7 +773,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 * @return the current bounding volume to draw
 	 */
 	public AABBox getDrawRect() {
-		
+
 		return drawRect;
 	}
 

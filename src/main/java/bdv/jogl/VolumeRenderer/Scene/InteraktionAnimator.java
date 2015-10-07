@@ -149,7 +149,6 @@ public class InteraktionAnimator {
 						//enter hull volume -> invalid fragments
 						if(!updatedData&&currentHullVolume.contains( eyeCenter[0][0],eyeCenter[0][1],eyeCenter[0][2])){
 							renderer.setDrawRect(hullVolume);
-							System.out.println("Done");
 							updatedData=true;
 						}
 						c.setEyePoint(eyeCenter[0]);
@@ -164,7 +163,6 @@ public class InteraktionAnimator {
 				}
 				currentAnimationPercentage = 100;
 				
-				renderer.setUseSparseVolumes(true);
 				renderer.setDrawRect(hullVolume);
 				
 				for(int i =0; i < partialVolumesInHullVolume.size(); i++){

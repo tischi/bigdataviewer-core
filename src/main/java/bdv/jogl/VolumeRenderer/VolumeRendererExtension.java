@@ -245,7 +245,6 @@ public class VolumeRendererExtension {
 			transformations.add(calcScaledVolumeTransformation(data));
 		}
 		AABBox drawRect = calculateCloseFittingBox(transformations);
-		volumeRenderer.setUseSparseVolumes(false);
 		
 		volumeRenderer.setDrawRect(drawRect);
 		

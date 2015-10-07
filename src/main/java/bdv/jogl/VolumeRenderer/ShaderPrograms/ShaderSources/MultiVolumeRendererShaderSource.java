@@ -99,6 +99,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	
 	public static final String suvOpacity3D = "inOpacity3D"; 
 	
+	public static final String suvVoxelOffsets = "inVoxelOffsets";
+	
 	public MultiVolumeRendererShaderSource(){
 		setVolumeInterpreter(  new TransparentVolumeinterpreter());
 		setShaderLanguageVersion(330);
@@ -191,6 +193,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform float "+suvMinVolumeValue+";",
 				"uniform vec3 "+suvEyePosition+";",
 				"uniform sampler3D "+suvVolumeTexture+"["+scvMaxNumberOfVolumes+"];",
+				"uniform ivec3 "+suvVoxelOffsets+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvIsoValue+";",
 				"uniform vec3 "+suvBackgroundColor+";",
 				"uniform vec4 "+suvNormalSlice+";",
@@ -223,7 +226,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"}",
 				"",
 				"vec3 getCorrectedTexturePositions(vec3 positionOnRay, int volumeNumber){",
-				"	vec3 transformedPosition =getCoordinateInVolumeSpace(positionOnRay,volumeNumber); ",
+				"	vec3 transformedPosition =getCoordinateInVolumeSpace(positionOnRay,volumeNumber)-"+suvVoxelOffsets+"[volumeNumber]; ",
 				"	return correctTexturePositions(transformedPosition,vtextOffsets[volumeNumber],vtextScales[volumeNumber]);",
 				"}",
 				"",
