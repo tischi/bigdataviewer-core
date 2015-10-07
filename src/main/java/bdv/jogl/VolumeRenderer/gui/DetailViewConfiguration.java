@@ -1,7 +1,11 @@
 package bdv.jogl.VolumeRenderer.gui;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -22,6 +26,7 @@ public class DetailViewConfiguration extends JPanel{
 
 	private final JSpinner depthSpinner = new JSpinner(new SpinnerNumberModel(100, 10, 10000, 1));  
 
+	private final JButton resetButton = new JButton("Reset to full volume view"); 
 	
 	public DetailViewConfiguration(){
 		
@@ -29,22 +34,32 @@ public class DetailViewConfiguration extends JPanel{
 		
 	}
 
-	private JPanel createSliderPanel(final String name, final JSpinner value){
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel,BoxLayout.X_AXIS));
-		panel.add(new JLabel(name));
-		panel.add(value);
+	private void createSliderPanel(final String name, final JSpinner value,final GridBagConstraints c){
 		
-		return (JPanel)aligneLeft(panel);
+		value.setPreferredSize(value.getMinimumSize());
+		value.setMaximumSize(value.getMinimumSize());
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		add(aligneLeft( new JLabel(name)),c);
+		c.gridx = 1;
+	    add(aligneLeft(value),c);
+	    c.gridy++;
 	} 
 	
 	private void initUI() {
 		this.setBorder(BorderFactory.createTitledBorder("Detail View configuration"));
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		GridBagLayout layout = new GridBagLayout();
+		this.setLayout(layout);
 		
-		add(createSliderPanel("Width: ", widthSpinner));
-		add(createSliderPanel("Heigth: ", heightSpinner));
-		add(createSliderPanel("depth: ", depthSpinner));
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridy =0;
+		createSliderPanel("Width: ", widthSpinner, c);
+		createSliderPanel("Heigth: ", heightSpinner, c);
+		createSliderPanel("depth: ", depthSpinner, c);
+		c.gridx = 0;
+		c.gridwidth = 2;
+		add(aligneLeft(resetButton),c);
+		this.setMaximumSize(getPreferredSize());
 	}
 
 	/**
@@ -68,4 +83,10 @@ public class DetailViewConfiguration extends JPanel{
 		return depthSpinner;
 	}
 
+	/**
+	 * @return the reset button instance for defining listeners on it
+	 */
+	public JButton getResetButton(){
+		return resetButton;
+	}
 }

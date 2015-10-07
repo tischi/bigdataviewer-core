@@ -42,12 +42,14 @@ public class VolumeDataUtils {
 
 	private static Color volumeColor[] = new Color[]{
 
-		Color.YELLOW,
+		Color.RED,
 		Color.CYAN,
 		Color.DARK_GRAY,
 		Color.BLUE,
 		Color.GREEN,
 		Color.BLACK,
+		Color.YELLOW,
+		Color.CYAN,
 	};
 
 
@@ -71,6 +73,8 @@ public class VolumeDataUtils {
 
 		tmp = Views.flatIterable(Views.interval(dataField, minMax[0], minMax[1]));
 
+		String name = source.getSpimSource().getName();
+		
 		int maxOcc =0;
 		// copy values 
 		int i = 0;
@@ -106,6 +110,7 @@ public class VolumeDataUtils {
 		data.minValue = minValue;
 		data.data = block;
 		data.maxOccurance = maxOcc;
+		data.name = name;
 		AffineTransform3D sourceTransform3D = new AffineTransform3D();
 		source.getSpimSource().getSourceTransform(currentTimePoint, midmap, sourceTransform3D);
 		Matrix4 sourceTransformation = convertToJoglTransform(sourceTransform3D);

@@ -11,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.getColorOfVolume;
@@ -53,7 +54,8 @@ public class VolumeLegend extends JPanel {
 			}
 
 			Color volumeColor = getColorOfVolume(id);
-			final JCheckBox tmp = new JCheckBox("Volume: "+id);
+			VolumeDataBlock data = dataManager.getVolume(id);
+			final JCheckBox tmp = new JCheckBox("Volume: "+(id+1)+" ("+data.name+")");
 			tmp.setForeground(volumeColor);
 			tmp.setSelected(true);
 			tmp.addItemListener(new ItemListener() {
@@ -66,6 +68,7 @@ public class VolumeLegend extends JPanel {
 			});
 			idCheckboxMap.put(id, tmp);
 			add(tmp);
+			
 	
 	}
 }

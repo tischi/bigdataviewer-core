@@ -10,7 +10,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.swing.JPanel;
 

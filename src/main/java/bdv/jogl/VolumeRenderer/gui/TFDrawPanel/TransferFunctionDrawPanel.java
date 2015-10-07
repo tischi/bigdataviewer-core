@@ -52,7 +52,7 @@ public class TransferFunctionDrawPanel extends JPanel {
 	
 	private final JScrollPane scrollArea = new JScrollPane(renderAndAxisArea);
 	
-	private final VolumeLegend legend;
+
 
 	private final JPanel zoomXPanel = new JPanel();
 	
@@ -71,7 +71,6 @@ public class TransferFunctionDrawPanel extends JPanel {
 	 */
 	public TransferFunctionDrawPanel(final TransferFunction1D tf, final VolumeDataManager dataManager){
 		this.dataManager = dataManager;
-		this.legend = new VolumeLegend(dataManager);
 		logarithmicOccuranceCheck.setSelected(true);
 		renderPanel = new TransferFunctionRenderPanel1D(tf, dataManager);
 		renderPanel.setLogscaleDistribution(logarithmicOccuranceCheck.isSelected());
@@ -119,17 +118,19 @@ public class TransferFunctionDrawPanel extends JPanel {
 		
 		zoomXPanel.setLayout(new BoxLayout(zoomXPanel, BoxLayout.X_AXIS));
 		zoomXPanel.add(new JLabel("Zoom x Axis: ") );
+		zoomSpinnerx.setPreferredSize(zoomSpinnerx.getMinimumSize());
+		zoomSpinnerx.setMaximumSize(zoomSpinnerx.getMinimumSize());
 		zoomXPanel.add(zoomSpinnerx);
 		
 		zoomYPanel.setLayout(new BoxLayout(zoomYPanel, BoxLayout.X_AXIS));
 		zoomYPanel.add(new JLabel("Zoom y Axis: ") );
+		zoomSpinnery.setPreferredSize(zoomSpinnery.getMinimumSize());
+		zoomSpinnery.setMaximumSize(zoomSpinnery.getMinimumSize());
 		zoomYPanel.add(zoomSpinnery);
 		
 		addComponent(scrollArea);
 		addComponent(zoomXPanel);
 		addComponent(zoomYPanel);
-		addComponent(legend);
-		
 		
 		//controls
 		addComponent(logarithmicOccuranceCheck);

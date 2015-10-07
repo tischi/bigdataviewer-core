@@ -49,22 +49,16 @@ public class TransferFunctionDataPanel extends JPanel {
 
 	private TransferFunction1D transferFunction;
 
-	private JScrollPane pointTableScroller;
-
 	private JScrollPane colorTableScroller;
-
-	private final JTable pointTable = new JTable(); 
 
 	private final JTable colorTable = new JTable();
 
 	private BoxLayout mainLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
 
-	private void initUI(){
-		pointTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));				
+	private void initUI(){			
 		colorTableScroller.setPreferredSize(new Dimension(this.getWidth(),100));
 
 		setLayout(mainLayout);		
-		add(pointTableScroller);
 		add(colorTableScroller);	
 	}
 
@@ -146,7 +140,6 @@ public class TransferFunctionDataPanel extends JPanel {
 
 	public TransferFunctionDataPanel(final TransferFunction1D tf){
 
-		pointTableScroller = new JScrollPane(pointTable);
 		colorTableScroller = new JScrollPane(colorTable);
 		initUI();
 

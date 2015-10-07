@@ -35,6 +35,7 @@ import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.RegularSampler;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionDrawPanel;
+import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.VolumeLegend;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPanel;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -105,13 +106,17 @@ public class SceneControlsWindow extends JFrame {
 
 	private final JCheckBox useGradient = new JCheckBox("Use gradients as values",false);
 
-	private final JButton resetButton = new JButton("Reset to full volume view"); 
-
 	private final JPanel transferFunktionEditorPanel = new JPanel();
 	
 	private final JPanel sceneConfigurationPanel = new JPanel();
 	
 	private final DetailViewConfiguration detailViewConfig = new DetailViewConfiguration();
+	
+	private final VolumeLegend legend;
+	
+	private final JPanel shaderElementPanel = new JPanel();
+	
+	private final JPanel interactionToolPanel = new JPanel(); 
 	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
@@ -125,6 +130,7 @@ public class SceneControlsWindow extends JFrame {
 		this.renderer = mvr;
 		transferFunction = tf;
 		this.dataManager = dataManager;
+		this.legend = new VolumeLegend(dataManager);
 		createTFWindow(tf,agm,dataManager);
 	}
 
@@ -132,7 +138,7 @@ public class SceneControlsWindow extends JFrame {
 	 * @return the reset button instance for defining listeners on it
 	 */
 	public JButton getResetButton(){
-		return resetButton;
+		return detailViewConfig.getResetButton();
 	}
 	
 	private void addComponetenToMainPanel(JComponent c){
@@ -161,12 +167,22 @@ public class SceneControlsWindow extends JFrame {
 		initSceneControlsPanel();
 
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		sceneConfigurationPanel.setAlignmentY(TOP_ALIGNMENT);
+		detailViewConfig.setAlignmentY(TOP_ALIGNMENT);
+		legend.setAlignmentY(TOP_ALIGNMENT);
+		interactionToolPanel.setLayout(new BoxLayout(interactionToolPanel, BoxLayout.X_AXIS));
+		interactionToolPanel.add(aligneLeft(sceneConfigurationPanel));
+		interactionToolPanel.add(aligneLeft(detailViewConfig));
+		interactionToolPanel.add(aligneLeft(legend));
+		
+		shaderElementPanel.setLayout(new BoxLayout(shaderElementPanel, BoxLayout.X_AXIS));
+		shaderElementPanel.add(aligneLeft(aggregationPanel));
+		shaderElementPanel.add(aligneLeft(volumeInterpreterPanel));
 
 		addComponetenToMainPanel(aligneLeft(transferFunktionEditorPanel));
-		addComponetenToMainPanel(aligneLeft(sceneConfigurationPanel));
-		addComponetenToMainPanel(aligneLeft(detailViewConfig));
-		addComponetenToMainPanel(aligneLeft(volumeInterpreterPanel));
-		addComponetenToMainPanel(aligneLeft(aggregationPanel));
+		addComponetenToMainPanel(aligneLeft(interactionToolPanel));
+		addComponetenToMainPanel(aligneLeft(shaderElementPanel));
+		
 
 
 		tfDataPanel.setVisible(advancedCheck.isSelected());
@@ -185,7 +201,6 @@ public class SceneControlsWindow extends JFrame {
 		sceneConfigurationPanel.add(aligneLeft(showSlice));
 		sceneConfigurationPanel.add(aligneLeft(useGradient));
 		sceneConfigurationPanel.add(aligneLeft(backgroundPanel));
-		sceneConfigurationPanel.add(aligneLeft(resetButton));
 	}
 
 	private void initTransferFunctionEditorPanel() {
@@ -208,10 +223,13 @@ public class SceneControlsWindow extends JFrame {
 		volumenInterpreterGroup.add(emissionsAbsorbationRadioButton);
 		volumenInterpreterGroup.add(isoRadioButton);
 		volumenInterpreterGroup.add(maximumIntensityProjectionRadioButton);
-
+		
+		maximumIntensityProjectionRadioButton.setAlignmentY(BOTTOM_ALIGNMENT);
+		
 		volumeInterpreterPanel.add(aligneLeft(emissionsAbsorbationRadioButton));
 		volumeInterpreterPanel.add(aligneLeft(isoPanel));
 		volumeInterpreterPanel.add(aligneLeft(maximumIntensityProjectionRadioButton));
+		volumeInterpreterPanel.setAlignmentY(BOTTOM_ALIGNMENT);
 
 	}
 
@@ -220,6 +238,7 @@ public class SceneControlsWindow extends JFrame {
 		renderer.setUseGradient(this.useGradient.isSelected());
 		drawWindow.getGlCanvas().repaint();
 	}
+	
 	private void initUseGradient() {
 		updateUseGradient();
 		useGradient.addItemListener(new ItemListener() {
@@ -233,6 +252,8 @@ public class SceneControlsWindow extends JFrame {
 	}
 
 	private void initSampleSpinner() {
+		sampleSpinner.setPreferredSize(sampleSpinner.getMinimumSize());
+		sampleSpinner.setMaximumSize(sampleSpinner.getMinimumSize());
 		samplePanel.setLayout(new BoxLayout(samplePanel, BoxLayout.X_AXIS));
 		samplePanel.add(new JLabel("Render samples: "));
 		samplePanel.add(sampleSpinner);
@@ -394,10 +415,17 @@ public class SceneControlsWindow extends JFrame {
 			}
 		});
 
+		//isoValueSpinner.setAlignmentY(TOP_ALIGNMENT);
+		//isoRadioButton.setAlignmentY(TOP_ALIGNMENT);
+		isoValueSpinner.setPreferredSize(isoValueSpinner.getMinimumSize());
+		isoValueSpinner.setMaximumSize(isoValueSpinner.getPreferredSize());
 		isoPanel.setLayout(new BoxLayout(isoPanel, BoxLayout.X_AXIS));
 		isoPanel.add(isoRadioButton);
 		isoPanel.add(isoValueSpinner);
-
+		
+		
+		//isoValueSpinner.setSize(isoValueSpinner.getMinimumSize());
+		
 	}
 
 	private void changeTransferfuntionSampler(){

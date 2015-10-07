@@ -17,6 +17,7 @@ public class VolumeDataBlock{
 	public final TreeMap<Float, Integer> valueDistribution = new TreeMap<Float, Integer>();
 	public int maxOccurance = 0;
 	private boolean needsUpdate = true;
+	public String name;
 	
 	
 	public TreeMap<Float, Integer> getValueDistribution() {
