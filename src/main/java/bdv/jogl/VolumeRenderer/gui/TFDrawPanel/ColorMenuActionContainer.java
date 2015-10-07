@@ -13,6 +13,7 @@ import javax.swing.Action;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 
@@ -47,6 +48,27 @@ public class ColorMenuActionContainer {
 		}
 	};
 	
+	private final Action setColorAction = new AbstractAction("Set color of transferfunction point") {
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			Dimension winSize = parent.getSize();
+			Point2D.Float colorPoint = tf.getNearestValidPoint(calculateTransferFunctionPoint(interactionPoint, tf, winSize),Float.MAX_VALUE);
+			if(colorPoint == null){
+				return;
+			}
+			
+			Color color = JColorChooser.showDialog(new JFrame(), "Select color for transferfunction point", Color.black);
+
+			//nothing choosen
+			if(color == null){
+				return;
+			}
+			
+			tf.setColor(colorPoint, color);
+		}
+	};
+	
 	private final Action resetAction = new AbstractAction("Reset transferfunction point") {
 
 		/**
@@ -57,6 +79,23 @@ public class ColorMenuActionContainer {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			tf.resetColors();
+		}
+	};
+	
+	private final Action deleteAction = new AbstractAction("Delete transferfunction point"){
+		/**
+		 * default version
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Dimension winSize = parent.getSize();
+			Point2D.Float colorPoint = tf.getNearestValidPoint(calculateTransferFunctionPoint(interactionPoint, tf, winSize),Float.MAX_VALUE);
+			if(colorPoint == null){
+				return;
+			}
+			tf.removeColor(colorPoint);
 		}
 	};
 
@@ -93,5 +132,18 @@ public class ColorMenuActionContainer {
 	public Action getResetAction() {
 		return resetAction;
 	}
-	
+
+	/**
+	 * @return the deleteAction
+	 */
+	public Action getDeleteAction() {
+		return deleteAction;
+	}
+
+	/**
+	 * @return the setColorAction
+	 */
+	public Action getSetColorAction() {
+		return setColorAction;
+	}	
 }

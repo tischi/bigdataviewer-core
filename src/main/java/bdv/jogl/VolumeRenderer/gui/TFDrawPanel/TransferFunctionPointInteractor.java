@@ -59,9 +59,7 @@ public class TransferFunctionPointInteractor {
 				Dimension size = parent.getSize();
 				TransferFunction1D tf = parent.getTransferFunction();
 				Point windowPoint = transformWindowNormalSpace(e.getPoint(), size);
-				Point2D.Float functionPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
-				//tf.addFunctionPoint(functionPoint);
-				colorActions.setInteractionPoint(e.getPoint());
+				colorActions.setInteractionPoint(windowPoint);
 				colorActions.getInsertAction().actionPerformed(null);
 				e.consume();
 			}

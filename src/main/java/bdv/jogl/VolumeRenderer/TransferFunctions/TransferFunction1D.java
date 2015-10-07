@@ -114,6 +114,19 @@ public class TransferFunction1D {
 		init(new Point2D.Float(256,1.f));
 	}
 
+	/**
+	 * removes a color point if it is contained and not the first or last point.
+	 * @param pos
+	 */
+	public void removeColor(Point2D.Float pos){
+		if(!colors.containsKey(pos)){
+			return;
+		}
+		if(pos.equals(colors.firstKey()) || pos.equals(colors.lastKey())){
+			return;
+		}
+		colors.remove(pos);
+	}
 
 	/**
 	 * @return the colors

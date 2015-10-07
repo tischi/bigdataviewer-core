@@ -135,7 +135,7 @@ public class MaxCurvatureDifference extends AbstractVolumeAccumulator {
 				"			float kn[2] = getCurvatureFactors("+sgvRayPositions+",n);",
 				"",
 				"			//manhatten distance",
-				"			float currentDifference = abs(km[0]-kn[0]) + abs(km[1]-kn[1]) ;",
+				"			float currentDifference =abs(3.0*length(vec2(km[0],km[1])))-abs(3.0*length(vec2(kn[0],kn[1]))); // max(km[0]-kn[0]) + abs(km[1]-kn[1]) ;",
 				"			difference = max(difference,currentDifference);",	
 				"		}",
 				"	}",

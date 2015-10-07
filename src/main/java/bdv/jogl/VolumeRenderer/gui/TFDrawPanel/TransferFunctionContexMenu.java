@@ -5,6 +5,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static bdv.jogl.VolumeRenderer.utils.WindowUtils.transformWindowNormalSpace;
+
 import javax.swing.JPopupMenu;
 
 /**
@@ -32,7 +34,7 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 			if(e.getButton() != MouseEvent.BUTTON3){
 				return;
 			}
-			colorPickPoint = new Point(e.getPoint());
+			colorPickPoint = new Point(transformWindowNormalSpace( e.getPoint(),parent.getSize()));
 			colorActions.setInteractionPoint(colorPickPoint);
 			show(parent, e.getX(), e.getY());
 			e.consume();
@@ -44,7 +46,11 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 	private void initActions(){
 		
 		add(colorActions.getInsertAction());
-
+		
+		add(colorActions.getSetColorAction());
+		
+		add(colorActions.getDeleteAction());
+		
 		add(colorActions.getResetAction());
 	}
 
