@@ -100,9 +100,10 @@ public class VolumeRendererExtension {
 	
 		volumeRenderer.setBackgroundColor(bgColor);
 		dataScene.setBackgroundColor(bgColor);
-		animator = new InteraktionAnimator(volumeRenderer, glWindow, dataManager);
-		
+	
 		createControlWindow();
+		animator = new InteraktionAnimator(volumeRenderer, glWindow, dataManager,controls);
+		
 		selector = new BigDataViewerDataSelector(bdv);
 		createActionInToolBar();
 		createListeners();

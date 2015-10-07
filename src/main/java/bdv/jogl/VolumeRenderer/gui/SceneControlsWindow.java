@@ -455,4 +455,11 @@ public class SceneControlsWindow extends JFrame {
 	public DetailViewConfiguration getDetailViewConfig() {
 		return detailViewConfig;
 	}
+
+	/**
+	 * @return the showSlice
+	 */
+	public JCheckBox getShowSlice() {
+		return showSlice;
+	}
 }

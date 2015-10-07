@@ -7,6 +7,7 @@ import com.jogamp.opengl.math.geom.AABBox;
 
 import bdv.jogl.VolumeRenderer.Camera;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
+import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -30,15 +31,22 @@ public class InteraktionAnimator {
 	
 	private final VolumeDataManager manager;
 	
+	private final SceneControlsWindow controls;
+	
 	/**
 	 * Animation constructor
 	 * @param renderer
 	 * @param renderWindow
 	 */
-	public InteraktionAnimator(final MultiVolumeRenderer renderer, final GLWindow renderWindow, final VolumeDataManager manager){
+	public InteraktionAnimator(
+			final MultiVolumeRenderer renderer, 
+			final GLWindow renderWindow, 
+			final VolumeDataManager manager,
+			final SceneControlsWindow controls){
 		this.renderer = renderer;
 		this.renderWindow = renderWindow;
 		this.manager =manager; 
+		this.controls = controls;
 	}
 	
 	/**
@@ -73,7 +81,7 @@ public class InteraktionAnimator {
 			}
 			initAnimationThread = null;
 		}
-		stopTriggered = false;
+		prepareAnimations();
 		initAnimationThread = new Thread(){
 			
 				public void run(){
@@ -103,6 +111,10 @@ public class InteraktionAnimator {
 		initAnimationThread.start();
 	}
 	
+	private void prepareAnimations(){
+		stopTriggered = false;
+		controls.getShowSlice().setSelected(true);
+	} 
 	
 	/**
 	 * Motion to data and update partial data
@@ -115,7 +127,8 @@ public class InteraktionAnimator {
 		if(null != this.motionToTargetThread && motionToTargetThread.isAlive()){
 			return;
 		}
-		stopTriggered = false;
+		
+		prepareAnimations();
 		
 		motionToTargetThread = null;
 		final List<float[][]> motionPositions = calcEyeAndCenterPath(hullVolume, 100 /percentageIncrement);
