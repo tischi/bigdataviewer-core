@@ -10,25 +10,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
-import javax.naming.spi.DirStateFactory;
+
+
 
 import bdv.BigDataViewer;
-import bdv.jogl.VolumeRenderer.BigDataViewerDataSelector;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.viewer.state.SourceState;
 
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
 import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.math.geom.AABBox;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
-import net.imglib2.Interval;
 import net.imglib2.IterableInterval;
-import net.imglib2.Positionable;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.RealPositionable;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.view.Views;
@@ -81,6 +77,8 @@ public class VolumeDataUtils {
 		int i = 0;
 		float minValue = Float.MAX_VALUE;
 		float maxValue = Float.MIN_VALUE; 
+		
+		@SuppressWarnings("unchecked")
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
 		for(long z = minMax[0][2]; z <=  minMax[1][2]; z++){
 			for(long y = minMax[0][1]; y <= minMax[1][1]; y++){
@@ -102,7 +100,7 @@ public class VolumeDataUtils {
 				}
 			}
 		}
-
+		
 		tmp.min(data.memOffset);
 		for(int d = 0;d < 3 ;d++){
 			data.memSize[d] = minMax[1][d]+1-minMax[0][d];
@@ -259,9 +257,9 @@ public class VolumeDataUtils {
 		//-1 -1 -1
 		//-1  8 -1
 		//-1 -1 -1
-		float log2dKernel[][] = new float[][]{{-1,-1,-1},
+		/*float log2dKernel[][] = new float[][]{{-1,-1,-1},
 											  {-1,8,-1},
-											  {-1,-1,-1}};
+											  {-1,-1,-1}};*/
 		int xyz[] = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
 		float convolved[] = new float[(int)(xyz[2]*xyz[1]*xyz[0])];
 		
@@ -293,9 +291,9 @@ public class VolumeDataUtils {
 							float koeffizient;
 							
 							if(y1 == 0 && x1 == 0){
-								koeffizient = 8;
+								koeffizient = -8;
 							}else{
-								koeffizient = -1;
+								koeffizient = 1;
 							}
 							kernelValue+= koeffizient * dataValue;
 						}
@@ -332,6 +330,7 @@ public class VolumeDataUtils {
 	/**
 	 * Calculates eye and center positions of a camera defined by a hull volume and a view direction
 	 * @param hull the hull volume
+	 * @param viewDirection at least 3D vector where the first 3 entries are xyz of the camera direction
 	 * @return float[2][3] defining eye and center positions
 	 */
 	public static float[][] calcEyeAndCenterByGivenHull(final AABBox hull, final float viewDirection[]){
