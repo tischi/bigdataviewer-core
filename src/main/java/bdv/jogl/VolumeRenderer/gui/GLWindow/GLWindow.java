@@ -8,9 +8,7 @@ import bdv.jogl.VolumeRenderer.Scene.SceneEventListener;
 import bdv.jogl.VolumeRenderer.Scene.VolumeDataScene;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.GL4ES3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -33,6 +31,8 @@ public class GLWindow extends JFrame {
 	private final GLCanvas glCanvas;
 
 	private AbstractScene renderScene;
+	
+	private CameraUpdater cUpdater;
 
 
 	private void adaptScene(){
@@ -45,7 +45,7 @@ public class GLWindow extends JFrame {
 				
 			}
 		});
-		CameraUpdater cUpdater = new CameraUpdater(renderScene.getCamera());
+		cUpdater = new CameraUpdater(renderScene.getCamera());
 		glCanvas.addMouseListener(cUpdater.getMouseListener());
 		glCanvas.addMouseMotionListener(cUpdater.getMouseMotionListener());
 		glCanvas.addMouseWheelListener(cUpdater.getMouseWheelListener());
@@ -155,4 +155,12 @@ public class GLWindow extends JFrame {
 
 
 	}
+
+	/**
+	 * @return the camera updater
+	 */
+	public CameraUpdater getCameraUpdater() {
+		return cUpdater;
+	}
+
 }

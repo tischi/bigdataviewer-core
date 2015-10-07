@@ -8,6 +8,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.transformWindowNormalSpace;
 import bdv.jogl.VolumeRenderer.Camera;
 
@@ -29,6 +32,20 @@ public class CameraUpdater {
 	
 	private final static int tracButton = MouseEvent.BUTTON3;
 	
+	private final Collection<CameraMotionListener> cameraMotionListeners = new ArrayList<CameraMotionListener>();
+	
+	private void fireAllMotionStart(){
+		for(CameraMotionListener l : cameraMotionListeners){
+			l.motionStart();
+		}
+	}
+	
+	private void fireAllMotionStop(){
+		for(CameraMotionListener l : cameraMotionListeners){
+			l.motionStop();
+		}
+	}
+	
 	private final MouseListener mouseListener = new MouseAdapter() {
 	
 		@Override
@@ -36,10 +53,12 @@ public class CameraUpdater {
 			Point point = transformWindowNormalSpace(e.getPoint(),e.getComponent().getSize());
 			if(e.getButton() == orbitButton){
 				previousOrbitPoint = point;	
+				fireAllMotionStart();
 			}
 			
 			if(e.getButton() == tracButton){
-				previousTracPoint = point;	
+				previousTracPoint = point;
+				fireAllMotionStart();
 			}
 		};
 		
@@ -47,10 +66,12 @@ public class CameraUpdater {
 		public synchronized void mouseReleased(MouseEvent e) {
 			if(e.getButton() == orbitButton){
 				previousOrbitPoint = null;
+				fireAllMotionStop();
 			}
 			
 			if(e.getButton() == tracButton){
 				previousTracPoint = null;
+				fireAllMotionStop();
 			}			
 		};
 	};
@@ -123,4 +144,11 @@ public class CameraUpdater {
 		return mouseWheelListener;
 	} 
 
+	/**
+	 * adds a motionListenr
+	 * @param l
+	 */
+	public void addCameraMotionListener(CameraMotionListener l){
+		cameraMotionListeners.add(l);
+	}
 }

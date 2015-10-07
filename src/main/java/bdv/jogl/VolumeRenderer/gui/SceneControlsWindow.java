@@ -465,4 +465,8 @@ public class SceneControlsWindow extends JFrame {
 	public JCheckBox getShowSlice() {
 		return showSlice;
 	}
+
+	public JSpinner getSamplesSpinner() {
+		return sampleSpinner;
+	}
 }

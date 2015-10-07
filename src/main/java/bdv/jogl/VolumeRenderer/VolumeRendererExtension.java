@@ -1,15 +1,12 @@
 package bdv.jogl.VolumeRenderer;
 
-import static bdv.jogl.VolumeRenderer.utils.GeometryUtils.getAABBOfTransformedBox;
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.calculateCloseFittingBox;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.calcScaledVolumeTransformation;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -21,7 +18,6 @@ import javax.swing.event.ChangeListener;
 
 import java.awt.event.KeyAdapter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.jogamp.opengl.math.Matrix4;
@@ -36,6 +32,7 @@ import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
 import bdv.jogl.VolumeRenderer.gui.DetailViewConfiguration;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
+import bdv.jogl.VolumeRenderer.gui.GLWindow.CameraMotionListener;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
 import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
@@ -223,7 +220,22 @@ public class VolumeRendererExtension {
 				updateSectionSize();
 			}
 		});
-
+		
+		//downsampling on camera motions
+		glWindow.getCameraUpdater().addCameraMotionListener(new CameraMotionListener() {
+			final int motionSamples = 64;
+			@Override
+			public void motionStop() {
+				int chosenSamples = ((Number)controls.getSamplesSpinner().getValue()).intValue();
+				volumeRenderer.setSamples(chosenSamples);
+				glWindow.getGlCanvas().repaint();
+			}
+			
+			@Override
+			public void motionStart() {
+				volumeRenderer.setSamples(motionSamples);
+			}
+		});
 	}
 	
 	private void updateSectionSize(){
