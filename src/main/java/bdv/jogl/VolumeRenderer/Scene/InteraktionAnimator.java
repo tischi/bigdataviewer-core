@@ -26,6 +26,7 @@ public class InteraktionAnimator {
 	
 	private Thread motionToTargetThread = null;
 	
+	private boolean stopTriggered = false;
 	
 	private final VolumeDataManager manager;
 	
@@ -72,10 +73,19 @@ public class InteraktionAnimator {
 			}
 			initAnimationThread = null;
 		}
+		stopTriggered = false;
 		initAnimationThread = new Thread(){
+			
 				public void run(){
 					for(currentAnimationPercentage =0; currentAnimationPercentage< 100; currentAnimationPercentage+=percentageIncrement){
+						if(stopTriggered){
+							break;
+						}
+						if(isInterrupted()){
+							break;
+						}
 						doInitAnimationStep();
+						
 						try {
 							sleep(100);
 						} catch (InterruptedException e) {
@@ -105,16 +115,22 @@ public class InteraktionAnimator {
 		if(null != this.motionToTargetThread && motionToTargetThread.isAlive()){
 			return;
 		}
+		stopTriggered = false;
 		
 		motionToTargetThread = null;
 		final List<float[][]> motionPositions = calcEyeAndCenterPath(hullVolume, 100 /percentageIncrement);
 		motionToTargetThread = new Thread(){
+			
+
 			public void run(){
 				boolean updatedData= false;
 				Camera c = renderWindow.getScene().getCamera();
 				AABBox currentHullVolume = renderer.getDrawRect();
 				int n = 0;
 				for(currentAnimationPercentage = 0; currentAnimationPercentage < 100; currentAnimationPercentage+=percentageIncrement){
+					if(stopTriggered){
+						break;
+					}
 					try {
 						float eyeCenter[][] = motionPositions.get(n);
 						//enter hull volume -> invalid fragments
@@ -162,7 +178,9 @@ public class InteraktionAnimator {
 	 * stops all running animation threads 
 	 */
 	public void stopAllAnimations() {
+		stopTriggered = true;
 		interruptInitAnimation();
+		interruptMoveToSelectionAnimation();
 		
 	}
 	
