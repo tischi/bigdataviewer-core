@@ -145,6 +145,7 @@ public class SceneControlsWindow extends JFrame {
 	
 	private void addComponetenToMainPanel(JComponent c){
 		c.setAlignmentX(LEFT_ALIGNMENT);
+		c.setAlignmentY(TOP_ALIGNMENT);
 		mainPanel.add(c);
 	}
 
@@ -177,6 +178,8 @@ public class SceneControlsWindow extends JFrame {
 		interactionToolPanel.add(aligneLeft(detailViewConfig));
 		interactionToolPanel.add(aligneLeft(legend));
 		
+		aggregationPanel.setAlignmentY(TOP_ALIGNMENT);
+		volumeInterpreterPanel.setAlignmentY(TOP_ALIGNMENT);
 		shaderElementPanel.setLayout(new BoxLayout(shaderElementPanel, BoxLayout.X_AXIS));
 		shaderElementPanel.add(aligneLeft(aggregationPanel));
 		shaderElementPanel.add(aligneLeft(volumeInterpreterPanel));
@@ -231,7 +234,7 @@ public class SceneControlsWindow extends JFrame {
 		volumeInterpreterPanel.add(aligneLeft(emissionsAbsorbationRadioButton));
 		volumeInterpreterPanel.add(aligneLeft(isoPanel));
 		volumeInterpreterPanel.add(aligneLeft(maximumIntensityProjectionRadioButton));
-		volumeInterpreterPanel.setAlignmentY(BOTTOM_ALIGNMENT);
+		volumeInterpreterPanel.setAlignmentY(TOP_ALIGNMENT);
 
 	}
 
