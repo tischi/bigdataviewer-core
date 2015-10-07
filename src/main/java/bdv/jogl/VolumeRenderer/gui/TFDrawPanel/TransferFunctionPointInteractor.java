@@ -21,6 +21,8 @@ import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calcu
  */
 public class TransferFunctionPointInteractor {
 
+	private final ColorMenuActionContainer colorActions;
+	
 	private final TransferFunctionRenderPanel1D parent;
 	
 	private Point2D.Float selectedPoint = null;
@@ -46,7 +48,7 @@ public class TransferFunctionPointInteractor {
 			TransferFunction1D tf = parent.getTransferFunction();
 			Dimension size = parent.getSize();
 			Point windowPoint = transformWindowNormalSpace( e.getPoint(), size);
-			selectedPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
+			selectedPoint = tf.getNearestValidPoint(calculateTransferFunctionPoint(windowPoint, tf, size),Float.MAX_VALUE);
 		}
 		
 		@Override
@@ -58,7 +60,9 @@ public class TransferFunctionPointInteractor {
 				TransferFunction1D tf = parent.getTransferFunction();
 				Point windowPoint = transformWindowNormalSpace(e.getPoint(), size);
 				Point2D.Float functionPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
-				tf.addFunctionPoint(functionPoint);
+				//tf.addFunctionPoint(functionPoint);
+				colorActions.setInteractionPoint(e.getPoint());
+				colorActions.getInsertAction().actionPerformed(null);
 				e.consume();
 			}
 		}
@@ -83,7 +87,7 @@ public class TransferFunctionPointInteractor {
 			Point windowPoint = transformWindowNormalSpace(query, parent.getSize());
 			Point2D.Float newPoint = calculateTransferFunctionPoint(windowPoint, tf, size);
 			
-			parent.getTransferFunction().updateFunctionPoint(oldPoint,newPoint);
+			parent.getTransferFunction().moveColor(oldPoint,newPoint);
 			selectedPoint = newPoint;
 			e.consume();
 		}
@@ -118,5 +122,6 @@ public class TransferFunctionPointInteractor {
 
 	public TransferFunctionPointInteractor(final TransferFunctionRenderPanel1D parent){
 		this.parent = parent;
+		this.colorActions = new ColorMenuActionContainer(parent, parent.getTransferFunction());
 	}
 }

@@ -16,14 +16,14 @@ public class TransferFunction1DTest {
 		assertNotEquals(true,tf.getTexturColor().isEmpty());
 		
 		//all zero
-		for(Float point: tf.getFunctionPoints()){
-			tf.updateFunctionPoint(point, new Float(point.x, 0));
+		for(Float point: tf.getColors().keySet()){
+			tf.moveColor(point, new Float(point.x, 0));
 		}
 		assertNotEquals(true,tf.getTexturColor().isEmpty());
 		
 		//all one
-		for(Float point: tf.getFunctionPoints()){
-			tf.updateFunctionPoint(point, new Float(point.x, 1));
+		for(Float point: tf.getColors().keySet()){
+			tf.moveColor(point, new Float(point.x, 1));
 		}
 		assertNotEquals(true,tf.getTexturColor().isEmpty());
 	}

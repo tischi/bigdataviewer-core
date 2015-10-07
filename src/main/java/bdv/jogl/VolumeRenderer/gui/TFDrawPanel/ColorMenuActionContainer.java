@@ -24,7 +24,7 @@ public class ColorMenuActionContainer {
 	
 	private Point interactionPoint;
 	
-	private final Action insertAction = new AbstractAction("Insert color") {
+	private final Action insertAction = new AbstractAction("Insert transferfunction point") {
 
 		/**
 		 * default version
@@ -34,7 +34,7 @@ public class ColorMenuActionContainer {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Color color = JColorChooser.showDialog(new JFrame(), "color dialog", Color.black);
+			Color color = JColorChooser.showDialog(new JFrame(), "Select color for transferfunction point", Color.black);
 
 			//nothing choosen
 			if(color == null){
@@ -42,12 +42,12 @@ public class ColorMenuActionContainer {
 			}
 			
 			Dimension winSize = parent.getSize();
-			Point2D.Float colorPoint = calculateTransferFunctionPoint(new Point(interactionPoint.x,0), tf, winSize);
+			Point2D.Float colorPoint = calculateTransferFunctionPoint(interactionPoint, tf, winSize);
 			tf.setColor(colorPoint, color);
 		}
 	};
 	
-	private final Action resetAction = new AbstractAction("Reset colors") {
+	private final Action resetAction = new AbstractAction("Reset transferfunction point") {
 
 		/**
 		 * default version

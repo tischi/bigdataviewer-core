@@ -47,8 +47,6 @@ public class TransferFunction1D {
 
 	private final TreeMap<Point2D.Float,Color> colors = new TreeMap<Point2D.Float, Color>(pointOrderXOperator);
 
-	private final TreeSet<Point2D.Float> functionPoints = new TreeSet<Point2D.Float>(pointOrderXOperator);;
-
 	private boolean isPointValid(Point2D.Float point){
 		//min
 		if(point.x < minOrdinates.x || point.y < minOrdinates.y ){
@@ -88,19 +86,12 @@ public class TransferFunction1D {
 		}
 	}
 
-	public void resetLine(){
-		functionPoints.clear();
-		functionPoints.add(new Point2D.Float(minOrdinates.x,minOrdinates.y));
-		functionPoints.add(new Point2D.Float(maxOrdinates.x, maxOrdinates.y));	
-
-		fireColorChangedEventAll();
-	}
 
 	public void resetColors(){
 		colors.clear();
 		colors.put(new Point2D.Float(minOrdinates.x, minOrdinates.y), Color.BLUE);
-		colors.put(new Point2D.Float(maxOrdinates.x/2,minOrdinates.y), Color.WHITE);
-		colors.put(new Point2D.Float(maxOrdinates.x,minOrdinates.y),Color.RED);
+		colors.put(new Point2D.Float(maxOrdinates.x/2f,maxOrdinates.y/2f), Color.WHITE);
+		colors.put(new Point2D.Float(maxOrdinates.x,maxOrdinates.y),Color.RED);
 
 		fireColorChangedEventAll();
 	}
@@ -109,9 +100,7 @@ public class TransferFunction1D {
 	private void init( Point2D.Float maxOrdinates){
 		this.maxOrdinates = maxOrdinates;
 
-
 		resetColors();
-		resetLine();
 		setSampler( new PreIntegrationSampler());
 	}
 
@@ -148,58 +137,6 @@ public class TransferFunction1D {
 		fireColorChangedEventAll();
 	}
 
-	/**
-	 * Updates points in the transfer function panel. 
-	 * @param oldPoint Old point in the panel
-	 * @param newPoint New position of the old point instance
-	 */
-	public void updateFunctionPoint(Point2D.Float oldPoint, Point2D.Float newPoint) {
-		if(!isPointValid(newPoint)){
-			throw new IndexOutOfBoundsException("Point: "+newPoint+" was not in tf space");
-		}
-		
-		Point2D.Float ceil= functionPoints.ceiling(oldPoint);
-		Point2D.Float dragPoint = ceil;
-		if(ceil.x!= oldPoint.x){
-			Point2D.Float low= functionPoints.lower(oldPoint);			
-			dragPoint = (oldPoint.x -low.x < ceil.x - oldPoint.x)?low:ceil;
-		}
-		//begin and end x must not be altered
-		if(dragPoint.equals(functionPoints.first())){
-			newPoint.x = functionPoints.first().x;
-		}
-		if(dragPoint.equals(functionPoints.last())){
-			newPoint.x = functionPoints.last().x;
-		}
-		functionPoints.remove(dragPoint);
-		functionPoints.add(newPoint);
-
-		fireColorChangedEventAll();
-	}
-
-	/**
-	 * @return the functionPoints
-	 */
-	public TreeSet<Point2D.Float> getFunctionPoints() {
-		return new TreeSet<Point2D.Float>(functionPoints);
-	}
-	
-	/**
-	 * Function to add points to the transfer Function
-	 * @param point Point to be added on the panel area
-	 */
-	public void addFunctionPoint(final Point2D.Float point) {
-		if(!isPointValid(point)){
-			throw new IndexOutOfBoundsException("Point: "+point+" was not in tf space");
-		}
-		
-		if(functionPoints.contains(point)){
-			return;
-		}
-		functionPoints.add(point);
-
-		fireColorChangedEventAll();
-	}
 
 	/**
 	 * Adds a listener to the transfer function panel
@@ -243,23 +180,15 @@ public class TransferFunction1D {
 		//scale color points
 		TreeMap<Point2D.Float, Color> newColorMap = new TreeMap<Point2D.Float, Color>(pointOrderXOperator);
 		for(Point2D.Float position:colors.keySet()){
-			int newX = (int)Math.round(scaleFactors[0]*position.getX());
-			int newY = (int)Math.round(scaleFactors[1]*position.getY());
+			float newX = scaleFactors[0]*(float)position.getX();
+			float newY = scaleFactors[1]*(float)position.getY();
 			Color color = colors.get(position);
 			newColorMap.put(new Point2D.Float(newX,newY),color);
 		}
 		colors.clear();
 		colors.putAll(newColorMap);
 
-		//scale function Points
-		TreeSet<Point2D.Float> newFunctionPoints = new TreeSet<Point2D.Float>(pointOrderXOperator);
-		for(Point2D.Float functionPoint:functionPoints){
-			int newX = (int)Math.round(scaleFactors[0]*functionPoint.getX());
-			int newY = (int)Math.round(scaleFactors[1]*functionPoint.getY());
-			newFunctionPoints.add(new Point2D.Float(newX, newY));
-		}
-		functionPoints.clear();
-		functionPoints.addAll(newFunctionPoints);
+	
 	}
 
 	private Color getColorComponent(Point2D.Float index){
@@ -305,13 +234,13 @@ public class TransferFunction1D {
 
 	private float getAlpha (Point2D.Float index){
 		//get alpha
-		Point2D.Float nextIndex = functionPoints.ceiling(index);
+		Point2D.Float nextIndex = colors.ceilingKey(index);
 		float nextAlpha = getNormalizedAlphaValue(nextIndex.y);
 
 		if(nextIndex.x == index.x){
 			return nextAlpha;
 		}
-		Point2D.Float previousIndex = functionPoints.lower(index);
+		Point2D.Float previousIndex = colors.lowerKey(index);
 		float prevAlpha = getNormalizedAlphaValue(previousIndex.y);
 
 		float colorDiff = nextIndex.x-previousIndex.x;
@@ -363,7 +292,7 @@ public class TransferFunction1D {
 		}
 
 		//get colors from line
-		for(Point2D.Float index : functionPoints){
+		for(Point2D.Float index : colors.keySet()){
 
 			if(returnColors.containsKey((int)index.x)){
 				continue;
@@ -388,6 +317,7 @@ public class TransferFunction1D {
 	 */
 	public void moveColor(Point2D.Float oldPoint, Point2D.Float newPoint) {
 		
+		
 		Color color = colors.get(oldPoint);
 		if(color == null){
 			return;
@@ -396,7 +326,11 @@ public class TransferFunction1D {
 		if(!isPointValid(newPoint)){
 			throw new IndexOutOfBoundsException("Point: "+newPoint+" was not in tf space");
 		}
-
+		//last and first point must not be altered in x
+		if(oldPoint.equals(colors.firstKey()) || oldPoint.equals(colors.lastKey())){
+			newPoint.x = oldPoint.x;
+		}
+		
 		colors.remove(oldPoint);
 		colors.put(newPoint, color);
 		fireColorChangedEventAll();
@@ -457,5 +391,35 @@ public class TransferFunction1D {
 		Point2D.Float functionPoint = new Point2D.Float((float)windowSpacePoint.getX() * xyScale[0],
 				(float)windowSpacePoint.getY() * xyScale[1]);
 		return functionPoint;
+	}
+	
+	
+	public Point2D.Float getNearestValidPoint(final Point2D.Float p, float maxDist){
+		Point2D.Float query = null;
+		TreeMap<Point2D.Float, Color> colors = getColors();
+		Point2D.Float upperPoint = colors.higherKey(p);
+		Point2D.Float lowerPoint = colors.lowerKey(p);
+		
+		float dists[] = {Float.MAX_VALUE,Float.MAX_VALUE};
+		//valid points ?
+		if(lowerPoint != null ){
+			dists[0]= Math.min(dists[0],(float)p.distance(lowerPoint));
+		}
+		if(upperPoint != null ){
+			dists[1]= Math.min(dists[1],(float)p.distance(upperPoint));
+		}
+		
+		//min point ? 
+		if(dists[0] < dists[1]){
+			if(dists[0] <= maxDist){
+				query = lowerPoint;
+			}
+		}else{
+			if(dists[1] <= maxDist){
+				query = upperPoint;
+			}
+		}
+		
+		return query;
 	}
 }

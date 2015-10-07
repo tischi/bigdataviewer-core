@@ -39,7 +39,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 	
 	private final TransferFunctionContexMenu contextMenue;
 
-	private final TransferFunctionPointInteractor pointInteractor = new TransferFunctionPointInteractor(this);
+	private final TransferFunctionPointInteractor pointInteractor;
 
 	private TransferFunction1D transferFunction;
 	
@@ -62,6 +62,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 
 		initWindow();
 		setTransferFunction(tf);
+		pointInteractor = new TransferFunctionPointInteractor(this);
 		setVolumeDataManager(dataManager);
 		
 		//resizeHandler = new TransferFunctionWindowResizeHandler(getSize(),transferFunction);
@@ -158,6 +159,8 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 			Point beginGradient = transformWindowNormalSpace(calculateDrawPoint(latestPoint,transferFunction,getSize()), getSize());
 			Point endGradient = transformWindowNormalSpace(calculateDrawPoint(currentPoint,transferFunction,getSize()), getSize());
 			
+			beginGradient.setLocation(beginGradient.x, 0);
+			endGradient.setLocation(endGradient.x, 0);
 			//gradient
 			GradientPaint gradient = new GradientPaint(
 					beginGradient, colors.get(latestPoint),
@@ -182,7 +185,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 
 	
 	private void paintLines(Graphics g){
-		TreeSet<Point2D.Float> functionPoints = transferFunction.getFunctionPoints();
+		TreeMap<Point2D.Float,Color> functionPoints = transferFunction.getColors();
 		if(functionPoints.size() < 2){
 			return;
 		}
@@ -193,8 +196,8 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
 		//draw line and points
-		Point2D.Float latestRenderedPoint = functionPoints.first();
-		for( Point2D.Float currentPoint: functionPoints){
+		Point2D.Float latestRenderedPoint = functionPoints.firstKey();
+		for( Point2D.Float currentPoint: functionPoints.keySet()){
 		
 
 			if(!currentPoint.equals( latestRenderedPoint) ){
@@ -216,7 +219,7 @@ public class TransferFunctionRenderPanel1D extends JPanel {
 		//print points	
 		Graphics2D g2d = (Graphics2D) g;	
 		
-		for( Point2D.Float currentPoint: transferFunction.getFunctionPoints()){
+		for( Point2D.Float currentPoint: transferFunction.getColors().keySet()){
 			
 			//TODO
 			if(currentPoint.equals(pointInteractor.getSelectedPoint())){

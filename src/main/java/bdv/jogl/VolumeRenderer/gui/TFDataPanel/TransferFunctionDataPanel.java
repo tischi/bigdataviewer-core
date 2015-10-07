@@ -70,47 +70,10 @@ public class TransferFunctionDataPanel extends JPanel {
 
 	private void updateData(){
 
-		updateFunctionPoints();
-
+	
 		updateColors();
 	}
 
-	private void updateFunctionPoints() {
-
-		final TreeSet<Point2D.Float> functionPoints = transferFunction.getFunctionPoints();
-
-		DefaultTableModel model = new DefaultTableModel(new String[]{"Transfer function points"},0);
-
-		for(Point2D.Float point: functionPoints){
-			model.addRow(new Point2D.Float[]{point});
-			
-		}
-		pointTable.setModel(model);
-		model.addTableModelListener(new TableModelListener() {
-
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if(e.getType() == TableModelEvent.UPDATE){
-					//points changed TODO
-					if(e.getColumn() == 0){
-						Point2D.Float[] newPoints = new Point2D.Float[functionPoints.size()];
-						Point2D.Float[] oldPoints = new Point2D.Float[functionPoints.size()];
-
-						functionPoints.toArray(newPoints);
-						transferFunction.getFunctionPoints().toArray(oldPoints);
-						transferFunction.updateFunctionPoint(oldPoints[e.getFirstRow()],newPoints[e.getFirstRow()]);
-					}
-				}
-			}
-		});
-
-		final PointCellEditor pointCellEditor  = new PointCellEditor();
-		pointTable.getColumnModel().getColumn(0).setCellEditor(pointCellEditor);
-		pointTable.getColumnModel().getColumn(0).setCellRenderer(pointCellEditor);;
-		pointTable.getColumnModel().getColumn(0).setPreferredWidth(500);
-		pointTable.getColumnModel().getColumn(0).setMinWidth(500);
-		pointTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	}
 
 	private void updateColors() {
 

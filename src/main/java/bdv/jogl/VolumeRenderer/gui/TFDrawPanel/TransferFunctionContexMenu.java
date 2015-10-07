@@ -1,25 +1,11 @@
 package bdv.jogl.VolumeRenderer.gui.TFDrawPanel;
 
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Point2D;
 
-import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
-
-import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
-import static bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D.calculateTransferFunctionPoint;
-
-
-
-
-
-
-import static bdv.jogl.VolumeRenderer.utils.WindowUtils.*;
 
 /**
  * Represents the context menu of the transfer function panel and delivers standard interactions
@@ -56,37 +42,8 @@ public class TransferFunctionContexMenu extends JPopupMenu{
 	
 	
 	private void initActions(){
-		add(new AbstractAction("Insert function point") {
-
-			/**
-			 * default version
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				TransferFunction1D tf = parent.getTransferFunction();
-				Dimension winSize = parent.getSize(); 
-				Point windowPoint = transformWindowNormalSpace(colorPickPoint,parent.getSize());
-				Point2D.Float functionPoint = calculateTransferFunctionPoint(windowPoint, tf, winSize);
-				tf.addFunctionPoint(functionPoint);
-
-			}
-		});
+		
 		add(colorActions.getInsertAction());
-
-		add(new AbstractAction("Reset Points") {
-
-			/**
-			 * default version
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				parent.getTransferFunction().resetLine();
-			}
-		});
 
 		add(colorActions.getResetAction());
 	}
