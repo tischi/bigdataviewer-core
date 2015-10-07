@@ -365,6 +365,7 @@ public class SceneControlsWindow extends JFrame {
 			
 				transferFunction.setMaxOrdinates(new Point2D.Float(maxVolume, 1.0f));
 				float lowestDataPoint = dataManager.getGlobalLowestVolumeValue();
+				transferFunction.resetColors();
 				transferFunction.setColor(new Point2D.Float((maxVolume/dataManager.getGlobalMaxVolumeValue())*lowestDataPoint, 0.001f),
 						transferFunction.getColors().firstEntry().getValue());
 			}
