@@ -749,6 +749,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		isSamplesUpdatable = true;
 		isColorUpdateable = true;
+		islengthUpdatable = true;
 
 	}
 

@@ -18,7 +18,7 @@ import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRe
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.addCodeArrayToList;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.*;
-import static bdv.jogl.VolumeRenderer.utils.GLUtils.*;
+
 
 /**
  * Accumulator based on the laplacian weights
@@ -132,29 +132,11 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 				LaplaceContainer container = calulateLablacianSimple(data); 
 				evalueatedLaplacians.put(key,container);
 				
-				//check wethe sparse textures should be used
-				boolean isSparseData=false;
-				for(int i = 0; i < data.dimensions.length; i++){
-					if(data.memOffset[i] != 0 || data.memSize[i] != data.dimensions[i]){
-						isSparseData =true;
-						break;
-					}
-				}
 			
 				//fill textures
 				FloatBuffer buffer = Buffers.newDirectFloatBuffer(container.valueMesh3d);
-				if(isSparseData){
-					int memData[][] = new int[3][3];
-					long tmp[] = calculateSparseVirtualTextures(gl, t, data.dimensions);
-					for(int j = 0; j < 3 ; j++){
-						memData[0][j] = (int)tmp[j];
-						memData[1][j] = (int)data.memOffset[j];
-						memData[2][j] = (int)data.memSize[j];
-					}
-					t.updateSparse(gl, 0, buffer, memData[0], memData[1], memData[2]);
-				}else{
-					t.update(gl, 0, buffer, container.dimension);
-				}
+				t.update(gl, 0, buffer, container.dimension);
+				
 			}
 			LaplaceContainer tmp = evalueatedLaplacians.get(key);
 			
