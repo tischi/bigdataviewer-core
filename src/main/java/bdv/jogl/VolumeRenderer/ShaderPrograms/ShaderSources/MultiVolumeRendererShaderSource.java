@@ -5,10 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.sgvTexTOffsets;
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.sgvTexTScales;
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvRenderRectClippingPlanes;
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvVolumeTexture;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.*;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetMaxStepsFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.GetStepsToVolumeFunction;
@@ -78,8 +74,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 	public static final String sgvVolumeNormalizeFactor = "volumeNormalizeFactor";
 	
 	public static final String suvBackgroundColor = "inBackgroundColorFragmentShader";
-	
-	public static final String suvLightPosition = "inlightPos";
 	
 	public static final String suvLightIntensiy = "iniIn";
 	
@@ -199,8 +193,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"uniform sampler3D "+suvVolumeTexture+"["+scvMaxNumberOfVolumes+"];",
 				"uniform float "+suvIsoValue+";",
 				"uniform vec3 "+suvBackgroundColor+";",
-				"uniform vec3 "+suvLightPosition+"["+scvMaxNumberOfVolumes+"];",
-				"uniform vec3 "+suvLightIntensiy+" = vec3(0.0,1.0,0.0);",
 				"uniform vec4 "+suvNormalSlice+";",
 				"uniform int "+suvShowSlice+";",
 				"uniform int "+suvSamples+";",

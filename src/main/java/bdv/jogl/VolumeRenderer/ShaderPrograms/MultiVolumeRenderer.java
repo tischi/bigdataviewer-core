@@ -50,10 +50,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float isoSurfaceValue = 0;
 
-	private float[] lightPosition = new float[]{0,1000,-100};
-
-	private boolean isLightPositionUpdateable = true;
-
 	private boolean isIsoSurfaceValueUpdatable= true;
 
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
@@ -150,9 +146,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			GLErrorHandler.assertGL(gl2);
 			updateLocalTransformationInverse(gl2);
 			GLErrorHandler.assertGL(gl2);
-
-			GLErrorHandler.assertGL(gl2);
-			updateLightPositions(gl2);
 		}
 		GLErrorHandler.assertGL(gl2);
 		updateClippingPlanes(gl2);
@@ -291,7 +284,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isEyeUpdateable = flag;
 		isIsoSurfaceValueUpdatable = flag;
 		isBackgroundColorUpdateable = flag;
-		isLightPositionUpdateable = flag;
 		isSliceUpdateable = flag;
 		isSamplesUpdatable = flag;
 		isClippingUpdatable = flag;
@@ -368,47 +360,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		GLErrorHandler.assertGL(gl2);
 
 		isEyeUpdateable = false;
-	}
-
-	private void updateLightPositions(GL4 gl2) {
-		if(!isLightPositionUpdateable){
-			return;
-		}
-		float textureLightPositions[] = calculateTextureLightPositions();
-
-		gl2.glUniform3fv(getLocation(suvLightPosition),sources.getMaxNumberOfVolumes(), textureLightPositions,0);
-		isLightPositionUpdateable = false;
-	}
-
-	private float[] calculateTextureLightPositions() {
-		final int maxNumVolumes = sources.getMaxNumberOfVolumes();
-		float lightPositionsObjectSpace[] = new float[3*maxNumVolumes];
-
-		Matrix4 globalTransformation = getNewIdentityMatrix();
-		globalTransformation.multMatrix(getView());
-		globalTransformation.multMatrix(drawCubeTransformation);
-
-		for(int i =0; i< maxNumVolumes;i++){
-			int fieldOffset = 3*i;
-			if(!dataManager.getVolumeKeys().contains(i)){
-				break;
-			}
-			VolumeDataBlock data = dataManager.getVolume(i);
-			Matrix4 modelViewMatrixInverse= copyMatrix(globalTransformation);
-			
-			modelViewMatrixInverse.multMatrix(fromCubeToVolumeSpace(data));
-	
-			modelViewMatrixInverse.invert();
-
-			float transformer[] = new float[]{lightPosition[0],lightPosition[1],lightPosition[2],1};
-			float transformed[] = new float[4];
-			modelViewMatrixInverse.multVec(transformer, transformed);
-
-			for(int d = 0; d < 3; d++){
-				lightPositionsObjectSpace[fieldOffset+d] = transformed[d]/transformed[3];
-			}
-		}
-		return lightPositionsObjectSpace;
 	}
 
 	private void updateBackgroundColor(GL4 gl2) {
@@ -630,7 +581,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 				suvColorTexture,
 				suvIsoValue, 
 				suvBackgroundColor,
-				suvLightPosition,
 				suvNormalSlice,
 				suvShowSlice,
 				suvSamples,
