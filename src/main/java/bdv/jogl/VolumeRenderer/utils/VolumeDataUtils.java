@@ -20,6 +20,7 @@ import bdv.viewer.state.SourceState;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.math.Matrix4;
+import com.jogamp.opengl.math.VectorUtil;
 import com.jogamp.opengl.math.geom.AABBox;
 
 import static bdv.jogl.VolumeRenderer.utils.MatrixUtils.*;
@@ -329,14 +330,21 @@ public class VolumeDataUtils {
 	
 	
 	/**
-	 * Calculates eye and center positions of a camera defined by a hull volume
+	 * Calculates eye and center positions of a camera defined by a hull volume and a view direction
 	 * @param hull the hull volume
 	 * @return float[2][3] defining eye and center positions
 	 */
-	public static float[][] calcEyeAndCenterByGivenHull(final AABBox hull){
+	public static float[][] calcEyeAndCenterByGivenHull(final AABBox hull, final float viewDirection[]){
 		float[] center = hull.getCenter();
-
-		float[] eye = {center[0],center[1],	center[2] - 3f * (hull.getDepth())};
+		float distanceFromCenter =  2f * (Math.max(Math.max(hull.getWidth(),hull.getHeight()),hull.getDepth()));
+		float normal[] = new float[3];
+		float step [] = new float[3];
+		float[] eye = {0,0,0};
+		
+		
+		VectorUtil.normalizeVec3(normal, viewDirection.clone());
+		VectorUtil.scaleVec3(step, normal.clone(), distanceFromCenter);
+		VectorUtil.subVec3(eye, center.clone(), step);
 		
 		return new float[][]{eye.clone(),center.clone()}; 
 	}

@@ -375,10 +375,11 @@ public class Camera {
 	/**
 	 * Centers the camera view on the center of a AABBox 
 	 * @param box The box to center on
+	 * @param direction the view direction vector
 	 */
-	public void centerOnBox(final AABBox box){
+	public void centerOnBox(final AABBox box, final float direction[]){
 		
-		float eyeCenter [][] = calcEyeAndCenterByGivenHull(box);
+		float eyeCenter [][] = calcEyeAndCenterByGivenHull(box,direction);
 		
 		setEyePoint(eyeCenter[0]);
 		setLookAtPoint(eyeCenter[1]);

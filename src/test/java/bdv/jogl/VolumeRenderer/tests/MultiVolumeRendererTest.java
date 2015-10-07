@@ -319,7 +319,7 @@ public class MultiVolumeRendererTest {
 		AABBox volumeBox =  calculateCloseFittingBox(scaledLocalTrans);
 		Matrix4 rectTrans = getTransformationRepresentAABBox(volumeBox);
 		
-		c.centerOnBox(volumeBox);
+		c.centerOnBox(volumeBox,new float[]{0,0,1,1});
 
 		//test of fitting
 		for(float[] point: checkPoints){	

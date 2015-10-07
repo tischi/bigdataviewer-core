@@ -251,7 +251,7 @@ public class VolumeRendererExtension {
 		if(drawRect.equals(hullVolume)){
 			return;
 		}
-		dataScene.getCamera().centerOnBox(drawRect);
+		dataScene.getCamera().centerOnBox(drawRect,volumeRenderer.getSlice2Dplane() );
 	}
 	
 	/**

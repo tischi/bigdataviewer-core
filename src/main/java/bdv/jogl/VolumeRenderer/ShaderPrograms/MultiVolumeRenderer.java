@@ -106,6 +106,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	
 	private Color lightColorForIsoSurface = Color.GREEN;
 
+	private float[] slice2Dplane;
+
 	public void setUseSparseVolumes(boolean flag){
 		useSparseVolume = flag;
 
@@ -234,9 +236,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 
-		float[] plane=calcSlicePlane();
+		slice2Dplane=calcSlicePlane();
 
-		gl2.glUniform4fv(getLocation(suvNormalSlice), 1, plane, 0);
+		gl2.glUniform4fv(getLocation(suvNormalSlice), 1, slice2Dplane, 0);
 		isSliceUpdateable=false;
 	}
 
@@ -547,6 +549,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			}
 
 			somethingUpdated= true;
+			isSliceUpdateable = true;
 
 			//get Buffer
 			FloatBuffer buffer = Buffers.newDirectFloatBuffer(data.data);
@@ -810,5 +813,15 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	public void setLightColorForIsoSurface(Color lightColorForIsoSurface) {
 		this.lightColorForIsoSurface = lightColorForIsoSurface;
 		isLightColorUpdateable = true;
+	}
+
+	/**
+	 * @return the slice2Dplane
+	 */
+	public float[] getSlice2Dplane() {
+		if(slice2Dplane == null){
+			slice2Dplane = calcSlicePlane();
+		}
+		return slice2Dplane;
 	}
 }

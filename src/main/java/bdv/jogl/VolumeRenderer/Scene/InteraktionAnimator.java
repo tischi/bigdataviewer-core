@@ -141,7 +141,7 @@ public class InteraktionAnimator {
 				for(int i =0; i < partialVolumesInHullVolume.size(); i++){
 					manager.forceVolumeUpdate(i, time, partialVolumesInHullVolume.get(i));
 				}
-				renderWindow.getScene().getCamera().centerOnBox(hullVolume);
+				renderWindow.getScene().getCamera().centerOnBox(hullVolume,renderer.getSlice2Dplane());
 				renderWindow.getGlCanvas().repaint();
 			}
 		};
@@ -175,7 +175,7 @@ public class InteraktionAnimator {
 	private List<float[][]> calcEyeAndCenterPath(AABBox hullVolume,int n){
 		List<float[][]> positions = new ArrayList<float[][]>();
 		float eyeCenterStart[][] = new float[][]{renderWindow.getScene().getCamera().getEyePoint(),renderWindow.getScene().getCamera().getLookAtPoint()};
-		float eyeCenterFinal[][] = calcEyeAndCenterByGivenHull(hullVolume);
+		float eyeCenterFinal[][] = calcEyeAndCenterByGivenHull(hullVolume,renderer.getSlice2Dplane());
 		
 		//TODO non linear
 		float stepMovesEyeCenter [][]= new float[2][3];
