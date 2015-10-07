@@ -150,11 +150,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		GLErrorHandler.assertGL(gl2);
 		if(update){
 
-			updateGlobalScale(gl2);
-			GLErrorHandler.assertGL(gl2);
+
 			updateLocalTransformationInverse(gl2);
 			GLErrorHandler.assertGL(gl2);
 		}
+		updateGlobalScale(gl2);
+		GLErrorHandler.assertGL(gl2);
 		GLErrorHandler.assertGL(gl2);
 		updateClippingPlanes(gl2);
 		updateMaxDiagonalLength(gl2);

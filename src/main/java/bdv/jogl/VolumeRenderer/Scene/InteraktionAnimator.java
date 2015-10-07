@@ -118,11 +118,11 @@ public class InteraktionAnimator {
 					try {
 						float eyeCenter[][] = motionPositions.get(n);
 						//enter hull volume -> invalid fragments
-						/*if(currentAnimationPercentage == 70){
+						if(!updatedData&&currentHullVolume.contains( eyeCenter[0][0],eyeCenter[0][1],eyeCenter[0][2])){
 							renderer.setDrawRect(hullVolume);
 							System.out.println("Done");
 							updatedData=true;
-						}*/
+						}
 						c.setEyePoint(eyeCenter[0]);
 						c.setLookAtPoint(eyeCenter[1]);
 						c.updateViewMatrix();
