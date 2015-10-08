@@ -68,7 +68,6 @@ public class SceneControlsWindow extends JFrame {
 
 	private JCheckBox advancedCheck = new JCheckBox("Advanced configurations",false);
 
-
 	private JButton backgroundColorButton = new JButton("");
 
 	private JPanel backgroundPanel = new JPanel();
@@ -118,6 +117,10 @@ public class SceneControlsWindow extends JFrame {
 	private final JPanel shaderElementPanel = new JPanel();
 	
 	private final JPanel interactionToolPanel = new JPanel(); 
+	
+	private final JCheckBox downSampleCheckBox = new JCheckBox("Active motion downsampling",true);
+	
+	private final JSpinner downSampleSpinner = new JSpinner(new SpinnerNumberModel(64,16,1000, 1));
 	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
@@ -201,10 +204,18 @@ public class SceneControlsWindow extends JFrame {
 		sceneConfigurationPanel.setBorder(BorderFactory.createTitledBorder("Scene configurations"));
 		sceneConfigurationPanel.setLayout(new BoxLayout(sceneConfigurationPanel, BoxLayout.Y_AXIS));
 		
+		JPanel downSamplePanel = new JPanel();
+		downSamplePanel.setLayout(new BoxLayout(downSamplePanel, BoxLayout.X_AXIS));
+		downSamplePanel.add(downSampleCheckBox);
+		downSamplePanel.add(downSampleSpinner);
+		downSampleSpinner.setPreferredSize(downSampleSpinner.getMinimumSize());
+		downSampleSpinner.setMaximumSize(downSampleSpinner.getMinimumSize());
+		
+		
 		sceneConfigurationPanel.add(aligneLeft(samplePanel));
+		sceneConfigurationPanel.add(aligneLeft(downSamplePanel));
 		sceneConfigurationPanel.add(aligneLeft(rectBorderCheck));
 		sceneConfigurationPanel.add(aligneLeft(showSlice));
-		sceneConfigurationPanel.add(aligneLeft(useGradient));
 		sceneConfigurationPanel.add(aligneLeft(backgroundPanel));
 	}
 
@@ -214,6 +225,7 @@ public class SceneControlsWindow extends JFrame {
 		
 		transferFunktionEditorPanel.add(aligneLeft(tfpanel));
 		transferFunktionEditorPanel.add(aligneLeft(usePreIntegration));
+		transferFunktionEditorPanel.add(aligneLeft(useGradient));
 		transferFunktionEditorPanel.add(aligneLeft(advancedCheck));
 		transferFunktionEditorPanel.add(aligneLeft(tfDataPanel));
 		
@@ -372,7 +384,7 @@ public class SceneControlsWindow extends JFrame {
 				transferFunction.setColor(new Point2D.Float((maxVolume/dataManager.getGlobalMaxVolumeValue())*lowestDataPoint, 0.001f),
 						transferFunction.getColors().firstEntry().getValue());
 			}
-
+			
 			@Override
 			public void dataEnabled(Integer i, Boolean flag) {
 				
@@ -468,5 +480,19 @@ public class SceneControlsWindow extends JFrame {
 
 	public JSpinner getSamplesSpinner() {
 		return sampleSpinner;
+	}
+
+	/**
+	 * @return the downSampleCheckBox
+	 */
+	public JCheckBox getDownSampleCheckBox() {
+		return downSampleCheckBox;
+	}
+
+	/**
+	 * @return the downSampleSpinner
+	 */
+	public JSpinner getDownSampleSpinner() {
+		return downSampleSpinner;
 	}
 }

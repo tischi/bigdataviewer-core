@@ -227,6 +227,24 @@ public class VolumeRendererExtension {
 		});
 		
 		//downsampling on camera motions
+		updateDownSamplingActive();
+		controls.getDownSampleCheckBox().addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateDownSamplingActive();
+			}
+		});
+		
+		updateDownSamplerSize();
+		controls.getDownSampleSpinner().addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateDownSamplerSize();
+			}
+		});
+		
 		glWindow.getCameraUpdater().addCameraMotionListener(new CameraMotionListener() {
 			@Override
 			public void motionStop() {
@@ -240,6 +258,23 @@ public class VolumeRendererExtension {
 		});
 	}
 	
+	private void updateDownSamplerSize() {
+		int samples= ((Number)controls.getDownSampleSpinner().getValue()).intValue();
+		if(samples == sampleController.getLowSamples()){
+			return;
+		}
+		sampleController.setLowSamples(samples);
+	}
+
+
+	private void updateDownSamplingActive() {
+		if(sampleController.isActive() != controls.getDownSampleCheckBox().isSelected()){
+			sampleController.setActive(controls.getDownSampleCheckBox().isSelected());
+		}
+		
+	}
+
+
 	private void updateSectionSize(){
 		DetailViewConfiguration view = controls.getDetailViewConfig();
 		float dim[] = {

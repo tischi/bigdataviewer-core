@@ -11,16 +11,20 @@ import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
  *
  */
 public class VolumeRendereSampleController {
-	
+
 	private int lowSamples = 64;
-	
+
 	private final JSpinner sampleSpinner;
-	
+
 	private final MultiVolumeRenderer volumeRenderer;
-	
+
 	private final GLWindow window;
 
 	private int sampleRequests = 0;
+
+	private final Object lock = new Object();
+
+	private boolean active = true;
 
 	public VolumeRendereSampleController(
 			final GLWindow window,
@@ -33,21 +37,30 @@ public class VolumeRendereSampleController {
 		this.window = window;
 		this.lowSamples = lowSampleSize;
 	}
-	
-	public synchronized void upSample(){
-		sampleRequests--;
-		
-		if(sampleRequests == 0){
-	
-			int chosenSamples = ((Number)sampleSpinner.getValue()).intValue();
-			volumeRenderer.setSamples(chosenSamples);
-			window.getGlCanvas().repaint();
+
+
+	public void upSample(){
+		synchronized(lock){
+			if(active){
+				sampleRequests--;
+
+				if(sampleRequests == 0){
+
+					int chosenSamples = ((Number)sampleSpinner.getValue()).intValue();
+					volumeRenderer.setSamples(chosenSamples);
+					window.getGlCanvas().repaint();
+				}
+			}
 		}
 	}
-	
+
 	public synchronized void downSample(){
-		volumeRenderer.setSamples(lowSamples);
-		sampleRequests++;
+		synchronized (lock) {
+			if(active){
+				volumeRenderer.setSamples(lowSamples);
+				sampleRequests++;
+			}
+		}
 	}
 
 	/**
@@ -63,5 +76,25 @@ public class VolumeRendereSampleController {
 	public void setLowSamples(int lowSamples) {
 		this.lowSamples = lowSamples;
 	}
-	
+
+
+	/**
+	 * @return the active
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+
+	/**
+	 * @param active the active to set
+	 */
+	public void setActive(boolean active) {
+		if(active == this.active){
+			return;
+		}
+		this.active = active;
+		sampleRequests = 0;
+	}
+
 }
