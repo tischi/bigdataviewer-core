@@ -443,19 +443,23 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private void updateLocalTransformationInverse(GL4 gl2) {
-		Map<Integer, Matrix4> localInverses = new HashMap<Integer, Matrix4>();
+		float localInverses[] = new float[16*dataManager.getVolumeKeys().size()];
 		for(Integer index: dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(index);
 
 
 			Matrix4 localInverse = fromCubeToVolumeSpace( data);
-			gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse)+index,
-					1,false,localInverse.getMatrix(),0);
-			localInverses.put(index,localInverse);
+			int k=0;
+			for(float f: localInverse.getMatrix()){
+				localInverses[16*index+k] =f;
+				k++;
+			}
 		}
+		gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse),
+				dataManager.getVolumeKeys().size(),false,localInverses,0);
 
 		GLErrorHandler.assertGL(gl2);
-		updateNormalAxises(gl2,localInverses);GLErrorHandler.assertGL(gl2);
+		//updateNormalAxises(gl2,localInverses);GLErrorHandler.assertGL(gl2);
 	}
 
 
