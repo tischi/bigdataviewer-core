@@ -122,7 +122,7 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 			
 			//create texture objects
 			if(!laplacianTextures.containsKey(key)||needsReset){
-				t = createVolumeTexture(gl, getParent().getLocation(suvLaplaceTextures)+key) ;
+				t = createVolumeTexture(gl, getParent().getArrayEntryLocation(gl, suvLaplaceTextures,key)) ;
 				laplacianTextures.put(key, t);
 			}
 			t = laplacianTextures.get(key);

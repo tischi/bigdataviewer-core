@@ -443,7 +443,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	}
 
 	private void updateLocalTransformationInverse(GL4 gl2) {
-		float localInverses[] = new float[16*dataManager.getVolumeKeys().size()];
+		int numberOfVolumes = dataManager.getVolumeKeys().size();
+		float localInverses[] = new float[16*numberOfVolumes];
 		for(Integer index: dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(index);
 
@@ -456,7 +457,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			}
 		}
 		gl2.glUniformMatrix4fv(getLocation(suvTextureTransformationInverse),
-				dataManager.getVolumeKeys().size(),false,localInverses,0);
+				numberOfVolumes,false,localInverses,0);
 
 		GLErrorHandler.assertGL(gl2);
 		//updateNormalAxises(gl2,localInverses);GLErrorHandler.assertGL(gl2);
@@ -504,7 +505,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		};
 
 		if(getLocation(suvRenderRectClippingPlanes) != -1){
-			gl.glUniform4fv(getLocation(suvRenderRectClippingPlanes), planesInDrawRectSpace.length, planesInDrawRectSpace, 0);
+			gl.glUniform4fv(getLocation(suvRenderRectClippingPlanes), 6, planesInDrawRectSpace, 0);
 		}
 
 		isClippingUpdatable = false;
@@ -559,16 +560,16 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 					(int)data.memSize[2]};
 			volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
 
-			if(getLocation(suvVoxelOffsets)!=-1){
+			if(getArrayEntryLocation(gl2,suvVoxelOffsets,i)!=-1){
 				int off[] = new int[]{
 						(int)data.memOffset[0],
 						(int)data.memOffset[1],
 						(int)data.memOffset[2]
 				};
-				gl2.glUniform3iv(getLocation(suvVoxelOffsets)+i, 1,off,0 );
+				gl2.glUniform3iv(getArrayEntryLocation(gl2,suvVoxelOffsets,i), 1,off,0 );
 			}
-			if(getLocation(suvVoxelCount)!=-1){
-				gl2.glUniform3iv(getLocation(suvVoxelCount)+i, 1,dim,0 );
+			if(getArrayEntryLocation(gl2,suvVoxelCount,i)!=-1){
+				gl2.glUniform3iv(getArrayEntryLocation(gl2,suvVoxelCount,i), 1,dim,0 );
 			}
 			data.setNeedsUpdate(false);
 		}
@@ -612,9 +613,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 		accumulator.init(gl2);
 
-		int location = getLocation(suvVolumeTexture);
+		int location;
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
-			Texture t = createVolumeTexture(gl2, location + i);
+			location = getArrayEntryLocation(gl2, suvVolumeTexture, i);
+			Texture t = createVolumeTexture(gl2, location);
 			//	t.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
 			t.setShouldGenerateMidmaps(true);
 			volumeTextureMap.put(i, t);
