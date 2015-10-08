@@ -101,10 +101,37 @@ public class CameraUpdater {
 		};
 	};
 	
+	private long wheelThreadWaiteTime =0;
+	private long wheelThreadWaiteTimePeriod = 200;
+	
+	private Thread mouseWheelThread = null;
+	
 	private final MouseWheelListener mouseWheelListener = new MouseWheelListener() {
 		
 		@Override
 		public synchronized void mouseWheelMoved(MouseWheelEvent e) {
+			wheelThreadWaiteTime = wheelThreadWaiteTimePeriod;
+			if(mouseWheelThread ==null || !mouseWheelThread.isAlive()){
+				mouseWheelThread = new Thread(){
+					public void run() {
+						fireAllMotionStart();
+						while(wheelThreadWaiteTime > 0){
+							long waitTime = wheelThreadWaiteTime;
+							wheelThreadWaiteTime = 0;
+							try {
+								sleep(waitTime);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						fireAllMotionStop();
+					};
+				};
+				mouseWheelThread.start();
+			}
+			
+			
 			float alpha = camera.getAlpha(); 
 			alpha += (float)e.getWheelRotation();
 			alpha = Math.min(Camera.maxAlpha,Math.max(Camera.minAlpha,alpha));

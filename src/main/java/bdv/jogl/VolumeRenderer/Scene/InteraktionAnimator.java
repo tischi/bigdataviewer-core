@@ -11,6 +11,7 @@ import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeRendereSampleController;
 import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.calcEyeAndCenterByGivenHull;;
 
 public class InteraktionAnimator {
@@ -32,6 +33,8 @@ public class InteraktionAnimator {
 	private final VolumeDataManager manager;
 	
 	private final SceneControlsWindow controls;
+
+	private final VolumeRendereSampleController sampleController;
 	
 	/**
 	 * Animation constructor
@@ -42,11 +45,13 @@ public class InteraktionAnimator {
 			final MultiVolumeRenderer renderer, 
 			final GLWindow renderWindow, 
 			final VolumeDataManager manager,
-			final SceneControlsWindow controls){
+			final SceneControlsWindow controls,
+			final VolumeRendereSampleController contoller){
 		this.renderer = renderer;
 		this.renderWindow = renderWindow;
 		this.manager =manager; 
 		this.controls = controls;
+		this.sampleController = contoller;
 	}
 	
 	/**
@@ -85,6 +90,7 @@ public class InteraktionAnimator {
 		initAnimationThread = new Thread(){
 			
 				public void run(){
+					sampleController.downSample();
 					for(currentAnimationPercentage =0; currentAnimationPercentage< 100; currentAnimationPercentage+=percentageIncrement){
 						if(stopTriggered){
 							break;
@@ -100,7 +106,7 @@ public class InteraktionAnimator {
 							break;
 						}
 					}
-					
+					sampleController.upSample();
 					//make 100% animation mode
 					currentAnimationPercentage = 100;
 					doInitAnimationStep();
@@ -139,6 +145,7 @@ public class InteraktionAnimator {
 				boolean updatedData= false;
 				Camera c = renderWindow.getScene().getCamera();
 				AABBox currentHullVolume = renderer.getDrawRect();
+				sampleController.downSample();
 				int n = 0;
 				for(currentAnimationPercentage = 0; currentAnimationPercentage < 100; currentAnimationPercentage+=percentageIncrement){
 					if(stopTriggered){
@@ -161,6 +168,7 @@ public class InteraktionAnimator {
 						break;
 					}
 				}
+				sampleController.upSample();
 				currentAnimationPercentage = 100;
 				
 				renderer.setDrawRect(hullVolume);
@@ -170,6 +178,7 @@ public class InteraktionAnimator {
 				}
 				renderWindow.getScene().getCamera().centerOnBox(hullVolume,renderer.getSlice2Dplane());
 				renderWindow.getGlCanvas().repaint();
+				
 			}
 		};
 		motionToTargetThread.start();

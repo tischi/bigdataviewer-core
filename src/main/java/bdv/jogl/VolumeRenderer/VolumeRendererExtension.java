@@ -40,6 +40,7 @@ import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.OpenVolumeRendererAction
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
+import bdv.jogl.VolumeRenderer.utils.VolumeRendereSampleController;
 
 /**
  * The context class of the bdv 3D volume extension
@@ -72,6 +73,8 @@ public class VolumeRendererExtension {
 	
 	private SceneControlsWindow controls;
 	
+	private final VolumeRendereSampleController sampleController;
+	
 	private final InteraktionAnimator animator;
 
 	private void createControlWindow(){
@@ -99,9 +102,11 @@ public class VolumeRendererExtension {
 		dataScene.setBackgroundColor(bgColor);
 	
 		createControlWindow();
-		animator = new InteraktionAnimator(volumeRenderer, glWindow, dataManager,controls);
+	
 		
 		selector = new BigDataViewerDataSelector(bdv);
+		sampleController = new VolumeRendereSampleController(glWindow, controls.getSamplesSpinner(), volumeRenderer,64);
+		animator = new InteraktionAnimator(volumeRenderer, glWindow, dataManager,controls,sampleController);
 		createActionInToolBar();
 		createListeners();
 	
@@ -223,17 +228,14 @@ public class VolumeRendererExtension {
 		
 		//downsampling on camera motions
 		glWindow.getCameraUpdater().addCameraMotionListener(new CameraMotionListener() {
-			final int motionSamples = 64;
 			@Override
 			public void motionStop() {
-				int chosenSamples = ((Number)controls.getSamplesSpinner().getValue()).intValue();
-				volumeRenderer.setSamples(chosenSamples);
-				glWindow.getGlCanvas().repaint();
+				sampleController.upSample();
 			}
 			
 			@Override
 			public void motionStart() {
-				volumeRenderer.setSamples(motionSamples);
+				sampleController.downSample();
 			}
 		});
 	}
