@@ -526,11 +526,38 @@ public class VolumeDataUtils {
 		return v1+ m*minStep;
 	}
 
+	public static float[] getScaledVolumeDimensions(VolumeDataBlock data){
+		float transferPoints[][] = {{0,0,0,1},{1,0,0,1},{0,1,0,1},{0,0,1,1}};
+		float transferedPoints[][] = new float[4][4];
+		Matrix4 trans = calcScaledVolumeTransformation(data);
+		
+		//get the transfered border points
+		for(int i = 0; i < transferPoints.length; i++){
+			trans.multVec(transferPoints[i], transferedPoints[i]);
+			
+			//wclip
+			for(int d=0; d < 3; d++){
+				transferedPoints[i][d] /= transferedPoints[i][3];
+			}
+		}
+		
+		return new float[]{
+				VectorUtil.distVec3(transferedPoints[0], transferedPoints[1]),
+				VectorUtil.distVec3(transferedPoints[0], transferedPoints[2]),
+				VectorUtil.distVec3(transferedPoints[0], transferedPoints[3])
+		};
+	}
 
 	private static float[] calculateVoxelDistance(VolumeDataBlock data) {
 		// TODO Auto-generated method stub
 		// TODO correct dim
-		float distances[] = new float[]{1,1,1}; 
+		float distances[] = new float[]{1,1,1};
+		float realDimensions[] = getScaledVolumeDimensions(data);
+		
+		for(int d = 0; d < 3; d++){
+			distances[d] = realDimensions[d]/(float) data.dimensions[d];
+		}
+		
 		return distances;
 	}
 }
