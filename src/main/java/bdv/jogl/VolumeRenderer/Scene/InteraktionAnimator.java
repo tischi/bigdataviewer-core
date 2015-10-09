@@ -173,9 +173,7 @@ public class InteraktionAnimator {
 				
 				renderer.setDrawRect(hullVolume);
 				
-				for(int i =0; i < partialVolumesInHullVolume.size(); i++){
-					manager.forceVolumeUpdate(i, time, partialVolumesInHullVolume.get(i));
-				}
+				manager.volumeUpdateTransaction( time, partialVolumesInHullVolume);
 				renderWindow.getScene().getCamera().centerOnBox(hullVolume,renderer.getSlice2Dplane());
 				renderWindow.getGlCanvas().repaint();
 				

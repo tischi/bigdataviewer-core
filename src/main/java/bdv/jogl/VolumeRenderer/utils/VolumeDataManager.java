@@ -117,21 +117,29 @@ public class VolumeDataManager {
 		return volumes.get(i);
 	}
 
-	public void forceVolumeUpdate(Integer i, int time, VolumeDataBlock data){
-		boolean isAllreadyPresent = volumes.containsKey(i); 
+	public void volumeUpdateTransaction(int time, List<VolumeDataBlock> data){
+		List<Boolean> wasPresent = new ArrayList<Boolean>();
 		if(time != this.currentTime){
 			currentTime = time;
+		}	
+		
+		for(int key =0; key < data.size();key++){
+			VolumeDataBlock volume = data.get(key);
+			wasPresent.add( volumes.containsKey(key));
+		
+			volumes.put(key, volume);
+			timestamps.put(key, time);
+			enabled.put(key, true);
+			updateGlobals();
 		}
 		
-		volumes.put(i, data);
-		timestamps.put(i, time);
-		enabled.put(i, true);
-		updateGlobals();
-		if(!isAllreadyPresent){
-			fireAllAddedData(i);
+		//end of transaction inform all listeners
+		for(int key =0; key < data.size();key++){
+			if(!wasPresent.get(key)){
+				fireAllAddedData(key);
+			}
+			fireAllUpdatedData(key);
 		}
-		
-		fireAllUpdatedData(i);
 	}
  
 	public void setVolume(Integer i, int time , VolumeDataBlock data){
@@ -226,6 +234,7 @@ public class VolumeDataManager {
 		ViewerState state = bdv.getViewer().getState();
 		List<SourceState<?>> sources = state.getSources();
 		int currentTimepoint = state.getCurrentTimepoint();
+		List<VolumeDataBlock> data = new ArrayList<VolumeDataBlock>();
 		
 		
 		int i =-1;
@@ -235,11 +244,11 @@ public class VolumeDataManager {
 
 			//block transform
 			int midMapLevel = source.getSpimSource().getNumMipmapLevels()-1;
-			VolumeDataBlock data = getDataBlock(bdv,new AABBox(new float[]{0,0,0,0},new float[]{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE}),i,midMapLevel);
-			forceVolumeUpdate(i,currentTimepoint, data);
+		    data.add( getDataBlock(bdv,new AABBox(new float[]{0,0,0,0},new float[]{Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE}),i,midMapLevel));
+			
 		
 		}
-		
+		volumeUpdateTransaction(currentTimepoint, data);
 	}
 
 	public float getGlobalLowestVolumeValue() {

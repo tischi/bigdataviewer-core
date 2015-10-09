@@ -35,7 +35,7 @@ public class BigDataViewerAdapter {
 	 * @param manager
 	 */
 	public static synchronized void connect(final BigDataViewer bdv,final VolumeDataManager manager){
-		updateData(bdv,manager);
+		//updateData(bdv,manager);
 		//updatedTestData(manager);
 		bdv.getViewer().addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 

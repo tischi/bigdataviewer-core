@@ -11,14 +11,18 @@ import static bdv.jogl.VolumeRenderer.utils.VolumeDataUtils.createVolumeTexture;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.utils.CurvatureContainer;
+import bdv.jogl.VolumeRenderer.utils.IVolumeDataManagerListener;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
@@ -30,20 +34,25 @@ import com.jogamp.opengl.GL4;
  */
 public class MaxCurvatureDifference extends AbstractVolumeAccumulator {
 	public MaxCurvatureDifference() {
-		super("curvature_difference");
+		super("difference_total_curvature");
 	}
-	
+
 	private boolean needsReset = true;
-	
+
 	private final Map<Integer, Texture> curvatureTexture = new HashMap<Integer, Texture>();
-	
+
 	private final Map<Integer, CurvatureContainer> evaluatedCurvatures = new HashMap<Integer, CurvatureContainer>();
-	
+
 	private final static String suvCurvatureTexture = "inCurvatureTexture"; 
-	
+
 	private final static String suvCurvatureMax = "inCurvatureMax";
 
 	private final static String suvCurvatureMin = "inCurvatureMin";
+
+	private final Object mutex = new Object();
+
+	private final Set<Integer> needsUpdate = new HashSet<Integer>(); 
+
 	@Override
 	public void init(GL4 gl) {
 		getParent().mapUniforms(gl,new String[]{suvCurvatureTexture});
@@ -61,38 +70,43 @@ public class MaxCurvatureDifference extends AbstractVolumeAccumulator {
 		evaluatedCurvatures.clear();
 		super.disposeGL(gl2);
 	}
-	
+
 	@Override
 	public void updateData(GL4 gl) {
 		VolumeDataManager dataManager = getParent().getDataManager();
 		float globalMin = Float.MAX_VALUE;
 		float globalMax = Float.MIN_VALUE;
-		
+
 		//create and update laplace textures 
 		for(Integer key:dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(key);
 			Texture t;
-			
+
 			//create texture objects
 			if(!curvatureTexture.containsKey(key)||needsReset){
 				t = createVolumeTexture(gl, getParent().getArrayEntryLocation(gl, suvCurvatureTexture,key)) ;
 				curvatureTexture.put(key, t);
 			}
 			t = curvatureTexture.get(key);
-			
-			//update laplacians
-			if(data.needsUpdate()||!evaluatedCurvatures.containsKey(key)||needsReset){
-				CurvatureContainer container = calculateCurvatureOfVolume(data); 
-				evaluatedCurvatures.put(key,container);
-				
-			
-				//fill textures
-				FloatBuffer buffer = Buffers.newDirectFloatBuffer(container.valueMesh3d);
-				t.update(gl, 0, buffer, container.dimension);
-				
+
+			synchronized (mutex) {
+
+
+				//update laplacians
+				if(this.needsUpdate.contains(key)||!evaluatedCurvatures.containsKey(key)||needsReset){
+					CurvatureContainer container = calculateCurvatureOfVolume(data); 
+					evaluatedCurvatures.put(key,container);
+
+
+					//fill textures
+					FloatBuffer buffer = Buffers.newDirectFloatBuffer(container.valueMesh3d);
+					t.update(gl, 0, buffer, container.dimension);
+
+				}
+				this.needsUpdate.remove(key);
 			}
 			CurvatureContainer tmp = evaluatedCurvatures.get(key);
-			
+
 			//get global min max value of laplace
 			globalMax = Math.max(globalMax, tmp.maxValue);
 			globalMin = Math.min(globalMin, tmp.minValue);
@@ -100,19 +114,32 @@ public class MaxCurvatureDifference extends AbstractVolumeAccumulator {
 		//update globals
 		gl.glUniform1f(getParent().getLocation(suvCurvatureMin), globalMin);
 		gl.glUniform1f(getParent().getLocation(suvCurvatureMax), globalMax);
-		
+
 		needsReset = false;
 		super.updateData(gl);
 	}
-	
-	
-	
+
+
+
 	@Override
 	public void setParent(MultiVolumeRenderer parent) {
 		needsReset = true;
+		if(!parent.equals(super.getParent())){
+			parent.getDataManager().addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
+
+				@Override
+				public void dataUpdated(Integer i) {
+					synchronized (mutex) {
+						needsUpdate.add(i);
+					}
+
+				}
+			});
+		}
 		super.setParent(parent);
+
 	}
-	
+
 	@Override
 	public String[] declaration() {
 		List<String> code = new ArrayList<String>();

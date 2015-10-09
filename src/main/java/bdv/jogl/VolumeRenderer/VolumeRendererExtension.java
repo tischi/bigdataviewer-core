@@ -107,8 +107,9 @@ public class VolumeRendererExtension {
 		selector = new BigDataViewerDataSelector(bdv);
 		sampleController = new VolumeRendereSampleController(glWindow, controls.getSamplesSpinner(), volumeRenderer,64);
 		animator = new InteraktionAnimator(volumeRenderer, glWindow, dataManager,controls,sampleController);
-		createActionInToolBar();
+	
 		createListeners();
+		createActionInToolBar();
 	
 	}
 
@@ -185,21 +186,7 @@ public class VolumeRendererExtension {
 			}
 		});
 		
-		//listener on new selected data
-		selector.addBigDataViewerDataSelectorListener(new IBigDataViewerDataSelectorListener() {
-			
-			@Override
-			public void selectedDataAvailable(AABBox hullVolume,
-					List<VolumeDataBlock> partialVolumesInHullVolume, int time) {			
-				
-				resetToFullView();
-				animator.startMoveToSelectionAnimation(hullVolume, partialVolumesInHullVolume, time);
-				controls.setVisible(true);
-				glWindow.setVisible(true);
-				
-				
-			}
-		});
+	
 		
 		
 		//update seletor sizes
@@ -254,6 +241,22 @@ public class VolumeRendererExtension {
 			@Override
 			public void motionStart() {
 				sampleController.downSample();
+			}
+		});
+		
+		//listener on new selected data
+		selector.addBigDataViewerDataSelectorListener(new IBigDataViewerDataSelectorListener() {
+			
+			@Override
+			public void selectedDataAvailable(AABBox hullVolume,
+					List<VolumeDataBlock> partialVolumesInHullVolume, int time) {			
+				
+				resetToFullView();
+				animator.startMoveToSelectionAnimation(hullVolume, partialVolumesInHullVolume, time);
+				controls.setVisible(true);
+				glWindow.setVisible(true);
+				
+				
 			}
 		});
 	}

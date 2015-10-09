@@ -3,8 +3,10 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulat
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
@@ -14,6 +16,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.MultiVolumeRenderer;
 import bdv.jogl.VolumeRenderer.utils.LaplaceContainer;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
+import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.addCodeArrayToList;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
@@ -30,19 +33,23 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 	public SharpnessVolumeAccumulator() {
 		super("sharpness_weight");
 	}
-	
+
 	Map<Integer, LaplaceContainer> evalueatedLaplacians = new HashMap<Integer, LaplaceContainer>();
-	
+
 	Map<Integer, Texture> laplacianTextures = new HashMap<Integer, Texture>();
-	
+
 	private final static String suvLaplaceTextures = "inLaplaceTextures";
-	
+
 	private final static String suvLaplaceMinValue = "intLaplaceMin";
-	
+
 	private final static String suvLaplaceMaxValue = "intLaplaceMax";
-	
+
 	boolean needsReset = false;
-	
+
+	private final Object mutex = new Object();
+
+	private final Set<Integer> needsUpdate = new HashSet<Integer>(); 
+
 	@Override
 	public String[] declaration() {
 		List<String> code = new ArrayList<String>();
@@ -90,7 +97,7 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 		appendNewLines(codeArray);
 		return codeArray;
 	}
-	
+
 	@Override
 	public void init(GL4 gl) {
 		getParent().mapUniforms(gl,new String[]{suvLaplaceTextures});
@@ -108,38 +115,43 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 		evalueatedLaplacians.clear();
 		super.disposeGL(gl2);
 	}
-	
+
 	@Override
 	public void updateData(GL4 gl) {
 		VolumeDataManager dataManager = getParent().getDataManager();
 		float globalMin = Float.MAX_VALUE;
 		float globalMax = Float.MIN_VALUE;
-		
+
 		//create and update laplace textures 
 		for(Integer key:dataManager.getVolumeKeys()){
 			VolumeDataBlock data = dataManager.getVolume(key);
 			Texture t;
-			
+
 			//create texture objects
 			if(!laplacianTextures.containsKey(key)||needsReset){
 				t = createVolumeTexture(gl, getParent().getArrayEntryLocation(gl, suvLaplaceTextures,key)) ;
 				laplacianTextures.put(key, t);
 			}
 			t = laplacianTextures.get(key);
-			
-			//update laplacians
-			if(data.needsUpdate()||!evalueatedLaplacians.containsKey(key)||needsReset){
-				LaplaceContainer container = calulateLablacianSimple(data); 
-				evalueatedLaplacians.put(key,container);
-				
-			
-				//fill textures
-				FloatBuffer buffer = Buffers.newDirectFloatBuffer(container.valueMesh3d);
-				t.update(gl, 0, buffer, container.dimension);
-				
+
+
+			synchronized (mutex) {
+
+				//update laplacians
+				if(this.needsUpdate.contains(key)||!evalueatedLaplacians.containsKey(key)||needsReset){
+					LaplaceContainer container = calulateLablacianSimple(data); 
+					evalueatedLaplacians.put(key,container);
+
+
+					//fill textures
+					FloatBuffer buffer = Buffers.newDirectFloatBuffer(container.valueMesh3d);
+					t.update(gl, 0, buffer, container.dimension);
+
+				}
+				this.needsUpdate.remove(key);
 			}
 			LaplaceContainer tmp = evalueatedLaplacians.get(key);
-			
+
 			//get global min max value of laplace
 			globalMax = Math.max(globalMax, tmp.maxValue);
 			globalMin = Math.min(globalMin, tmp.minValue);
@@ -147,16 +159,28 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 		//update globals
 		gl.glUniform1f(getParent().getLocation(suvLaplaceMinValue), globalMin);
 		gl.glUniform1f(getParent().getLocation(suvLaplaceMaxValue), globalMax);
-		
+
 		needsReset = false;
 		super.updateData(gl);
 	}
-	
-	
-	
+
+
+
 	@Override
 	public void setParent(MultiVolumeRenderer parent) {
 		needsReset = true;
+		if(!parent.equals(super.getParent())){
+			parent.getDataManager().addVolumeDataManagerListener(new VolumeDataManagerAdapter() {
+
+				@Override
+				public void dataUpdated(Integer i) {
+					synchronized (mutex) {
+						needsUpdate.add(i);
+					}
+
+				}
+			});
+		}
 		super.setParent(parent);
 	}
 }
