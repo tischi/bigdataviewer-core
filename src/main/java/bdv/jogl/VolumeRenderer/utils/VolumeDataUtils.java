@@ -71,13 +71,13 @@ public class VolumeDataUtils {
 		tmp = Views.flatIterable(Views.interval(dataField, minMax[0], minMax[1]));
 
 		String name = source.getSpimSource().getName();
-		
+
 		int maxOcc =0;
 		// copy values 
 		int i = 0;
 		float minValue = Float.MAX_VALUE;
 		float maxValue = Float.MIN_VALUE; 
-		
+
 		@SuppressWarnings("unchecked")
 		Iterator<UnsignedShortType> values = (Iterator<UnsignedShortType>) tmp.iterator();
 		for(long z = minMax[0][2]; z <=  minMax[1][2]; z++){
@@ -100,7 +100,7 @@ public class VolumeDataUtils {
 				}
 			}
 		}
-		
+
 		tmp.min(data.memOffset);
 		for(int d = 0;d < 3 ;d++){
 			data.memSize[d] = minMax[1][d]+1-minMax[0][d];
@@ -223,7 +223,7 @@ public class VolumeDataUtils {
 	public static Matrix4 fromVolumeToGlobalSpace(final VolumeDataBlock block){
 		return copyMatrix( block.getLocalTransformation());
 	}
-	
+
 	public static Matrix4 calcScaledVolumeTransformation(final VolumeDataBlock block){
 		Matrix4 trans = getNewIdentityMatrix();
 
@@ -234,7 +234,7 @@ public class VolumeDataUtils {
 	}
 
 	public static Matrix4 fromCubeToVolumeSpace(final VolumeDataBlock block){
-		
+
 		Matrix4 tmp = copyMatrix(block.getLocalTransformation());
 		//tmp.scale(block.dimensions[0], block.dimensions[1], block.dimensions[2]);
 		tmp.invert();
@@ -245,7 +245,7 @@ public class VolumeDataUtils {
 		return tmp;
 		//return trans;
 	}
-	
+
 
 	/**
 	 * convolves the data in x and y dimension since these dimension have the highest resolution
@@ -262,10 +262,10 @@ public class VolumeDataUtils {
 											  {-1,-1,-1}};*/
 		int xyz[] = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
 		float convolved[] = new float[(int)(xyz[2]*xyz[1]*xyz[0])];
-		
+
 		LaplaceContainer ret = new LaplaceContainer();
 		ret.dimension = xyz.clone();
-		
+
 		//folding
 		for(int z = 0; z < xyz[2]; z++){
 			int zOffset = z*xyz[0]*xyz[1];
@@ -273,7 +273,7 @@ public class VolumeDataUtils {
 				float kernelValue = 0f;
 				int yOffset = y*xyz[0];
 				int vertOffset = xyz[0];
-				
+
 
 				for(int x=0; x < xyz[0]; x++){
 					//simple kernel evaluation
@@ -289,7 +289,7 @@ public class VolumeDataUtils {
 								dataValue = data.data[zOffset + yOffset  + vertOffset*y1 +x +x1];
 							}
 							float koeffizient;
-							
+
 							if(y1 == 0 && x1 == 0){
 								koeffizient = -8;
 							}else{
@@ -307,7 +307,7 @@ public class VolumeDataUtils {
 		ret.valueMesh3d = convolved;
 		return ret;
 	}
-	
+
 	/**
 	 * Creates a default volume texture (interpolation, clamping , etc,)
 	 * @param gl The gl context.
@@ -325,8 +325,8 @@ public class VolumeDataUtils {
 		volumeTexture.setTexParameteri(gl, GL4.GL_TEXTURE_WRAP_R, GL4.GL_CLAMP_TO_BORDER);
 		return volumeTexture;
 	}
-	
-	
+
+
 	/**
 	 * Calculates eye and center positions of a camera defined by a hull volume and a view direction
 	 * @param hull the hull volume
@@ -339,13 +339,199 @@ public class VolumeDataUtils {
 		float normal[] = new float[3];
 		float step [] = new float[3];
 		float[] eye = {0,0,0};
-		
-		
+
+
 		VectorUtil.normalizeVec3(normal, viewDirection.clone());
 		VectorUtil.scaleVec3(step, normal.clone(), distanceFromCenter);
 		VectorUtil.subVec3(eye, center.clone(), step);
-		
+
 		return new float[][]{eye.clone(),center.clone()}; 
+	}
+
+	private static float minStep = 0.1f;
+
+	public static CurvatureContainer calculateCurvatureOfVolume(final VolumeDataBlock data){
+		CurvatureContainer cc = new CurvatureContainer();
+		GradientContainer cg= calculateGradientOfVolume(data);
+		HessianContainer ch = calculateHessianOfGradients(cg, data);
+
+		int xyz[] = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
+		float convolved[] = new float[(int)(xyz[2]*xyz[1]*xyz[0])];
+
+		cc.dimension = xyz.clone();
+		//folding
+		for(int z = 0; z < xyz[2]; z++){
+			int zOffset = z*xyz[0]*xyz[1];
+			for(int y = 0; y < xyz[1]; y++){
+				int yOffset = y*xyz[0];
+
+
+
+				for(int x=0; x < xyz[0]; x++){
+					float totalCurvature = 0;
+					float g[] = cg.valueMesh3d[zOffset+yOffset+x].clone();
+					float h[] = ch.valueMesh3d[zOffset+yOffset+x].clone();
+					float l = VectorUtil.normVec3(g);
+
+					if(l>0.00001){
+						//get the normal to column matrix
+						Matrix4 n = getNewNullMatrix();
+						for(int d = 0; d < 3; d++){
+							n.getMatrix()[d*4]=-1f*g[d]/l;
+						}
+						//create nt
+						Matrix4 nt = copyMatrix(n);
+						nt.transpose();
+
+						Matrix4 H = createMatrix4X4(new float[]{
+								h[0],h[1],h[2],0,
+								h[3],h[4],h[5],0,
+								h[6],h[7],h[8],0,
+								0,0,0,0
+						});
+
+						//mat3x3 p = getIdentity() - n * transpose(n);
+						Matrix4 P = subMatrix(getNewIdentityMatrix(), matMul(n, nt));
+
+						//mat3x3 g = -p*h*p/length(gradient);
+						Matrix4 G =scale(matMul(scale(P, -1), matMul(H,P)),1f/l);
+						Matrix4 Gt = copyMatrix(G);
+						Gt.transpose();
+
+						totalCurvature = (float)Math.sqrt( trace(matMul( G,Gt)));
+					}else{
+						totalCurvature = 0;
+					}
+					//distribution
+					int count = 0;
+					if(cc.distribution.containsKey(totalCurvature)){
+						cc.distribution.get(totalCurvature);
+					}
+					count ++;
+					cc.distribution.put(totalCurvature, count);
+
+					cc.maxValue = Math.max(cc.maxValue, totalCurvature);
+					cc.minValue = Math.min(cc.minValue, totalCurvature);
+					convolved[zOffset+yOffset+x] = totalCurvature;
+				}
+			}
+		}
+		cc.valueMesh3d = convolved;
+		/*"	mat3x3 n = mat3x3(-1.0* gradient/length(gradient),vec3(0.0),vec3(0.0));",
+		"	mat3x3 p = getIdentity() - n * transpose(n);",
+		"	mat3x3 g = -p*h*p/length(gradient);",
+		"	float t = trace(g);",
+		"	float f = frobeniusNorm(g);",
+		"	float s = sqrt(2.0* f*f - t*t);",
+		"	float k[2];",
+		"	k[0] = (t+s)/2.0;",
+		"	k[1] = (t-s)/2.0;",*/
+		return cc;
+	}
+
+
+	private static HessianContainer calculateHessianOfGradients(
+			GradientContainer cg, VolumeDataBlock data) {
+		//get voxel distances per dim
+		float voxelDist[] = calculateVoxelDistance(data);		
+		HessianContainer hc = new HessianContainer();
+
+		int xyz[] = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
+		hc.valueMesh3d = new float[(int)(xyz[2]*xyz[1]*xyz[0])][9];
+		hc.dimension = xyz.clone();
+		for(int z = 0; z < xyz[2]; z++){
+			int zOffset = z*xyz[0]*xyz[1];
+			for(int y = 0; y < xyz[1]; y++){
+				int yOffset = y*xyz[0];
+				for(int x = 0; x < xyz[0]; x++ ){
+					int cPos[] = {x,y,z};
+					int index = zOffset+yOffset+x;
+					int offsets[] = {1,xyz[0],xyz[0]*xyz[1]};
+					//central diff optimizable through symetry
+					for(int i = 0; i < 3; i++ ){
+						for(int j = i; j< 3; j++){
+
+							float[] gpdj = (cPos[j] < xyz[j]-1)?cg.valueMesh3d[index + offsets[j]]:cg.valueMesh3d[index];
+							float[] gmdj = (cPos[j] > 0)?cg.valueMesh3d[index - offsets[j]]:cg.valueMesh3d[index];
+							float[] gpdi = (cPos[i] < xyz[i]-1)?cg.valueMesh3d[index + offsets[i]]:cg.valueMesh3d[index];
+							float[] gmdi = (cPos[i] > 0)?cg.valueMesh3d[index - offsets[i]]:cg.valueMesh3d[index];
+
+							float partialDerivative=
+									(gpdj[i] - gmdj[i])/4f*voxelDist[j]+
+									(gpdi[j] - gmdi[j])/4f*voxelDist[i];
+
+							hc.valueMesh3d[index][i*3+j] = partialDerivative;
+							//symetry
+							hc.valueMesh3d[index][j*3+i] = partialDerivative;
+
+						}
+					}
+				}
+			}
+		}
+
+		return hc;
+	}
+
+
+	/**
+	 * Calculates for each data point a gradient vector
+	 * @param data
+	 * @return
+	 */
+	public static GradientContainer calculateGradientOfVolume(
+			VolumeDataBlock data) {
+		//get voxel distances per dim
+		float voxelDist[] = calculateVoxelDistance(data);
+
+		GradientContainer gc = new GradientContainer();
+
+		int xyz[] = new int[]{(int)data.memSize[0],(int)data.memSize[1],(int)data.memSize[2]};
+		gc.valueMesh3d = new float[(int)(xyz[2]*xyz[1]*xyz[0])][3];
+
+		gc.dimension = xyz.clone();
+		//folding
+		for(int z = 0; z < xyz[2]; z++){
+			int zOffset = z*xyz[0]*xyz[1];
+			for(int y = 0; y < xyz[1]; y++){
+				int yOffset = y*xyz[0];
+				for(int x = 0; x < xyz[0]; x++ ){
+					int cPos[] = {x,y,z};
+					int index = zOffset+yOffset+x;
+					int offsets[] = {1,xyz[0],xyz[0]*xyz[1]};
+					//central diff
+					for(int d = 0; d < 3; d++ ){
+
+						float higherPosValue = (cPos[d] < xyz[d]-1)?data.data[index + offsets[d]]:data.data[index];
+						float lowerPosValue = (cPos[d] > 0)?data.data[index - offsets[d]]:data.data[index];
+						gc.valueMesh3d[index][d] = (higherPosValue - lowerPosValue)/(2.f*voxelDist[d]);
+					}
+
+				}
+			}
+		}
+		return gc;
+	}
+
+	/**
+	 * Interpolates linear between 2 points 
+	 * @param v1 startvalue
+	 * @param v2 endvalue
+	 * @param dist distance between start and end
+	 * @param minStep distance from start to interpolate
+	 * @return 
+	 */
+	private static float interpolate(float v1, float v2, float dist, float minStep) {
+		float m = (v2 -v1) /dist;
+		return v1+ m*minStep;
+	}
+
+
+	private static float[] calculateVoxelDistance(VolumeDataBlock data) {
+		// TODO Auto-generated method stub
+		// TODO correct dim
+		float distances[] = new float[]{1,1,1}; 
+		return distances;
 	}
 }
 

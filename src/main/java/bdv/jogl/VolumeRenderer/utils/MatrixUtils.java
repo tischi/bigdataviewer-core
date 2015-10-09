@@ -90,6 +90,98 @@ public class MatrixUtils {
 	}
 	
 	/**
+	 * 
+	 * @return a Matrix filled with zeros
+	 */
+	public static Matrix4 getNewNullMatrix(){
+		Matrix4 nullMatrix = getNewIdentityMatrix();
+		for(int i =0; i < 4; i++){
+			nullMatrix.getMatrix()[i*4+i]=0;
+		}
+		return nullMatrix;
+	}
+	
+	/**
+	 * adds two matrices and returns a new matrix object containing the result
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Matrix4 addMatrix(Matrix4 a, Matrix4 b){
+		Matrix4 ret = new Matrix4();
+		for(int i =0; i < 16; i++){
+			ret.getMatrix()[i] = a.getMatrix()[i] + b.getMatrix()[i];
+		}
+		return ret;
+	}
+	
+	/**
+	 * subs two matrices and returns a new matrix object containing the result
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Matrix4 subMatrix(Matrix4 a, Matrix4 b){
+		Matrix4 binv = new Matrix4();
+		for(int i = 0; i < 16; i++ ){
+			binv.getMatrix()[i] = -b.getMatrix()[i];
+		}
+		
+		return addMatrix(a, binv);
+	}
+	
+	/**
+	 * Creates a matrix instance from given data
+	 * @param data 
+	 * @return
+	 */
+	public static Matrix4 createMatrix4X4(float data[]){
+		Matrix4 m = new Matrix4();
+		for(int i =0; i < 16; i++){
+			m.getMatrix()[i] = data[i];
+		}
+		return m;
+	}
+	
+	/**
+	 * scales the given matrix by n and returns a new matrix of its content
+	 * @param n
+	 * @return
+	 */
+	public static Matrix4 scale(Matrix4 m,  float n){
+		Matrix4 k = copyMatrix(m);
+		for(int i=0; i < 16; i++){
+			k.getMatrix()[i]*=n;
+		}
+		return k;
+	}
+	
+	/**
+	 * Does matmul without altering a and b
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Matrix4 matMul(Matrix4 a, Matrix4 b){
+		Matrix4 c = copyMatrix(a);
+		c.multMatrix(b);
+		return c;
+	}
+	
+	/**
+	 * Calculates the trace of a given Matrix 
+	 * @param m
+	 * @return
+	 */
+	public static float trace(Matrix4 m){
+		float t = 0;
+		for(int i =0; i < 4; i++){
+			t += m.getMatrix()[i*4+i];
+		}
+		return t;
+	}
+	
+	/**
 	 * Calculates a closely fitting bounding box of transformations 
 	 * @param transformations The list of transformations of 0-1 space coordinates
 	 * @return The bounding box
