@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AverageVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxCurvatureDifference;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxCurvatureDifferenceAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaxDifferenceAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MidmapMaxDifference;
+import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MidmapMaxDifferenceAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MinimumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.SharpnessVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.ViewDirectionAccumulator;
-import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.VoxelDistanceAccumulator;
 
 /**
  * Stores aggregators and calls listeners
@@ -72,8 +71,8 @@ public class AccumulatorManager {
 		addAccumulator(new ViewDirectionAccumulator());
 		addAccumulator(new SharpnessVolumeAccumulator());
 		addAccumulator(new MaxDifferenceAccumulator());
-		addAccumulator(new MidmapMaxDifference());
-		addAccumulator(new MaxCurvatureDifference());
+		addAccumulator(new MidmapMaxDifferenceAccumulator());
+		addAccumulator(new MaxCurvatureDifferenceAccumulator());
 	//	addAccumulator(new VoxelDistanceAccumulator());
 
 		setActiveAcumulator( beautifyaccumulatorFuncName(max.getFunctionName()));

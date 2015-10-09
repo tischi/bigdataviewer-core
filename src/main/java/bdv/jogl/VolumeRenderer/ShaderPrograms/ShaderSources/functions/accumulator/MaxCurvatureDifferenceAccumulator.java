@@ -32,8 +32,8 @@ import com.jogamp.opengl.GL4;
  * @author michael
  *
  */
-public class MaxCurvatureDifference extends AbstractVolumeAccumulator {
-	public MaxCurvatureDifference() {
+public class MaxCurvatureDifferenceAccumulator extends AbstractVolumeAccumulator {
+	public MaxCurvatureDifferenceAccumulator() {
 		super("difference_total_curvature");
 	}
 

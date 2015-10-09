@@ -12,9 +12,9 @@ import java.util.List;
  * @author michael
  *
  */
-public class MidmapMaxDifference extends AbstractVolumeAccumulator {
+public class MidmapMaxDifferenceAccumulator extends AbstractVolumeAccumulator {
 
-	public MidmapMaxDifference(){
+	public MidmapMaxDifferenceAccumulator(){
 		super("difference_of_midmap_area");
 	}
 	
