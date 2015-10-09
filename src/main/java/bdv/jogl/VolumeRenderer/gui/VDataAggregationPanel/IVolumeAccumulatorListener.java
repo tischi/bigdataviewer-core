@@ -7,7 +7,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulato
  * @author michael
  *
  */
-public interface IVolumeAggregationListener {
+public interface IVolumeAccumulatorListener {
 
 	/**
 	 * Is called if the accumulation changes

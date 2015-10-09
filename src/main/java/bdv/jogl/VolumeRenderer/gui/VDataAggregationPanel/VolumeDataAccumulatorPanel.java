@@ -16,7 +16,7 @@ import javax.swing.JRadioButton;
  * @author michael
  *
  */
-public class VolumeDataAggregationPanel extends JPanel {
+public class VolumeDataAccumulatorPanel extends JPanel {
 	
 	/**
 	 * default version
@@ -27,7 +27,7 @@ public class VolumeDataAggregationPanel extends JPanel {
 	
 	private List<JRadioButton> aggregationButtons = new LinkedList<JRadioButton>();
 	
-	private final AggregatorManager dataManager;
+	private final AccumulatorManager dataManager;
 	
 	private ActionListener radioListener = new ActionListener() {
 		@Override
@@ -37,7 +37,7 @@ public class VolumeDataAggregationPanel extends JPanel {
 	}; 
 	
 	private void initPanel(){
-		setBorder(BorderFactory.createTitledBorder("Volume data Aggregation types"));
+		setBorder(BorderFactory.createTitledBorder("Volume data accumulators"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		//create buttons
@@ -60,7 +60,7 @@ public class VolumeDataAggregationPanel extends JPanel {
 		}
 	}
 	
-	public VolumeDataAggregationPanel(final AggregatorManager manager){
+	public VolumeDataAccumulatorPanel(final AccumulatorManager manager){
 		this.dataManager = manager;
 		initPanel();
 	}

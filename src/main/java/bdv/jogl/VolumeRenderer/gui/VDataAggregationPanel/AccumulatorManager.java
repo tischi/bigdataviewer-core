@@ -22,9 +22,9 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulato
  * @author michael
  *
  */
-public class AggregatorManager {
+public class AccumulatorManager {
 	
-	private List<IVolumeAggregationListener> listeners = new ArrayList<IVolumeAggregationListener>();
+	private List<IVolumeAccumulatorListener> listeners = new ArrayList<IVolumeAccumulatorListener>();
 	
 	private Map<String, AbstractVolumeAccumulator> accumulators = new HashMap<String, AbstractVolumeAccumulator>();
 	
@@ -32,12 +32,12 @@ public class AggregatorManager {
 	
 	private String activeAccumulatorName;
 	
-	private void notifyChanged(IVolumeAggregationListener listener){
+	private void notifyChanged(IVolumeAccumulatorListener listener){
 		listener.aggregationChanged(accumulators.get(activeAccumulatorName));
 	}
 	
 	private void notifyChangedAll(){
-		for(IVolumeAggregationListener listener: listeners){
+		for(IVolumeAccumulatorListener listener: listeners){
 			notifyChanged(listener);
 		}
 	}
@@ -63,7 +63,7 @@ public class AggregatorManager {
 		return beautified;
 	}
 
-	public AggregatorManager(){
+	public AccumulatorManager(){
 		MaximumVolumeAccumulator max =new MaximumVolumeAccumulator();
 	
 		addAccumulator(new MaximumVolumeAccumulator());
@@ -83,7 +83,7 @@ public class AggregatorManager {
 	 * Adds aggregation listener
 	 * @param listener
 	 */
-	public void addListener(IVolumeAggregationListener listener){
+	public void addListener(IVolumeAccumulatorListener listener){
 		this.listeners.add(listener);
 	} 
 
