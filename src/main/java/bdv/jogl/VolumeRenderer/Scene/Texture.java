@@ -247,10 +247,7 @@ public class Texture {
 		}
 		updateTextureParameters(gl2);
 		GLErrorHandler.assertGL(gl2);
-		if(shouldGenerateMidmaps){
-			gl2.glGenerateMipmap(textureType);
-		}
-		GLErrorHandler.assertGL(gl2);
+
 		switch (dimensions.length) {
 		case 1:
 
@@ -287,6 +284,9 @@ public class Texture {
 			break;
 		default:
 			break;
+		}
+		if(shouldGenerateMidmaps){
+			gl2.glGenerateMipmap(textureType);
 		}
 		GLErrorHandler.assertGL(gl2);
 	}

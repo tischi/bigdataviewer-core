@@ -617,9 +617,10 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		for(int i =0; i< sources.getMaxNumberOfVolumes(); i++){
 			location = getArrayEntryLocation(gl2, suvVolumeTexture, i);
 			Texture t = createVolumeTexture(gl2, location);
-			//	t.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
+				t.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
 			t.setShouldGenerateMidmaps(true);
 			volumeTextureMap.put(i, t);
+			GLErrorHandler.assertGL(gl2);
 		}
 		location = getLocation(suvColorTexture);
 		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);

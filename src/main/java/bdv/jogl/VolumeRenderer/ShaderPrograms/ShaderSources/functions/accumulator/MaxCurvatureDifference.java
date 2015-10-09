@@ -2,7 +2,6 @@ package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulat
 
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.scvMaxNumberOfVolumes;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.sgvRayPositions;
-import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.suvVolumeTexture;
 import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.sgvVolumeNormalizeFactor;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.addCodeArrayToList;
 import static bdv.jogl.VolumeRenderer.utils.ShaderSourceUtil.appendNewLines;
@@ -123,26 +122,26 @@ public class MaxCurvatureDifference extends AbstractVolumeAccumulator {
 				"uniform float "+suvCurvatureMax+";",
 				"uniform float "+suvCurvatureMin+";",
 				"float curveNormalizeFactor = 1.0/("+suvCurvatureMax+"-"+suvCurvatureMin+");",
+				"bool factorChanged = false;",
 				"",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
-				"	float difference = 0.0;",		
-				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
-			    "		vec3 texCN = getCorrectedTexturePositions("+sgvRayPositions+", n);",
-				"		for(int m = 0; m < "+scvMaxNumberOfVolumes+";m++){",
-				"			if(densities[n]<0 || densities[m]<0){",
-				"				continue;",
-				"			}",	
-				"			vec3 texCM = getCorrectedTexturePositions("+sgvRayPositions+", m);",
-				"			float cn = texture("+suvCurvatureTexture+"[n],texCN).r;",
-				"			float cm = texture("+suvCurvatureTexture+"[m],texCM).r;",
-				"",
-				"			"+sgvVolumeNormalizeFactor+" = curveNormalizeFactor;",
-				"			//manhatten distance",
-				"			float currentDifference = cn-cm;",
-				"			difference = max(difference,currentDifference);",	
-				"		}",
+				"	float minValue = "+Float.MAX_VALUE+";",
+				"	float maxValue = "+Float.MIN_VALUE+";",			
+				"   if(!factorChanged){",
+				//TODO
+				"		"+sgvVolumeNormalizeFactor+" = curveNormalizeFactor;",
+				"		factorChanged = true;",
 				"	}",
-				"	return difference;",	
+				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
+				"		if(densities[n] < 0.0 ){",
+				"			continue;",
+				"		}",	
+				"		vec3 texCN = getCorrectedTexturePositions("+sgvRayPositions+", n);",
+				"		float cn = texture("+suvCurvatureTexture+"[n],texCN).r;",
+				"		maxValue = max(maxValue,cn);",
+				"		minValue = min(minValue,cn);",	
+				"	}",
+				"	return maxValue -minValue;",	
 				"}"
 		};
 		addCodeArrayToList(dec, code);

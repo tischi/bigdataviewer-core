@@ -19,17 +19,16 @@ public class MaxDifferenceAccumulator extends AbstractVolumeAccumulator {
 		String[] dec= new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 7",
 				"float "+getFunctionName()+"(float densities["+scvMaxNumberOfVolumes+"]) {",
-				"	float difference = 0;",		
+				"	float maxValue = 0.0;",
+				"	float minValue = "+Float.MAX_VALUE+";",
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
-				"		for(int m = 0; m < "+scvMaxNumberOfVolumes+";m++){",
-				"			if(densities[n]<0 || densities[m]<0){",
-				"				continue;",
-				"			}",	
-				"			float currentDifference = densities[n]-densities[m];",
-				"			difference = max(difference,currentDifference);",	
-				"		}",
+				"		if(densities[n]< 0.0 ){",
+				"			continue;",
+				"		}",	
+				"		maxValue = max(maxValue,densities[n]);",
+				"		minValue = min(minValue,densities[n]);",	
 				"	}",
-				"	return difference;",	
+				"	return maxValue - minValue;",	
 				"}"
 		};
 		addCodeArrayToList(dec, code);
