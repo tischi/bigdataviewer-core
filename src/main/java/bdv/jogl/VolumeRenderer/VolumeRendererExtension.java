@@ -34,8 +34,8 @@ import bdv.jogl.VolumeRenderer.gui.DetailViewConfiguration;
 import bdv.jogl.VolumeRenderer.gui.SceneControlsWindow;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.CameraMotionListener;
 import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
-import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
-import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.IVolumeAggregationListener;
+import bdv.jogl.VolumeRenderer.gui.VDataAccumulationPanel.AccumulatorManager;
+import bdv.jogl.VolumeRenderer.gui.VDataAccumulationPanel.IVolumeAccumulatorListener;
 import bdv.jogl.VolumeRenderer.gui.VolumeRendereActions.OpenVolumeRendererAction;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataBlock;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
@@ -65,7 +65,7 @@ public class VolumeRendererExtension {
 
 	private final TransferFunction1D transferFunction = new TransferFunction1D();
 
-	private final AggregatorManager aggManager = new AggregatorManager();
+	private final AccumulatorManager aggManager = new AccumulatorManager();
 
 	private final BigDataViewerDataSelector selector;
 	
@@ -116,7 +116,7 @@ public class VolumeRendererExtension {
 	private void createListeners() {
 		//source changes 
 		volumeRenderer.setAccumulator(aggManager.getAccumulator( aggManager.getActiveAccumulator()));
-		aggManager.addListener(new IVolumeAggregationListener() {
+		aggManager.addListener(new IVolumeAccumulatorListener() {
 
 			@Override
 			public void aggregationChanged(AbstractVolumeAccumulator acc) {

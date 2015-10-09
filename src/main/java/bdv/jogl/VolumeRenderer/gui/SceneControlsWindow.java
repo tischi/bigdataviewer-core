@@ -36,8 +36,8 @@ import bdv.jogl.VolumeRenderer.gui.GLWindow.GLWindow;
 import bdv.jogl.VolumeRenderer.gui.TFDataPanel.TransferFunctionDataPanel;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.TransferFunctionDrawPanel;
 import bdv.jogl.VolumeRenderer.gui.TFDrawPanel.VolumeLegend;
-import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.AggregatorManager;
-import bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel.VolumeDataAggregationPanel;
+import bdv.jogl.VolumeRenderer.gui.VDataAccumulationPanel.AccumulatorManager;
+import bdv.jogl.VolumeRenderer.gui.VDataAccumulationPanel.VolumeDataAccumulatorPanel;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
 import static bdv.jogl.VolumeRenderer.utils.WindowUtils.aligneLeft;
@@ -62,7 +62,7 @@ public class SceneControlsWindow extends JFrame {
 
 	private TransferFunction1D transferFunction;
 
-	private VolumeDataAggregationPanel aggregationPanel;
+	private VolumeDataAccumulatorPanel aggregationPanel;
 
 	private JCheckBox usePreIntegration = new JCheckBox("Use pre-integration",false);
 
@@ -124,7 +124,7 @@ public class SceneControlsWindow extends JFrame {
 	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
-			final AggregatorManager agm, 
+			final AccumulatorManager agm, 
 			final VolumeDataManager dataManager, 
 			final MultiVolumeRenderer mvr, 
 			final GLWindow win,
@@ -152,10 +152,10 @@ public class SceneControlsWindow extends JFrame {
 		mainPanel.add(c);
 	}
 
-	private void createTFWindow(final TransferFunction1D tf,final AggregatorManager agm,final VolumeDataManager dataManager){
+	private void createTFWindow(final TransferFunction1D tf,final AccumulatorManager agm,final VolumeDataManager dataManager){
 		tfpanel = new TransferFunctionDrawPanel(tf,dataManager);
 		tfDataPanel = new TransferFunctionDataPanel(tf);
-		aggregationPanel = new VolumeDataAggregationPanel(agm);
+		aggregationPanel = new VolumeDataAccumulatorPanel(agm);
 
 
 		setTitle("Transfer function configurations");

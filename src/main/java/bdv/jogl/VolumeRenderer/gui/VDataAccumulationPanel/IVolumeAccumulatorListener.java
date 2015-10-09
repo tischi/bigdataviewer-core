@@ -1,4 +1,4 @@
-package bdv.jogl.VolumeRenderer.gui.VDataAggregationPanel;
+package bdv.jogl.VolumeRenderer.gui.VDataAccumulationPanel;
 
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.AbstractVolumeAccumulator;
 
@@ -7,7 +7,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulato
  * @author michael
  *
  */
-public interface IVolumeAggregationListener {
+public interface IVolumeAccumulatorListener {
 
 	/**
 	 * Is called if the accumulation changes
