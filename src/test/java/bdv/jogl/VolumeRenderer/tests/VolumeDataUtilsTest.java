@@ -29,6 +29,7 @@ public class VolumeDataUtilsTest {
 									 2,2,2,
 									 2,2,2};
 		testBlock.memSize = new long[]{3,3,3};
+		testBlock.dimensions = testBlock.memSize.clone();
 		CurvatureContainer c = VolumeDataUtils.calculateCurvatureOfVolume(testBlock);
 		//test center gradient zero curvature on homogene data
 		assertEquals(0, c.valueMesh3d[13],0.01);
@@ -49,6 +50,7 @@ public class VolumeDataUtilsTest {
 									 2,2,2,
 									 2,2,2};
 		testBlock.memSize = new long[]{3,3,3};
+		testBlock.dimensions = testBlock.memSize.clone();
 		float wantedDir[] = new float[]{0,0,1};
 		testBlock.setLocalTransformation(MatrixUtils.getNewIdentityMatrix());
 		
