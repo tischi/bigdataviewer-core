@@ -28,6 +28,8 @@ public class AggregatorManager {
 	
 	private Map<String, AbstractVolumeAccumulator> accumulators = new HashMap<String, AbstractVolumeAccumulator>();
 	
+	private List<String> aggregatorNames = new ArrayList<String>();
+	
 	private String activeAccumulatorName;
 	
 	private void notifyChanged(IVolumeAggregationListener listener){
@@ -41,23 +43,40 @@ public class AggregatorManager {
 	}
 	
 	private void addAccumulator(AbstractVolumeAccumulator a){
-		accumulators.put(a.getFunctionName(), a);
+		String visualName = beautifyaccumulatorFuncName(a.getFunctionName());
+		accumulators.put(visualName, a);
+		aggregatorNames.add(visualName);
 	}
 	
 	
 	
+	private String beautifyaccumulatorFuncName(String functionName) {
+		String beautified =""+ Character.toUpperCase( (char)functionName.getBytes()[0]);
+		
+		for(int i =1; i < functionName.length(); i++){
+			if(functionName.getBytes()[i] == (char)'_'){
+				beautified += ' ';
+				continue;
+			}
+			beautified +=  (char)functionName.getBytes()[i];
+		}
+		return beautified;
+	}
+
 	public AggregatorManager(){
 		MaximumVolumeAccumulator max =new MaximumVolumeAccumulator();
-		addAccumulator(new AverageVolumeAccumulator());
+	
 		addAccumulator(new MaximumVolumeAccumulator());
 		addAccumulator(new MinimumVolumeAccumulator());
+		addAccumulator(new AverageVolumeAccumulator());
+		addAccumulator(new ViewDirectionAccumulator());
+		addAccumulator(new SharpnessVolumeAccumulator());
 		addAccumulator(new MaxDifferenceAccumulator());
 		addAccumulator(new MidmapMaxDifference());
 		addAccumulator(new MaxCurvatureDifference());
 	//	addAccumulator(new VoxelDistanceAccumulator());
-		addAccumulator(new ViewDirectionAccumulator());
-		addAccumulator(new SharpnessVolumeAccumulator());
-		setActiveAcumulator(max.getFunctionName());
+
+		setActiveAcumulator( beautifyaccumulatorFuncName(max.getFunctionName()));
 	}
 	
 	/**
@@ -102,7 +121,7 @@ public class AggregatorManager {
 	 * returns the function-names of the stored accumulators 
 	 * @return
 	 */
-	public Set<String> getAccumulatorNames(){
-		return accumulators.keySet();
+	public List<String> getAccumulatorNames(){
+		return aggregatorNames;
 	}
 }
