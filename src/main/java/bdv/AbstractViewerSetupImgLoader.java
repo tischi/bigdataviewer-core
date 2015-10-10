@@ -1,5 +1,6 @@
 package bdv;
 
+import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.Volatile;
 
@@ -28,7 +29,7 @@ public abstract class AbstractViewerSetupImgLoader< T, V extends Volatile< T > >
 	}
 
 	@Override
-	public RandomAccessibleInterval< T > getImage( final int timepointId )
+	public RandomAccessibleInterval< T > getImage( final int timepointId, final ImgLoaderHint... hints )
 	{
 		return getImage( timepointId, 0 );
 	}
