@@ -558,8 +558,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			dim = new int[]{(int)data.memSize[0], 
 					(int)data.memSize[1], 
 					(int)data.memSize[2]};
+			if(buffer.capacity()>0){
 			volumeTextureMap.get(i).update(gl2, 0, buffer, dim);
-
+			}
 			if(getArrayEntryLocation(gl2,suvVoxelOffsets,i)!=-1){
 				int off[] = new int[]{
 						(int)data.memOffset[0],

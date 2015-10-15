@@ -66,7 +66,7 @@ public class VolumeDataUtils {
 
 		long minMax[][] = new long[][]{{(long)Math.max(Math.floor(minBoundingBox.getMinX()),0),(long)Math.max(Math.floor(minBoundingBox.getMinY()),0),(long)Math.max(Math.floor(minBoundingBox.getMinZ()),0)},
 				{Math.min((long)Math.ceil(minBoundingBox.getMaxX()), data.dimensions[0])-1,Math.min((long)Math.ceil(minBoundingBox.getMaxY()), data.dimensions[1])-1,Math.min((long)Math.ceil(minBoundingBox.getMaxZ()), data.dimensions[2])-1}};
-		float[] block = new float[(int)((minMax[1][0]+1-minMax[0][0]) * (minMax[1][1]+1-minMax[0][1]) * (minMax[1][2]+1-minMax[0][2]))];
+		float[] block = new float[Math.max(0,(int)((minMax[1][0]+1-minMax[0][0]) * (minMax[1][1]+1-minMax[0][1]) * (minMax[1][2]+1-minMax[0][2])))];
 
 		tmp = Views.flatIterable(Views.interval(dataField, minMax[0], minMax[1]));
 

@@ -235,11 +235,22 @@ public class VolumeDataManager {
 		List<SourceState<?>> sources = state.getSources();
 		int currentTimepoint = state.getCurrentTimepoint();
 		List<VolumeDataBlock> data = new ArrayList<VolumeDataBlock>();
-		
-		
+/*		System.out.println();
+		System.out.println();
+		System.out.println("Timepoints: "+state.getNumTimePoints());
+	*/	
 		int i =-1;
 		for(SourceState<?> source : sources){
-
+		/*	System.out.println(source.getSpimSource().getNumMipmapLevels());
+			for(int k = 0;  k < source.getSpimSource().getNumMipmapLevels();k++){
+				long dim[] = new long[3];
+				source.getSpimSource().getSource(currentTimepoint, k).dimensions(dim);
+				for(int d= 0; d < 3; d++){
+					System.out.print(dim[d] +" ");
+				}
+				System.out.println();
+			}*/
+			
 			i++;
 
 			//block transform
