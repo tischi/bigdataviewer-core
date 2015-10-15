@@ -94,8 +94,7 @@ public class GLWindow extends JFrame {
 				GL4 gl2 = gl.getGL4();
 
 				//resizes available scene
-			    renderScene.resize(gl2, x, y, width, height);;
-				
+			    renderScene.resize(gl2, x, y, width, height);
 			}
 
 			/**

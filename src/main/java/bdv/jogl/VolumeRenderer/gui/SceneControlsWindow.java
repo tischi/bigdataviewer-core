@@ -225,7 +225,7 @@ public class SceneControlsWindow extends JFrame {
 		
 		transferFunktionEditorPanel.add(aligneLeft(tfpanel));
 		transferFunktionEditorPanel.add(aligneLeft(usePreIntegration));
-		transferFunktionEditorPanel.add(aligneLeft(useGradient));
+		//transferFunktionEditorPanel.add(aligneLeft(useGradient));
 		transferFunktionEditorPanel.add(aligneLeft(advancedCheck));
 		transferFunktionEditorPanel.add(aligneLeft(tfDataPanel));
 		
