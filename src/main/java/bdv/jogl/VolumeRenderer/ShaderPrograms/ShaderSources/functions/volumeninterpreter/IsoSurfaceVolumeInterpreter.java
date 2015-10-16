@@ -13,7 +13,8 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 
 	private VolumeGradientEvaluationFunction gradEval = new VolumeGradientEvaluationFunction();
 	
-	private final int refinementSteps = 4;
+	//higher values may exceed the the instruction storage of the shader by higher volume numbers (e.g 9) 
+	private final int refinementSteps = 2;
 	
 	public IsoSurfaceVolumeInterpreter() {
 		super("isoSurfaceInterpreter");
@@ -87,7 +88,10 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"		vec4 xNear = vec4(vec3("+sgvRayPositions+" - "+sgvRayDirections+" * "+suvRenderRectStepSize+").xyz,1.0);",
 				"		vec4 xFar = vec4("+sgvRayPositions+".xyz,1.0);",
 				"",
-				"		vec4 refined[2] = refineIntersection(vm1,v,xNear.xyz,xFar.xyz,"+sgvNormIsoValue+");",
+				"		vec4 refined[2]= refineIntersection(vm1,v,xNear.xyz,xFar.xyz,"+sgvNormIsoValue+");",
+				//"		refined[0] = vec4(c_in.rgb,vm1);",
+				//"		refined[1] = vec4(c.rgb,v);",
+				"",
 				"		if(refined[0].a < 0.0){",
 				"			color.a=-1.0;",	
 				"		}",
