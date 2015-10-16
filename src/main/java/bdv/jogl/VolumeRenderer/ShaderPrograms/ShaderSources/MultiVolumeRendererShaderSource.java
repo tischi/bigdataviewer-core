@@ -343,7 +343,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	"+sgvRayPositions+" = "+svRayStartCoordinate+";",	
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
 				"		vec3 tmp = "+suvVoxelCount+"[n];",
-				"	    vtextOffsets[n] = vec3(1.0/tmp);",
+				"	    vtextOffsets[n] = vec3(1.0/(2.0*tmp));",
 				"	    vtextScales[n] = (vec3("+suvVoxelCount+"[n]-ivec3(1)))/(vec3("+suvVoxelCount+"[n])*vec3("+suvVoxelCount+"[n]-ivec3(1)));",
 				"",   
 				//"    	//steps = max(steps,"+stepsFunction.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
