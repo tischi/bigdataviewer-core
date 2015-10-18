@@ -13,8 +13,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 
 	private VolumeGradientEvaluationFunction gradEval = new VolumeGradientEvaluationFunction();
 	
-	//higher values may exceed the the instruction storage of the shader by higher volume numbers (e.g 9) 
-	private final int refinementSteps = 2;
+	private final int refinementSteps = 4;
 	
 	public IsoSurfaceVolumeInterpreter() {
 		super("isoSurfaceInterpreter");
@@ -29,6 +28,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber()+ " 101",
 				"float isoPainted =0;",
 				"uniform vec3 "+suvLightIntensiy+";",
+				"uniform int refSteps = "+refinementSteps+";",
 				"",
 				"//bisection form http://onlinelibrary.wiley.com/doi/10.1111/j.1467-8659.2005.00855.x/abstract",
 				"vec3 bisection(float fNear, float fFar, vec3 xNear, vec3 xFar, float isoValue){",
@@ -39,7 +39,7 @@ public class IsoSurfaceVolumeInterpreter extends AbstractVolumeInterpreter {
 				"vec4[2] refineIntersection(float fNear, float fFar, vec3 xNear, vec3 xFar, float isoValue/*, sampler3D volume, vec3 texOffset, vec3 texfactor*/){",
 				"	vec4[2] refined;",
 				"	float formerDistance = "+Float.MAX_VALUE+";//min(distance(isoValue,fNear),distance(isoValue,fFar));",
-				"	for(int i =0; i < "+refinementSteps+"; i++){",
+				"	for(int i =0; i < refSteps; i++){",
 				"		vec3 xNew = bisection(fNear,fFar,xNear,xFar,isoValue);  ",
 				"		float fNew = getValue(xNew);",
 				"		float currentDistance = distance(isoValue,fNew);",
