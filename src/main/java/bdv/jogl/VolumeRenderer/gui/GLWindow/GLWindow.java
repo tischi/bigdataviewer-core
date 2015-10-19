@@ -1,6 +1,10 @@
 package bdv.jogl.VolumeRenderer.gui.GLWindow;
 
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+
 import javax.swing.JFrame;
 
 import bdv.jogl.VolumeRenderer.Scene.AbstractScene;
@@ -34,7 +38,20 @@ public class GLWindow extends JFrame {
 	
 	private CameraUpdater cUpdater;
 
+	//TODO bench
+	private final int maxStamps = 1000; 
+	private final int startSteps = 1000;
+	
+	private boolean measurementInProgress = false;
+	private boolean startPhaseInProgress = false;
+	private long timeStamp[] = new long[maxStamps];
+	
+	
+	private int startStepsTaken =  0;
+	private int measureStepsTaken = 0 ;
 
+	//TODO bench
+			
 	private void adaptScene(){
 		
 		renderScene.addSceneEventListener(new SceneEventListener() {
@@ -49,6 +66,25 @@ public class GLWindow extends JFrame {
 		glCanvas.addMouseListener(cUpdater.getMouseListener());
 		glCanvas.addMouseMotionListener(cUpdater.getMouseMotionListener());
 		glCanvas.addMouseWheelListener(cUpdater.getMouseWheelListener());
+	}
+	
+	private void storeResults(){
+		PrintWriter paraWriter = null;
+		try {
+			paraWriter = new PrintWriter("benchmark.txt","UTF-8");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		long latestTimeStep = timeStamp[0];
+		for(int i = 1;i< maxStamps; i++){
+			paraWriter.write(""+(  timeStamp[i]-latestTimeStep)+System.lineSeparator());
+			latestTimeStep = timeStamp[i];
+		}
+		paraWriter.close();
 	}
 	
 	/**
@@ -74,6 +110,50 @@ public class GLWindow extends JFrame {
 		return glCanvas;
 	}
 
+	//TODO bench
+	/**
+	 * Benchmark interface only!
+	 */
+	public void startBenchmark(){
+		startStepsTaken = 0;
+		measureStepsTaken = 0;
+		startPhaseInProgress = true;
+		measurementInProgress = false;
+		System.out.println("Benchmark started!");
+		glCanvas.repaint();
+	}
+	
+	private void doMeasurement(){
+		if(startStepsTaken < startSteps){
+			startStepsTaken++;
+			return;
+		}	
+		if(startPhaseInProgress||measurementInProgress){
+		startPhaseInProgress = false;
+		measurementInProgress = true;
+		if(measureStepsTaken < maxStamps){
+			
+			timeStamp[measureStepsTaken] = System.nanoTime();
+			measureStepsTaken++;
+			if(measureStepsTaken >= maxStamps){
+				measurementInProgress= false;
+				storeResults();
+				System.out.println("Benchmark done!");
+			}
+		}
+		}
+	}
+	
+	private void prepareNextMeasurement(){
+		if(measurementInProgress||startPhaseInProgress ){
+			if(measurementInProgress&&measureStepsTaken %100 ==0){
+				System.out.print(".");
+			}
+			glCanvas.repaint();
+		}
+	}
+	//TODO bench
+	
 	/**
 	 * constructor
 	 */
@@ -125,12 +205,17 @@ public class GLWindow extends JFrame {
 			@Override
 			public synchronized void display(GLAutoDrawable drawable) {		
 
+				//TODO bench
+				//doMeasurement();
+				//TODO bench
 				GL gl = drawable.getGL();
 				GL4 gl2 = gl.getGL4();
 
 				//renders available scene
 				renderScene.render(gl2);
-
+				//TODO bench
+				//prepareNextMeasurement();
+				//TODO bench
 			}
 		});
 		initWindowElements();

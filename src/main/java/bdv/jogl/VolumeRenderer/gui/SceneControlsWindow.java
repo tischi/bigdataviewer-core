@@ -122,6 +122,8 @@ public class SceneControlsWindow extends JFrame {
 	
 	private final JSpinner downSampleSpinner = new JSpinner(new SpinnerNumberModel(64,16,1000, 1));
 	
+	private final JButton benchButton = new JButton("start Benchmark");
+	
 	public SceneControlsWindow(
 			final TransferFunction1D tf,
 			final AccumulatorManager agm, 
@@ -191,7 +193,16 @@ public class SceneControlsWindow extends JFrame {
 		addComponetenToMainPanel(aligneLeft(interactionToolPanel));
 		addComponetenToMainPanel(aligneLeft(shaderElementPanel));
 		
-
+		//bench stuff
+		//addComponetenToMainPanel(aligneLeft(benchButton));
+		benchButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				drawWindow.startBenchmark();
+			}
+		});
+		//end bench stuff
 
 		tfDataPanel.setVisible(advancedCheck.isSelected());
 
