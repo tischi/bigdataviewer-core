@@ -47,6 +47,8 @@ public class TransferFunction1D {
 
 	private final TreeMap<Point2D.Float,Color> colors = new TreeMap<Point2D.Float, Color>(pointOrderXOperator);
 
+	private float maxVolumeValue;
+
 	private boolean isPointValid(Point2D.Float point){
 		//min
 		if(point.x < minOrdinates.x || point.y < minOrdinates.y ){
@@ -173,7 +175,9 @@ public class TransferFunction1D {
 	 * @param maxOrdinates the maxOrdinates to set
 	 */
 	public void setMaxOrdinates(Point2D.Float maxOrdinates) {
-
+		maxVolumeValue = maxOrdinates.x;
+		maxOrdinates.x  = (maxOrdinates.x > 1000)?1000:maxOrdinates.x;
+			
 		Point2D.Float oldMax = new Point2D.Float(this.maxOrdinates.x,this.maxOrdinates.y);
 
 		this.maxOrdinates = maxOrdinates;
@@ -434,5 +438,13 @@ public class TransferFunction1D {
 		}
 		
 		return query;
+	}
+	
+	public float getDataVolumeValue(float tfVolumeValue){
+		return (maxVolumeValue/maxOrdinates.x)*tfVolumeValue;
+	}
+	
+	public float getTransferFunctionVolumeValue(float dataVolumeValue){
+		return (maxOrdinates.x/maxVolumeValue)*dataVolumeValue;
 	}
 }

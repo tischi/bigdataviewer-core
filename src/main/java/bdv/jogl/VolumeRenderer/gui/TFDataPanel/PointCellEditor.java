@@ -16,6 +16,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
+
 
 
 public class PointCellEditor extends AbstractCellEditor implements TableCellEditor, TableCellRenderer{
@@ -24,12 +26,14 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 	 * default version
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
 	private Point2D.Float currentPoint;
 
-	private final JSpinner xSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1000.0, 0.01));
+	private final TransferFunctionDataPanel parent;
+	
+	private final JSpinner xSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 1));
 
-	private final JSpinner ySpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1000.0, 0.01));
+	private final JSpinner ySpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 1));
 
 	private final JPanel editorPanel = new JPanel();
 
@@ -43,8 +47,8 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 		editorPanel.add(ySpinner);
 	};
 
-	public PointCellEditor(){
-
+	public PointCellEditor(TransferFunctionDataPanel parent){
+		this .parent = parent;
 		buildUI();
 
 		createControls();
@@ -58,7 +62,7 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 				if(currentPoint == null){
 					return;
 				}
-				currentPoint.x =((Number)(xSpinner.getValue())).floatValue();
+				currentPoint.x =parent.getTransferFunction().getTransferFunctionVolumeValue(((Number)(xSpinner.getValue())).floatValue());
 				fireEditingStopped();
 			}
 		});
@@ -85,7 +89,7 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 		currentPoint = (Point2D.Float)value;
-		xSpinner.setValue(currentPoint.x);
+		xSpinner.setValue(parent.getTransferFunction().getDataVolumeValue( currentPoint.x));
 		ySpinner.setValue(currentPoint.y);
 		return editorPanel;
 	}
@@ -94,7 +98,7 @@ public class PointCellEditor extends AbstractCellEditor implements TableCellEdit
 	public Component getTableCellRendererComponent(JTable arg0, Object value, boolean arg2, boolean arg3, int arg4,
 			int arg5) {  	       
 		currentPoint = (Point2D.Float)value;
-		xSpinner.setValue(currentPoint.x);
+		xSpinner.setValue(parent.getTransferFunction().getDataVolumeValue(currentPoint.x));
 		ySpinner.setValue(currentPoint.y);  
 		return editorPanel ;
 	}

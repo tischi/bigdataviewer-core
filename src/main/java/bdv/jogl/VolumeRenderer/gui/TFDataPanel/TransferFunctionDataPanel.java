@@ -111,7 +111,7 @@ public class TransferFunctionDataPanel extends JPanel {
 		});
 
 		ColorCellEditor colorEditor = new ColorCellEditor();		
-		PointCellEditor pointEditor = new PointCellEditor();
+		PointCellEditor pointEditor = new PointCellEditor(this);
 
 		colorTable.getColumnModel().getColumn(0).setCellEditor(pointEditor);
 		colorTable.getColumnModel().getColumn(0).setCellRenderer(pointEditor);
@@ -138,6 +138,10 @@ public class TransferFunctionDataPanel extends JPanel {
 		});
 	}
 
+	public TransferFunction1D getTransferFunction(){
+		return transferFunction;
+	}
+	
 	public TransferFunctionDataPanel(final TransferFunction1D tf){
 
 		colorTableScroller = new JScrollPane(colorTable);
