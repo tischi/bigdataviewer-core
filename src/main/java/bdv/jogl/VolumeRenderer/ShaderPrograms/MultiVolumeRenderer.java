@@ -95,6 +95,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private boolean isOpacity3DUpdateable = true;
 
 	private boolean isHullVolumeUpdateable = true;
+	
+	private boolean isVertBufferUpdateable = true;
 
 	private float opacity3D = 1.f;
 
@@ -303,6 +305,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		isOpacity3DUpdateable = flag;
 		isHullVolumeUpdateable = flag;
 		isLightColorUpdateable = flag;
+		isVertBufferUpdateable = flag;
 		for(VolumeDataBlock data: dataManager.getVolumes()){
 			data.setNeedsUpdate(true);
 		}
@@ -633,10 +636,14 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	@Override
 	protected void updateVertexBufferSubClass(GL4 gl2, VertexAttribute position) {
+		if(!isVertBufferUpdateable){
+			return;
+		}
 		FloatBuffer bufferData = Buffers.newDirectFloatBuffer(coordinates);
 		bufferData.rewind();
 
-		position.setAttributeValues(gl2, bufferData);	
+		position.setAttributeValues(gl2, bufferData);
+		isVertBufferUpdateable = false;
 	}
 
 	@Override
