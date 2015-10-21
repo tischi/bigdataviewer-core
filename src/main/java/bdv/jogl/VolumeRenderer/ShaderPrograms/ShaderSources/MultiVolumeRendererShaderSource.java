@@ -356,7 +356,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	//ray casting",
 				"  	float density =getValue("+sgvRayPositions+"); ",
 				"",
-				"	latestdDistanceToSlice = getPlaneDistance("+suvNormalSlice+","+sgvRayPositions+" );",	//TODO find gpu killing bug of start steps
+				"	latestdDistanceToSlice = getPlaneDistance("+suvNormalSlice+","+sgvRayPositions+" );",
 				"  	for(int i = 0; i < steps; i++){",
 				"",
 				"      	// note:", 
