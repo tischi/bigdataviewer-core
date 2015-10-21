@@ -43,7 +43,6 @@ public class VertexBuffer {
 	
 	public void memcopyData(GL4 gl2, final Buffer data, int elementSize, int offset){
 		bind(gl2);
-		
 		gl2.glBufferSubData(
 				GL4.GL_ARRAY_BUFFER,
 				offset, 

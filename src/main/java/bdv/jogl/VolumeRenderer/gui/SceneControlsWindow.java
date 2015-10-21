@@ -54,6 +54,8 @@ public class SceneControlsWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private Point2D.Float addedTransfeFunctionPoint = null; 
+	
 	private TransferFunctionDrawPanel tfpanel = null;
 
 	private final JPanel mainPanel  = new JPanel();
@@ -391,9 +393,14 @@ public class SceneControlsWindow extends JFrame {
 			
 				transferFunction.setMaxOrdinates(new Point2D.Float(dataManager.getGlobalMaxVolumeValue(), 1.0f));
 				float lowestDataPoint = dataManager.getGlobalLowestVolumeValue();
-				transferFunction.resetColors();
-				transferFunction.setColor(new Point2D.Float((maxVolume/dataManager.getGlobalMaxVolumeValue())*lowestDataPoint, 0.001f),
-						transferFunction.getColors().firstEntry().getValue());
+			
+				if(addedTransfeFunctionPoint != null){
+					if(transferFunction.getColors().containsKey(addedTransfeFunctionPoint)){
+						transferFunction.removeColor(addedTransfeFunctionPoint);
+					}
+				}
+				addedTransfeFunctionPoint = new Point2D.Float((maxVolume/dataManager.getGlobalMaxVolumeValue())*lowestDataPoint, 0.001f);
+				transferFunction.setColor(addedTransfeFunctionPoint, transferFunction.getColors().firstEntry().getValue());
 			}
 			
 			@Override

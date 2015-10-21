@@ -73,6 +73,7 @@ public class InteraktionAnimator {
 		
 		renderer.setOpacity3D((float)(currentAnimationPercentage)/ 100f);
 		renderWindow.getGlCanvas().repaint();
+		
 
 	}
 	
