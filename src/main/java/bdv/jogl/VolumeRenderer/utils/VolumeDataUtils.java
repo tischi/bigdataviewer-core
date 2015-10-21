@@ -103,7 +103,7 @@ public class VolumeDataUtils {
 
 		tmp.min(data.memOffset);
 		for(int d = 0;d < 3 ;d++){
-			data.memSize[d] = minMax[1][d]+1-minMax[0][d];
+			data.memSize[d] = Math.max(minMax[1][d]+1-minMax[0][d],0);
 		}
 		data.maxValue = maxValue;
 		data.minValue = minValue;
