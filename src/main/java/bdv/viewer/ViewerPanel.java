@@ -1,3 +1,31 @@
+/*
+ * #%L
+ * BigDataViewer core classes with minimal dependencies
+ * %%
+ * Copyright (C) 2012 - 2015 BigDataViewer authors
+ * %%
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
 package bdv.viewer;
 
 import static bdv.viewer.VisibilityAndGrouping.Event.CURRENT_SOURCE_CHANGED;
@@ -31,6 +59,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imglib2.Positionable;
+import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
 import net.imglib2.RealPositionable;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -38,8 +67,6 @@ import net.imglib2.ui.InteractiveDisplayCanvasComponent;
 import net.imglib2.ui.OverlayRenderer;
 import net.imglib2.ui.PainterThread;
 import net.imglib2.ui.TransformEventHandler;
-import net.imglib2.ui.TransformEventHandler3D;
-import net.imglib2.ui.TransformEventHandlerFactory;
 import net.imglib2.ui.TransformListener;
 import net.imglib2.util.LinAlgHelpers;
 
@@ -182,96 +209,11 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 */
 	protected final MessageOverlayAnimator msgOverlay;
 
-	/**
-	 * Optional parameters for {@link ViewerPanel}.
-	 */
-	public static class Options
-	{
-		private int width = 800;
-
-		private int height = 600;
-
-		private double[] screenScales = new double[] { 1, 0.75, 0.5, 0.25, 0.125 };
-
-		private long targetRenderNanos = 30 * 1000000l;
-
-		private boolean doubleBuffered = true;
-
-		private int numRenderingThreads = 3;
-
-		private boolean useVolatileIfAvailable = true;
-
-		private MessageOverlayAnimator msgOverlay = new MessageOverlayAnimator( 800 );
-
-		private TransformEventHandlerFactory< AffineTransform3D > transformEventHandlerFactory = TransformEventHandler3D.factory();
-
-		public Options width( final int w )
-		{
-			width = w;
-			return this;
-		}
-
-		public Options height( final int h )
-		{
-			height = h;
-			return this;
-		}
-
-		public Options screenScales( final double[] s )
-		{
-			screenScales = s;
-			return this;
-		}
-
-		public Options targetRenderNanos( final long t )
-		{
-			targetRenderNanos = t;
-			return this;
-		}
-
-		public Options doubleBuffered( final boolean d )
-		{
-			doubleBuffered = d;
-			return this;
-		}
-
-		public Options numRenderingThreads( final int n )
-		{
-			numRenderingThreads = n;
-			return this;
-		}
-
-		public Options useVolatileIfAvailable( final boolean v )
-		{
-			useVolatileIfAvailable = v;
-			return this;
-		}
-
-		public Options msgOverlay( final MessageOverlayAnimator o )
-		{
-			msgOverlay = o;
-			return this;
-		}
-
-		public Options transformEventHandlerFactory( final TransformEventHandlerFactory< AffineTransform3D > f )
-		{
-			transformEventHandlerFactory = f;
-			return this;
-		}
-	}
-
-	/**
-	 * Create default {@link Options}.
-	 * @return default {@link Options}.
-	 */
-	public static Options options()
-	{
-		return new Options();
-	}
+	protected final ViewerOptions.Values options;
 
 	public ViewerPanel( final List< SourceAndConverter< ? > > sources, final int numTimePoints, final Cache cache )
 	{
-		this( sources, numTimePoints, cache, options() );
+		this( sources, numTimePoints, cache, ViewerOptions.options() );
 	}
 
 	/**
@@ -282,11 +224,12 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param cache
 	 *            to control IO budgeting and fetcher queue.
 	 * @param optional
-	 *            optional parameters. See {@link #options()}.
+	 *            optional parameters. See {@link ViewerOptions#options()}.
 	 */
-	public ViewerPanel( final List< SourceAndConverter< ? > > sources, final int numTimePoints, final Cache cache, final Options optional )
+	public ViewerPanel( final List< SourceAndConverter< ? > > sources, final int numTimePoints, final Cache cache, final ViewerOptions optional )
 	{
 		super( new BorderLayout(), false );
+		options = optional.values;
 
 		final int numGroups = 10;
 		final ArrayList< SourceGroup > groups = new ArrayList< SourceGroup >( numGroups );
@@ -305,18 +248,24 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 		painterThread = new PainterThread( this );
 		viewerTransform = new AffineTransform3D();
 		display = new InteractiveDisplayCanvasComponent< AffineTransform3D >(
-				optional.width, optional.height, optional.transformEventHandlerFactory );
+				options.getWidth(), options.getHeight(), options.getTransformEventHandlerFactory() );
 		display.addTransformListener( this );
 		renderTarget = new TransformAwareBufferedImageOverlayRenderer();
-		renderTarget.setCanvasSize( optional.width, optional.height );
+		renderTarget.setCanvasSize( options.getWidth(), options.getHeight() );
 		display.addOverlayRenderer( renderTarget );
 		display.addOverlayRenderer( this );
 
-		renderingExecutorService = Executors.newFixedThreadPool( optional.numRenderingThreads );
+		renderingExecutorService = Executors.newFixedThreadPool( options.getNumRenderingThreads() );
 		imageRenderer = new MultiResolutionRenderer(
 				renderTarget, painterThread,
-				optional.screenScales, optional.targetRenderNanos, optional.doubleBuffered,
-				optional.numRenderingThreads, renderingExecutorService, optional.useVolatileIfAvailable, cache );
+				options.getScreenScales(),
+				options.getTargetRenderNanos(),
+				options.isDoubleBuffered(),
+				options.getNumRenderingThreads(),
+				renderingExecutorService,
+				options.isUseVolatileIfAvailable(),
+				options.getAccumulateProjectorFactory(),
+				cache );
 
 		mouseCoordinates = new MouseCoordinateListener();
 		display.addHandler( mouseCoordinates );
@@ -345,7 +294,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 		transformListeners = new CopyOnWriteArrayList< TransformListener< AffineTransform3D > >();
 		lastRenderTransformListeners = new CopyOnWriteArrayList< TransformListener< AffineTransform3D > >();
 
-		msgOverlay = optional.msgOverlay;
+		msgOverlay = options.getMsgOverlay();
 
 		overlayAnimators = new ArrayList< OverlayAnimator >();
 		overlayAnimators.add( msgOverlay );
@@ -389,6 +338,50 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 //	{
 //		display.addHandler( handler );
 //	}
+
+	/**
+	 * Set {@code gPos} to the display coordinates at gPos transformed into the
+	 * global coordinate system.
+	 *
+	 * @param gPos
+	 *            is set to the corresponding global coordinates.
+	 */
+	public <P extends RealLocalizable & RealPositionable > void displayToGlobalCoordinates( final double[] gPos )
+	{
+		assert gPos.length >= 3;
+
+		viewerTransform.applyInverse( gPos, gPos );
+	}
+
+	/**
+	 * Set {@code gPos} to the display coordinates at gPos transformed into the
+	 * global coordinate system.
+	 *
+	 * @param gPos
+	 *            is set to the corresponding global coordinates.
+	 */
+	public <P extends RealLocalizable & RealPositionable > void displayToGlobalCoordinates( final P gPos )
+	{
+		assert gPos.numDimensions() >= 3;
+
+		viewerTransform.applyInverse( gPos, gPos );
+	}
+
+	/**
+	 * Set {@code gPos} to the display coordinates (x,y,0)<sup>T</sup> transformed into the
+	 * global coordinate system.
+	 *
+	 * @param gPos
+	 *            is set to the global coordinates at display (x,y,0)<sup>T</sup>.
+	 */
+	public void displayToGlobalCoordinates( final double x, final double y, final RealPositionable gPos )
+	{
+		assert gPos.numDimensions() >= 3;
+		final RealPoint lPos = new RealPoint( 3 );
+		lPos.setPosition( x, 0 );
+		lPos.setPosition( y, 1 );
+		viewerTransform.applyInverse( gPos, lPos );
+	}
 
 	/**
 	 * Set {@code gPos} to the current mouse coordinates transformed into the
@@ -906,6 +899,11 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	public VisibilityAndGrouping getVisibilityAndGrouping()
 	{
 		return visibilityAndGrouping;
+	}
+
+	public ViewerOptions.Values getOptionValues()
+	{
+		return options;
 	}
 
 	/**
