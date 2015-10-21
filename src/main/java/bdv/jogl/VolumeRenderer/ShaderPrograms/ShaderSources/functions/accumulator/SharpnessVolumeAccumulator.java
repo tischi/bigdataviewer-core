@@ -145,7 +145,9 @@ public class SharpnessVolumeAccumulator extends AbstractVolumeAccumulator {
 
 					//fill textures
 					FloatBuffer buffer = Buffers.newDirectFloatBuffer(container.valueMesh3d);
-					t.update(gl, 0, buffer, container.dimension);
+					if(buffer.capacity() > 0){
+						t.update(gl, 0, buffer, container.dimension);
+					}
 
 				}
 				this.needsUpdate.remove(key);
