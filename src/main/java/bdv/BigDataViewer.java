@@ -676,7 +676,8 @@ public class BigDataViewer
 //		final String fn = "http://tomancak-mac-17.mpi-cbg.de:8080/openspim/";
 //		final String fn = "/Users/Pietzsch/Desktop/openspim/datasetHDF.xml";
 		//final String fn = "/Users/pietzsch/workspace/data/111010_weber_full.xml";
-		final String fn = "/home/michael/Dokumente/Uni/Masterarbeit/data/drosophila.xml";
+		final String fn = "/home/michael/Dokumente/Uni/Masterarbeit/data/HisYFP-SPIM.xml";
+		//final String fn = "/home/michael/Dokumente/Uni/Masterarbeit/data/drosophila.xml";
 		//final String fn = "/home/michael/Dokumente/Uni/Masterarbeit/data/remote.xml";
 	//	final String fn = "/Users/Pietzsch/Desktop/spimrec2/dataset.xml";
 //		final String fn = "/Users/pietzsch/Desktop/HisYFP-SPIM/dataset.xml";
