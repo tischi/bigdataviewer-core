@@ -15,22 +15,13 @@ public class MaximumIntensityProjectionInterpreter extends AbstractVolumeInterpr
 		return new String[]{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() +" 4",
 				"float maxIntensity = 0;",
-				"vec4 maxIntensityColor = vec4(0.0);",
 				"vec4 "+getFunctionName()+"(vec4 c_in, vec4 c, float vm1, float v ){",
-				"	if(vm1 > v){",
-				"		if(vm1 > maxIntensity){",
-				"			maxIntensity = vm1;",
-				"			maxIntensityColor = c_in;",
-				"			maxIntensityColor.rbg /= "+suvRenderRectStepSize+";",
-				"		}",
-				"	}else{",
-				"		if(v > maxIntensity){",
-				"			maxIntensity = v;",
-				"			maxIntensityColor = c;",
-				"			maxIntensityColor.rbg /= "+suvRenderRectStepSize+";",
-				"		}",
+				"	if(v > maxIntensity){",
+				"		maxIntensity = v;",
+				"		c.rbg /= "+suvRenderRectStepSize+";",
+				"		return c;",
 				"	}",
-				"	return maxIntensityColor;",
+				"	return c_in;",
 				"}"
 		};
 	};
