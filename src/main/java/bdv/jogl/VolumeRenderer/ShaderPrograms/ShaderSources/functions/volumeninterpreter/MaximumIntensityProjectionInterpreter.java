@@ -1,5 +1,5 @@
 package bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.volumeninterpreter;
-
+import static bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.MultiVolumeRendererShaderSource.*;
 /**
  * Supports Maximum Intensity Projection 
  * @author michael
@@ -21,11 +21,13 @@ public class MaximumIntensityProjectionInterpreter extends AbstractVolumeInterpr
 				"		if(vm1 > maxIntensity){",
 				"			maxIntensity = vm1;",
 				"			maxIntensityColor = c_in;",
+				"			maxIntensityColor.rbg /= "+suvRenderRectStepSize+";",
 				"		}",
 				"	}else{",
 				"		if(v > maxIntensity){",
 				"			maxIntensity = v;",
 				"			maxIntensityColor = c;",
+				"			maxIntensityColor.rbg /= "+suvRenderRectStepSize+";",
 				"		}",
 				"	}",
 				"	return maxIntensityColor;",
