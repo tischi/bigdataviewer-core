@@ -344,10 +344,8 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
 				"		vec3 tmp = "+suvVoxelCount+"[n];",
 				"	    vtextOffsets[n] = vec3(1.0/(2.0*tmp));",
-				"	    vtextScales[n] = (vec3("+suvVoxelCount+"[n]-ivec3(1)))/(vec3("+suvVoxelCount+"[n])*vec3("+suvVoxelCount+"[n]-ivec3(1)));",
+				"	    vtextScales[n] = (vec3("+suvVoxelCount+"[n]-ivec3(1)))/max((vec3("+suvVoxelCount+"[n])*vec3("+suvVoxelCount+"[n]-ivec3(1))),vec3(1.0));",
 				"",   
-				//"    	//steps = max(steps,"+stepsFunction.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
-				//"		//startStep = min(startStep,"+stepsToVolume.call(new String[]{""+sgvSampleSize+"[n]","ray_pos","ray_dir"})+");",
 				"	}",
 				"	steps = min(steps,getStepsTillClipp());",
 				"   steps = min(steps, "+suvSamples+");",
@@ -388,31 +386,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"",
 				"		density = nextDensity;",
 				"   }",
-				//TODO DEBUG
-				//"vec4 globalVec0 =/*transpose(inverse(*/toGlobal[0]/*))*/*vec4("+sgvRayDirections+"[0].xyz,0.0);",
-				//"vec4 globalVec1 =/*transpose(inverse(*/toGlobal[1]/*))*/*vec4("+sgvRayDirections+"[1].xyz,0.0);",
-				
-				//"if(dot(globalVec1.xyz,globalVec0.xyz) < 1.0){",
-				//"	fragmentColor = vec4(1.0,0.0,0.0,1.0);",
-				//"}",
-				//"vec4 globalEye0 =toGlobal[0]*vec4("+suvEyePosition+"[0].xyz,1.0); ",
-				//"vec4 globalEye1 =toGlobal[1]*vec4("+suvEyePosition+"[1].xyz,1.0); ",
-			
-			//	"vec4 globalEye0 =toGlobal[0]*vec4("+svTextureCoordinate+"[0].xyz+"+sgvRayDirections+"[0] *( "+sgvSampleSize+"[0]),1.0); ",
-			//	"vec4 globalEye1 =toGlobal[1]*vec4("+svTextureCoordinate+"[1].xyz+"+sgvRayDirections+"[1] *( "+sgvSampleSize+"[1]),1.0); ",
-			
-			//	"globalEye0.xyz/=globalEye0.w;",
-			//	"globalEye1.xyz/=globalEye1.w;",
-			//	"if(length(globalEye1.xyz-globalEye0.xyz) > 1.0 ){",
-			//	"	fragmentColor = vec4(1.0,0.0,0.0,1.0);",
-			//	"}",
-				/*"}else{",
-				"	fragmentColor = vec4(0.0,1.0,0.0,1.0);",
-				"}",*/
-				//"fragmentColor = vec4();",
-				//"	fragmentColor.rgb *= gamma;",
-				//"	fragmentColor = max(vec4(0.0),min(fragmentColor, vec4(1.0)));",
-			//	"	fragmentColor = vec4("+suvBackgroundColor+".rgb,0.0);",
 				"}"
 		};
 		addCodeArrayToList(head, code);
