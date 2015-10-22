@@ -28,6 +28,8 @@ public class VolumeDataScene extends AbstractScene{
 	private VolumeDataManager dataManager;
 
 	private boolean showVolumes = true;
+
+	private MultiVolumeRenderer renderer;
 	//private UnitCube boundingVolume =new UnitCube();
 
 	@Override
@@ -82,8 +84,12 @@ public class VolumeDataScene extends AbstractScene{
 	@Override
 	protected void resizeSpecial(GL4 gl2, int x, int y, int width, int height) {}
 
+	public MultiVolumeRenderer getRenderer(){
+		return renderer;
+	}
 
 	public VolumeDataScene( VolumeDataManager dataManager, MultiVolumeRenderer renderer){
+		this.renderer = renderer;
 		setDataManager(dataManager);
 		addSceneElement(renderer);
 	}

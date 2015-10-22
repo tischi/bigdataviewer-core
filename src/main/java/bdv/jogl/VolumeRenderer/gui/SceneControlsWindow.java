@@ -195,7 +195,7 @@ public class SceneControlsWindow extends JFrame {
 		addComponetenToMainPanel(aligneLeft(interactionToolPanel));
 		addComponetenToMainPanel(aligneLeft(shaderElementPanel));
 		
-		//bench stuff
+		//TODO bench stuff
 		//addComponetenToMainPanel(aligneLeft(benchButton));
 		benchButton.addActionListener(new ActionListener() {
 			

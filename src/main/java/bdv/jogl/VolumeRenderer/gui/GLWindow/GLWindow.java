@@ -4,6 +4,11 @@ package bdv.jogl.VolumeRenderer.gui.GLWindow;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 
@@ -41,10 +46,19 @@ public class GLWindow extends JFrame {
 	//TODO bench
 	private final int maxStamps = 1000; 
 	private final int startSteps = 1000;
+	private final int startSamples = 10;
+	private final int stopSamples = 20;
+	private final int incrementSamples =2; 
+	private int currentSamples=startSamples;
 	
 	private boolean measurementInProgress = false;
 	private boolean startPhaseInProgress = false;
 	private long timeStamp[] = new long[maxStamps];
+	private ArrayList<Double> means = new ArrayList<Double>();
+	private ArrayList<Double> medians = new ArrayList<Double>();
+	private ArrayList<Double> maxs = new ArrayList<Double>();
+	private ArrayList<Double> mins = new ArrayList<Double>();
+	private ArrayList<Double> vars = new ArrayList<Double>();
 	
 	
 	private int startStepsTaken =  0;
@@ -68,24 +82,7 @@ public class GLWindow extends JFrame {
 		glCanvas.addMouseWheelListener(cUpdater.getMouseWheelListener());
 	}
 	
-	private void storeResults(){
-		PrintWriter paraWriter = null;
-		try {
-			paraWriter = new PrintWriter("benchmark.txt","UTF-8");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		long latestTimeStep = timeStamp[0];
-		for(int i = 1;i< maxStamps; i++){
-			paraWriter.write(""+(  timeStamp[i]-latestTimeStep)+System.lineSeparator());
-			latestTimeStep = timeStamp[i];
-		}
-		paraWriter.close();
-	}
+	
 	
 	/**
 	 * @param scenes the scenes to set
@@ -115,10 +112,21 @@ public class GLWindow extends JFrame {
 	 * Benchmark interface only!
 	 */
 	public void startBenchmark(){
+
+		mins.clear();
+		maxs.clear();
+		means.clear();
+		medians.clear();
+		vars.clear();
+		startBenchmark(startSamples);
+	}
+	public void startBenchmark(int startsamples){
 		startStepsTaken = 0;
 		measureStepsTaken = 0;
 		startPhaseInProgress = true;
 		measurementInProgress = false;
+		currentSamples = startsamples;
+		((VolumeDataScene)getScene()).getRenderer().setSamples(currentSamples);
 		System.out.println("Benchmark started!");
 		glCanvas.repaint();
 	}
@@ -137,13 +145,114 @@ public class GLWindow extends JFrame {
 			measureStepsTaken++;
 			if(measureStepsTaken >= maxStamps){
 				measurementInProgress= false;
-				storeResults();
+				evaluateResults();
 				System.out.println("Benchmark done!");
+				if(currentSamples <= stopSamples){
+					currentSamples += incrementSamples;
+					startBenchmark(currentSamples);
+				}
+				if(currentSamples == stopSamples+incrementSamples){		
+					currentSamples += incrementSamples;
+					printResultsToFile();
+				}
 			}
 		}
 		}
 	}
 	
+	private void printResultsToFile() {
+		PrintWriter resultWriter = null;
+		try {
+			resultWriter = new PrintWriter("benchmark_"+new Date()+".txt","UTF-8");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		int i = 0;
+		resultWriter.write("samples\t\t\tfastes\t\t\tslowest\t\t\tmean\t\t\tmedian\t\t\tstandard derivation\n");
+		for(int step = startSamples;step<= stopSamples; step +=incrementSamples){
+			
+			resultWriter.write(""+ (int)step + "\t\t\t"
+			+mins.get(i).toString()+"\t\t\t"
+			+maxs.get(i).toString()+"\t\t\t"
+					+means.get(i).toString()+"\t\t\t"
+			+medians.get(i).toString()+"\t\t\t"
+					+vars.get(i).toString()+"\n");
+			
+			i++;
+		}
+		resultWriter.close();
+		
+	}
+
+
+
+	private void evaluateResults(){
+		long[] times = new long[timeStamp.length-1];
+		long latestTimeStep = timeStamp[0];
+		//create times
+		for(int i= 1; i <timeStamp.length ;i++){
+			times[i-1] = timeStamp[i]-latestTimeStep;
+			latestTimeStep = timeStamp[i];
+			
+		}
+		
+		//sort for median
+		Arrays.sort(times);
+		
+		long max = Long.MIN_VALUE;
+		long min = Long.MAX_VALUE;
+		double avg = 0;
+		double median =0;
+		//median 
+		if(times.length%2 ==0){
+			//even
+			median= 0.5* (double)(times[times.length/2-1]+times[times.length/2]);
+			
+		}else{
+			//uneven
+			median = (double)times[(int)Math.floor(times.length/2)];
+		}
+		
+		HashMap<Long,Long>histogram  = new HashMap<Long, Long>();
+		for(int i = 0; i<times.length;i++ ){
+			//min
+			min = Math.min(min, times[i]);
+			
+			//max
+			max = Math.max(max, times[i]);
+			
+			//mean acc
+			avg += times[i];
+			
+			//hist
+			if(!histogram.containsKey(times[i])){
+				histogram.put(times[i], 0l);
+			}
+			histogram.put(times[i],1l + histogram.get(times[i]));
+		}
+		avg/=((double)times.length);
+		mins.add(timeToFps((double)min));
+		maxs.add(timeToFps((double)max));
+		means.add(timeToFps(avg));
+		medians.add(timeToFps(median));
+		//variance
+		double variance = 0;
+		for(Long time : histogram.keySet()){
+			Long occurence = histogram.get(time);
+			double pi = (((double)occurence)/((double)times.length));
+			variance+=Math.pow(((double)time) - avg,2.0)*pi;
+		}
+		vars.add(Math.abs(timeToFps(avg+Math.sqrt(variance))-timeToFps(avg)));
+	}
+	
+	private double timeToFps(double timeInNs){
+		return 1.0/(timeInNs / 1000000000.0);
+	}
 	private void prepareNextMeasurement(){
 		if(measurementInProgress||startPhaseInProgress ){
 			if(measurementInProgress&&measureStepsTaken %100 ==0){
