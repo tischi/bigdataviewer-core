@@ -137,56 +137,7 @@ private FrameBufferRedirector redirector = new FrameBufferRedirector();
 		return rgb;
 	}
 
-	@Test
-	public void shaderLikeExecAlphaCheck() {
-		
-		FloatBuffer texture = objectUnderTest.sample(testTransferFunction, 1);
-		
-		//linear ramp tf assumed
-		int colorDist = 10; 
-		int maxIndex = texture.capacity()/4-1;
-		float a = getAlpha(texture, maxIndex-colorDist, maxIndex, 1);
-		float b = getAlpha(texture, maxIndex-5*colorDist,maxIndex-4*colorDist, 1);
-		float c = getAlpha(texture, maxIndex-10*colorDist, maxIndex-9*colorDist, 1);
-		
-		assertTrue(0 < getAlpha(texture, 0, maxIndex, 1));
-		assertTrue(0 < getAlpha(texture, maxIndex/3, maxIndex, 1));
-		assertTrue(0 < getAlpha(texture, maxIndex/2, maxIndex, 1));
-		
-		assertTrue(0 < getAlpha(texture, maxIndex, 0, 1));
-		assertTrue(0 < getAlpha(texture, maxIndex, maxIndex/3, 1));
-		assertTrue(0 < getAlpha(texture, maxIndex, maxIndex/2, 1));
-		
-		assertTrue(0< a);
-		assertTrue(0< b);
-		assertTrue(0< c);
-		
-		assertTrue(b< a);
-		assertTrue(c< b);
-		
-		assertTrue(getAlpha(texture, 0, 10, 100000000) > getAlpha(texture, 0, 10, 100) );
-		//big slice through opaque
-		float alpha = getAlpha(texture, maxIndex, maxIndex, 1000000);
-		assertTrue("Assumed long dist to be near 1 but was "+alpha,alpha > 0.9);
-	}
-	
-	@Test
-	public void shaderLikeColorTest(){
-		FloatBuffer texture = objectUnderTest.sample(testTransferFunction, 1);
-		
-		float[] a = getRGB(texture, 0, 0, 100);
-		float[] b = getRGB(texture,0,0,1000);
-		
-		//very likely blue default of tf
-		assertTrue(a[0] <0.1);
-		assertTrue(a[1] <0.1);
-		assertTrue(a[2] >a[0]&& a[2] > a[1]);
-		
-		//b more blue
-		assertTrue(a[2]< b[2]);
-	}
-	
-	
+
 	private void initTestWindow(){
 		testTransferFunction.setSampler(objectUnderTest);
 		dataManager = new VolumeDataManager(null);
