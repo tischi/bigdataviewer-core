@@ -5,7 +5,10 @@ import java.nio.FloatBuffer;
 import java.util.TreeMap;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL4;
 
+import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.IFunction;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.transferfunctioninterpreter.RegularTransferFunctionInterpreter;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
@@ -17,7 +20,24 @@ import static bdv.jogl.VolumeRenderer.utils.WindowUtils.getNormalizedColor;
  */
 public class RegularSampler implements ITransferFunctionSampler {
 	
-	private final RegularTransferFunctionInterpreter desampler = new RegularTransferFunctionInterpreter();  
+	private final RegularTransferFunctionInterpreter desampler = new RegularTransferFunctionInterpreter();
+	private Texture colorTexture;  
+	
+	@Override
+	public void init(GL4 gl, int colorTextureId) {
+		colorTexture = new Texture(GL2.GL_TEXTURE_1D,colorTextureId,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
+		colorTexture.genTexture(gl);
+		colorTexture.setTexParameteri(gl,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+		colorTexture.setTexParameteri(gl, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+		colorTexture.setTexParameteri(gl, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+	}
+	
+	@Override
+	public void updateData(GL4 gl, TransferFunction1D transferFunction,
+			float sampleStep) {
+		FloatBuffer buffer = sample( transferFunction, sampleStep);
+		colorTexture.update(gl, 0, buffer, new int[]{buffer.capacity()/4});
+	}
 	
 	/**
 	 * Samples tf data and returns 1d texture
@@ -25,6 +45,7 @@ public class RegularSampler implements ITransferFunctionSampler {
 	 * @param sampleStep
 	 * @return
 	 */
+	
 	public FloatBuffer sample(TransferFunction1D transferFunction, float sampleStep){
 		TreeMap<Integer, Color> colorMap = transferFunction.getTexturColor();
 		//get Buffer last key is the highest number 
@@ -67,6 +88,7 @@ public class RegularSampler implements ITransferFunctionSampler {
 
 		buffer.rewind();
 		return buffer;
+
 	};
 	
 	/**
@@ -76,5 +98,10 @@ public class RegularSampler implements ITransferFunctionSampler {
 	public IFunction getShaderCode(){
 		return desampler;
 	}
-	
+
+	@Override
+	public void dispose(GL4 gl) {
+		colorTexture.delete(gl);
+		
+	}
 }

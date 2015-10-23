@@ -9,7 +9,6 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import bdv.jogl.VolumeRenderer.GLErrorHandler;
 import bdv.jogl.VolumeRenderer.Scene.Texture;
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.ISourceListener;
@@ -18,6 +17,7 @@ import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulato
 import bdv.jogl.VolumeRenderer.ShaderPrograms.ShaderSources.functions.accumulator.MaximumVolumeAccumulator;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunction1D;
 import bdv.jogl.VolumeRenderer.TransferFunctions.TransferFunctionAdapter;
+import bdv.jogl.VolumeRenderer.TransferFunctions.sampler.ITransferFunctionSampler;
 import bdv.jogl.VolumeRenderer.utils.GeometryUtils;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManager;
 import bdv.jogl.VolumeRenderer.utils.VolumeDataManagerAdapter;
@@ -53,8 +53,6 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	private final Map<Integer,Texture> volumeTextureMap = new HashMap<Integer, Texture>();
 
 	private TransferFunction1D tf;
-
-	private Texture colorTexture;
 
 	private boolean isColorUpdateable;
 
@@ -106,6 +104,8 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	private float[] slice2Dplane;
 
+	private ITransferFunctionSampler currentSampler;
+	
 	public void setDrawRect(AABBox rect){
 		drawCubeTransformation = getTransformationRepresentAABBox(rect);
 		drawRect  = rect;
@@ -416,7 +416,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			diagVec[i]/=sizeDim;
 		}
 
-		length = VectorUtil.normVec3(diagVec);
+		length = runLength;//VectorUtil.normVec3(diagVec);
 
 		gl2.glUniform1f(getLocation(suvTransferFuntionSize), length);
 		GLErrorHandler.assertGL(gl2);
@@ -626,12 +626,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 			volumeTextureMap.put(i, t);
 			GLErrorHandler.assertGL(gl2);
 		}
-		location = getLocation(suvColorTexture);
-		colorTexture = new Texture(GL2.GL_TEXTURE_1D,location,GL2.GL_RGBA,GL2.GL_RGBA,GL2.GL_FLOAT);
-		colorTexture.genTexture(gl2);
-		colorTexture.setTexParameteri(gl2,GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
-		colorTexture.setTexParameteri(gl2, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_BORDER);
+		this.currentSampler = tf.getSampler();
+		currentSampler.init(gl2, getLocation(suvColorTexture));
+
 	}
 
 	@Override
@@ -672,10 +669,12 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 		}
 
 		//get Buffer last key is the highest number 
-		FloatBuffer buffer = tf.getTexture(length/(float)samples); 
+		//FloatBuffer buffer = tf.getTexture(length/(float)samples); 
 
+		tf.getSampler().updateData(gl2,tf, length/(float)samples);
+		
 		//upload data
-		colorTexture.update(gl2, 0, buffer, new int[]{buffer.capacity()/4});
+
 		//gl2.glBindTexture(GL2.GL_TEXTURE_1D, 0);
 		isColorUpdateable = false;
 	}
@@ -698,6 +697,7 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 	 */
 	public void setTransferFunction(final TransferFunction1D tf){
 		this.tf = tf;
+
 		this.tf.addTransferFunctionListener(new TransferFunctionAdapter() {
 
 			@Override
@@ -736,8 +736,9 @@ public class MultiVolumeRenderer extends AbstractShaderSceneElement{
 
 	@Override
 	protected void disposeSubClass(GL4 gl2) {
-		colorTexture.delete(gl2);
+	
 
+		currentSampler.dispose(gl2);
 		for(Texture texture: volumeTextureMap.values() ){
 			texture.delete(gl2);
 		}

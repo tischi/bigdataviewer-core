@@ -341,7 +341,7 @@ public class GLWindow extends JFrame {
 
 
 		//sample size
-		setSize(640,580);
+		setSize(600,600);
 
 		getContentPane().add(glCanvas);
 
