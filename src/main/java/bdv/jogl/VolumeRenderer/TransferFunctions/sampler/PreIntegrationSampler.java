@@ -139,11 +139,8 @@ public class PreIntegrationSampler implements ITransferFunctionSampler {
 						rgba[i] = stepSize/(float)(sb - sf) * (integralBack[i] - integralFront[i]);
 					}
 				}else{
-					//rgba = colors.get(sf).clone();
-					for(int i =0; i< rgba.length; i++){
-						rgba[i] *=stepSize;
-					}
-					
+					//TODO 
+					//here sete diagonal to zero because no integral can be evaluated
 				}
 				rgba[3] = (float) (1.f - Math.exp(-rgba[3]));
 				buffer.put(rgba.clone());
@@ -154,30 +151,6 @@ public class PreIntegrationSampler implements ITransferFunctionSampler {
 		return buffer;
 		
 	}
-	/*"	if(vbegin - vend < minValue){",
-	"		if(vbegin - minValueHalf < 0.0){",
-	"			vend+= minValue*10.0;",	
-	"		}else{",	
-	"			if(vend +minValueHalf > 1.0){",
-	"				vbegin-=minValue*10.0;",
-	"			}else{",			
-	"				vend+=minValueHalf*10.0;",
-	"				vbegin-=minValueHalf*10.0;",
-	"			}",
-	"		}",	
-	"	}",
-	"	vec4 iFront = texture("+suvColorTexture+",vbegin*texnorm + texoffset);",
-	"	vec4 iBack = texture("+suvColorTexture+",vend*texnorm + texoffset);",
-	"	vec4 color = vec4(0.0);",				
-	"	vec4 iDiff = distance/(vend - vbegin) * (iBack - iFront);",
-	"",
-	"	//alpha desample",
-	"	color.a = 1.0 - exp(-iDiff.a);",
-	"",
-	"	//rgb desample",
-	"	color.rgb = iDiff.rgb;",
-	"	return color;",
-	"}",*/
 
 	@Override
 	public void dispose(GL4 gl) {
