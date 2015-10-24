@@ -183,6 +183,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 		String[] head = {
 				"#version "+getShaderLanguageVersion(),
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() +" 0",
+	 
 				"const int "+scvMaxNumberOfVolumes+" = "+maxNumberOfVolumes+";",
 				"const int maxInt = "+Integer.MAX_VALUE+";",
 				"const float gamma = 20.0;",
@@ -241,6 +242,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"int getStepsTillClipp(){",
 				"	int steps = "+suvSamples+";",
 				"	//render cube clipping plane",
+				"#pragma optionNV(unroll none)",
 				"	for(int p = 0; p < 3; p++){",
 				"		float dist = 0;",
 				"		for(int i = 0; i < 2;i++){",
@@ -265,6 +267,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() + " 1",
 				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions ){",
 				"	float volumeValues["+scvMaxNumberOfVolumes+"];",
+				"#pragma optionNV(unroll none)",
 				"	for(int i = 0; i < "+scvMaxNumberOfVolumes+"; i++){",
 				"		vec3 normtexturePos = getCorrectedTexturePositions(positions,i);",
 				"",
@@ -342,6 +345,7 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"	//init positions, directions ,etc",
 				"	"+sgvRayDirections+" = normalize("+svRayStartCoordinate+" - "+suvEyePosition+" );",
 				"	"+sgvRayPositions+" = "+svRayStartCoordinate+";",	
+				"#pragma optionNV(unroll none)",
 				"	for(int n = 0; n < "+scvMaxNumberOfVolumes+"; n++){",
 				"		vec3 tmp = "+suvVoxelCount+"[n];",
 				"	    vtextOffsets[n] = vec3(1.0/(2.0*max(tmp,vec3(1.0))));",
