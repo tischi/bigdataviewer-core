@@ -267,7 +267,6 @@ public class MultiVolumeRendererShaderSource extends AbstractShaderSource{
 				"#line "+Thread.currentThread().getStackTrace()[1].getLineNumber() + " 1",
 				"float["+scvMaxNumberOfVolumes+"] getVolumeValues(vec3 positions ){",
 				"	float volumeValues["+scvMaxNumberOfVolumes+"];",
-				"#pragma optionNV(unroll none)",
 				"	for(int i = 0; i < "+scvMaxNumberOfVolumes+"; i++){",
 				"		vec3 normtexturePos = getCorrectedTexturePositions(positions,i);",
 				"",
