@@ -132,6 +132,7 @@ public abstract class AbstractTransformedBoxSelectionDialog< R > extends JDialog
 				}
 			}
 		}
+
 		return result;
 	}
 

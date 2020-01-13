@@ -136,6 +136,7 @@ public class TransformedRealBoxSelectionDialog extends AbstractTransformedBoxSel
 				boxEditor.uninstall();
 			}
 		} );
+
 		model.intervalChangedListeners().add( () -> {
 			boxSelectionPanel.updateSliders( model.getInterval() );
 			viewer.getDisplay().repaint();
@@ -232,7 +233,7 @@ public class TransformedRealBoxSelectionDialog extends AbstractTransformedBoxSel
 		}
 
 		/**
-		 * Returns {@code true} iff dialog was closed by clicking "OK".
+		 * Returns {@code true} if dialog was closed by clicking "OK".
 		 */
 		public boolean isValid()
 		{

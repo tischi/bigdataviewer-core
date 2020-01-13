@@ -85,6 +85,8 @@ public class TransformedBoxEditor
 
 	private boolean editable = true;
 
+	private boolean isUninstalled;
+
 	public enum BoxSourceType
 	{
 		NONE,
@@ -165,7 +167,7 @@ public class TransformedBoxEditor
 			boxSource.addToViewer();
 	}
 
-	public void uninstall()
+	public synchronized void uninstall()
 	{
 		viewer.getDisplay().removeOverlayRenderer( boxOverlay );
 		viewer.removeTransformListener( boxOverlay );
@@ -178,6 +180,8 @@ public class TransformedBoxEditor
 
 		if ( boxSource != null )
 			boxSource.removeFromViewer();
+
+		isUninstalled = true;
 	}
 
 	/**
@@ -231,7 +235,6 @@ public class TransformedBoxEditor
 		boxOverlay.setPerspective( perspective );
 		boxOverlay.setSourceSize( sourceSize );
 	}
-
 
 	private void updateEditability()
 	{
