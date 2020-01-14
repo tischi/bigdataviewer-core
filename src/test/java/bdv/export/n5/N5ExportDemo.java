@@ -33,7 +33,7 @@ public class N5ExportDemo
 		final HashMap< Integer, ExportMipmapInfo > perSetupMipmapInfo = getMipMapInfos( sequenceDescription );
 
 		final int numThreads = Math.max( 1, Runtime.getRuntime().availableProcessors() - 2 );
-		final File n5File = new File( "src/test/resources/mri-stack-copy.n5" );
+		final File n5File = new File( "src/test/resources/mri-stack.n5" );
 		WriteSequenceToN5.writeN5File( sequenceDescription, perSetupMipmapInfo, new GzipCompression(), n5File, null, null, numThreads, null );
 
 		// write xml sequence description
@@ -42,7 +42,7 @@ public class N5ExportDemo
 
 		final SpimData spimDataN5 = new SpimData( new File("src/test/resources/"), sequenceDescription, spimData.getViewRegistrations() );
 
-		new XmlIoSpimData().save( spimDataN5, "src/test/resources/mri-stack-copy-n5.xml" );
+		new XmlIoSpimData().save( spimDataN5, "src/test/resources/mri-stack-n5.xml" );
 
 	}
 

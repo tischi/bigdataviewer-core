@@ -2,8 +2,8 @@
 <SpimData version="0.2">
   <BasePath type="relative">.</BasePath>
   <SequenceDescription>
-    <ImageLoader format="spimreconstruction.n5">
-      <containerPath type="relative">mri-stack.n5</containerPath>
+    <ImageLoader format="bdv.n5" version="1.0">
+      <n5 type="relative">mri-stack.n5</n5>
     </ImageLoader>
     <ViewSetups>
       <ViewSetup>
@@ -46,10 +46,10 @@
         </Angle>
       </Attributes>
     </ViewSetups>
-    <Timepoints type="pattern">
-      <integerpattern>0</integerpattern>
+    <Timepoints type="range">
+      <first>0</first>
+      <last>0</last>
     </Timepoints>
-    <MissingViews />
   </SequenceDescription>
   <ViewRegistrations>
     <ViewRegistration timepoint="0" setup="0">
@@ -58,9 +58,4 @@
       </ViewTransform>
     </ViewRegistration>
   </ViewRegistrations>
-  <ViewInterestPoints />
-  <BoundingBoxes />
-  <PointSpreadFunctions />
-  <StitchingResults />
-  <IntensityAdjustments />
 </SpimData>

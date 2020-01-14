@@ -13,7 +13,7 @@ public class N5LoaderDemo
 {
 	public static void main( String[] args ) throws SpimDataException
 	{
-		final File file = new File( "src/test/resources/mri-stack-copy-n5.xml" );
+		final File file = new File( "src/test/resources/mri-stack-n5.xml" );
 		BigDataViewer.open( file.getAbsolutePath(), file.getName(), null, ViewerOptions.options() );
 	}
 }
