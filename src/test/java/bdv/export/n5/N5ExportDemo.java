@@ -27,23 +27,34 @@ public class N5ExportDemo
 {
 	public static void main( String[] args ) throws SpimDataException, IOException
 	{
-		SpimData spimData = new XmlIoSpimData().load( "src/test/resources/mri-stack.xml");
+		//final String xmlFilename = "src/test/resources/mri-stack.xml";
+		final String xmlFilename = "/Volumes/cba/exchange/s3/constantin/h5/export.xml";
+
+		//final String outputBasePath = "src/test/resources";
+		final String outputBasePath = "/Volumes/cba/exchange/s3/constantin/n5";
+
+
+		final String n5OutputPath = outputBasePath + "/export.n5";
+		final String n5BasePath = new File( n5OutputPath ).getParent();
+		final String n5XmlOutputPath = outputBasePath + "/export-n5.xml";
+
+		SpimData spimData = new XmlIoSpimData().load( xmlFilename );
 
 		final SequenceDescription sequenceDescription = spimData.getSequenceDescription();
 		final HashMap< Integer, ExportMipmapInfo > perSetupMipmapInfo = getMipMapInfos( sequenceDescription );
 
 		final int numThreads = Math.max( 1, Runtime.getRuntime().availableProcessors() - 2 );
-		final File n5File = new File( "src/test/resources/mri-stack.n5" );
+
+		final File n5File = new File( n5OutputPath );
 		WriteSequenceToN5.writeN5File( sequenceDescription, perSetupMipmapInfo, new GzipCompression(), n5File, null, null, numThreads, null );
 
 		// write xml sequence description
 		final N5ImageLoader n5Loader = new N5ImageLoader( n5File, null );
 		sequenceDescription.setImgLoader( n5Loader );
 
-		final SpimData spimDataN5 = new SpimData( new File("src/test/resources/"), sequenceDescription, spimData.getViewRegistrations() );
+		final SpimData spimDataN5 = new SpimData( new File( n5BasePath ), sequenceDescription, spimData.getViewRegistrations() );
 
-		new XmlIoSpimData().save( spimDataN5, "src/test/resources/mri-stack-n5.xml" );
-
+		new XmlIoSpimData().save( spimDataN5, n5XmlOutputPath );
 	}
 
 	private static HashMap< Integer, ExportMipmapInfo > getMipMapInfos( SequenceDescription sequenceDescription )
