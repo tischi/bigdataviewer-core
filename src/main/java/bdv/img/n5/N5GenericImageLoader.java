@@ -315,7 +315,13 @@ public class N5GenericImageLoader implements ViewerImgLoader, MultiResolutionImg
 		@Override
 		public A loadArray( final long[] gridPosition ) throws IOException
 		{
-			return createArray.apply( n5.readBlock( pathName, attributes, gridPosition ) );
+			DataBlock< ? > block = n5.readBlock( pathName, attributes, gridPosition );
+			if ( block == null )
+			{
+				int a = 1;
+			}
+
+			return createArray.apply( block );
 		}
 	}
 

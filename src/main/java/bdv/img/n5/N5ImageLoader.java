@@ -90,11 +90,7 @@ import net.imglib2.type.volatiles.VolatileUnsignedLongType;
 import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.util.Cast;
 import net.imglib2.view.Views;
-import org.janelia.saalfeldlab.n5.DataBlock;
-import org.janelia.saalfeldlab.n5.DataType;
-import org.janelia.saalfeldlab.n5.DatasetAttributes;
-import org.janelia.saalfeldlab.n5.N5FSReader;
-import org.janelia.saalfeldlab.n5.N5Reader;
+import org.janelia.saalfeldlab.n5.*;
 
 import static bdv.img.n5.BdvN5Format.DATA_TYPE_KEY;
 import static bdv.img.n5.BdvN5Format.DOWNSAMPLING_FACTORS_KEY;
@@ -353,7 +349,19 @@ public class N5ImageLoader implements ViewerImgLoader, MultiResolutionImgLoader
 		@Override
 		public A loadArray( final long[] gridPosition ) throws IOException
 		{
-			return createArray.apply( n5.readBlock( pathName, attributes, gridPosition ) );
+			final DataBlock< ? > block = n5.readBlock( pathName, attributes, gridPosition );
+
+			if ( block == null )
+			{
+				final int[] blockSize = attributes.getBlockSize();
+				final int n = blockSize[ 0 ] * blockSize[ 1 ] * blockSize[ 2 ];
+				final ShortArrayDataBlock shortArrayDataBlock = new ShortArrayDataBlock( blockSize, gridPosition, new short[ n ] );
+				return createArray.apply( shortArrayDataBlock );
+			}
+			else
+			{
+				return createArray.apply( block );
+			}
 		}
 	}
 
