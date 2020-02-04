@@ -1,16 +1,12 @@
-package bdv.export;
+package bdv.io;
 
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.MipmapInfo;
 import bdv.img.hdf5.Util;
-import bdv.spimdata.SpimDataMinimal;
-import bdv.spimdata.XmlIoSpimDataMinimal;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.XmlIoSpimData;
-import mpicbg.spim.data.registration.ViewRegistrations;
 import mpicbg.spim.data.sequence.SequenceDescription;
-import sun.security.provider.ConfigFile;
 
 import java.io.File;
 import java.util.HashMap;

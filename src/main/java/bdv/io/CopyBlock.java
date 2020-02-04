@@ -1,4 +1,4 @@
-package bdv.export;
+package bdv.io;
 
 import java.util.Arrays;
 import net.imglib2.RandomAccess;

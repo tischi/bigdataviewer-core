@@ -318,10 +318,27 @@ public class N5GenericImageLoader implements ViewerImgLoader, MultiResolutionImg
 			DataBlock< ? > block = n5.readBlock( pathName, attributes, gridPosition );
 			if ( block == null )
 			{
-				int a = 1;
+				final int[] blockSize = attributes.getBlockSize();
+				final int n = blockSize[ 0 ] * blockSize[ 1 ] * blockSize[ 2 ];
+				if ( attributes.getDataType().equals( DataType.UINT16 ))
+				{
+					final ShortArrayDataBlock shortArrayDataBlock = new ShortArrayDataBlock( blockSize, gridPosition, new short[ n ] );
+					return createArray.apply( shortArrayDataBlock );
+				}
+				else if ( attributes.getDataType().equals( DataType.UINT8 ) )
+				{
+					final ByteArrayDataBlock byteArrayDataBlock = new ByteArrayDataBlock( blockSize, gridPosition, new byte[ n ] );
+					return createArray.apply( byteArrayDataBlock );
+				}
+				else
+				{
+					return null;
+				}
 			}
-
-			return createArray.apply( block );
+			else
+			{
+				return createArray.apply( block );
+			}
 		}
 	}
 

@@ -1,20 +1,16 @@
-package bdv.export.n5;
+package bdv.io.n5;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.S3Object;
 
-import java.util.List;
-
 public class S3Demo
 {
-
 	public static final String CBB_BIGDATA = "cbb-bigdata";
 
 	public static void main( String[] args )

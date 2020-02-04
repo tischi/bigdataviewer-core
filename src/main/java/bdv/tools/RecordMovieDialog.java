@@ -61,7 +61,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import bdv.cache.CacheControl;
-import bdv.export.ProgressWriter;
+import bdv.io.ProgressWriter;
 import bdv.util.Prefs;
 import bdv.viewer.ViewerPanel;
 import bdv.viewer.overlay.ScaleBarOverlayRenderer;
@@ -206,7 +206,7 @@ public class RecordMovieDialog extends JDialog implements OverlayRenderer
 					dir.mkdirs();
 				if ( !dir.exists() || !dir.isDirectory() )
 				{
-					System.err.println( "Invalid export directory " + dirname );
+					System.err.println( "Invalid io directory " + dirname );
 					return;
 				}
 				final int minTimepointIndex = ( Integer ) spinnerMinTimepoint.getValue();

@@ -27,12 +27,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.export;
+package bdv.io;
 
-import bdv.export.ExportScalePyramid.AfterEachPlane;
-import bdv.export.ExportScalePyramid.Block;
-import bdv.export.ExportScalePyramid.DatasetIO;
-import bdv.export.ExportScalePyramid.LoopbackHeuristic;
+import bdv.io.ExportScalePyramid.AfterEachPlane;
+import bdv.io.ExportScalePyramid.Block;
+import bdv.io.ExportScalePyramid.DatasetIO;
+import bdv.io.ExportScalePyramid.LoopbackHeuristic;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.Partition;
 import bdv.img.hdf5.Util;

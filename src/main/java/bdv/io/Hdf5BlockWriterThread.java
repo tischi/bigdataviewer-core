@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.export;
+package bdv.io;
 
 import java.io.File;
 import java.util.concurrent.ArrayBlockingQueue;

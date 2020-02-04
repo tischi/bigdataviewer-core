@@ -33,7 +33,7 @@ import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.registration.ViewRegistration;
 import net.imglib2.realtransform.AffineTransform3D;
-import bdv.export.ProposeMipmaps;
+import bdv.io.ProposeMipmaps;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.MipmapInfo;
 import bdv.spimdata.SequenceDescriptionMinimal;

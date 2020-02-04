@@ -1,26 +1,18 @@
-package bdv.export.n5;
+package bdv.io.n5;
 
-import bdv.export.ExportMipmapInfo;
-import bdv.export.WriteSequenceToHdf5;
+import bdv.io.ExportMipmapInfo;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.MipmapInfo;
 import bdv.img.hdf5.Util;
 import bdv.img.n5.N5ImageLoader;
-import bdv.spimdata.SequenceDescriptionMinimal;
-import bdv.spimdata.SpimDataMinimal;
-import bdv.spimdata.XmlIoSpimDataMinimal;
 import mpicbg.spim.data.SpimData;
 import mpicbg.spim.data.SpimDataException;
 import mpicbg.spim.data.XmlIoSpimData;
-import mpicbg.spim.data.registration.ViewRegistration;
-import mpicbg.spim.data.registration.ViewRegistrations;
 import mpicbg.spim.data.sequence.SequenceDescription;
-import org.janelia.saalfeldlab.n5.Compression;
 import org.janelia.saalfeldlab.n5.GzipCompression;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class N5ExportDemo
@@ -28,15 +20,15 @@ public class N5ExportDemo
 	public static void main( String[] args ) throws SpimDataException, IOException
 	{
 		//final String xmlFilename = "src/test/resources/mri-stack.xml";
-		final String xmlFilename = "/Volumes/cba/exchange/s3/constantin/h5/export.xml";
+		final String xmlFilename = "/Volumes/cba/exchange/s3/constantin/h5/io.xml";
 
 		//final String outputBasePath = "src/test/resources";
 		final String outputBasePath = "/Volumes/cba/exchange/s3/constantin/n5";
 
 
-		final String n5OutputPath = outputBasePath + "/export.n5";
+		final String n5OutputPath = outputBasePath + "/io.n5";
 		final String n5BasePath = new File( n5OutputPath ).getParent();
-		final String n5XmlOutputPath = outputBasePath + "/export-n5.xml";
+		final String n5XmlOutputPath = outputBasePath + "/io-n5.xml";
 
 		SpimData spimData = new XmlIoSpimData().load( xmlFilename );
 

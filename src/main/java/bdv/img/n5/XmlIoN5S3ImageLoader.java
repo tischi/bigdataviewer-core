@@ -36,6 +36,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.S3Object;
 import mpicbg.spim.data.XmlHelpers;
@@ -47,6 +48,7 @@ import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import static mpicbg.spim.data.XmlHelpers.loadPath;
@@ -66,64 +68,55 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 		return elem;
 	}
 
+	/**
+	 *
+	 * ssh tischer@login.cluster.embl.de
+	 * $ module load mc
+	 * $ mc config host ls
+	 * embl
+	 *   URL       : https://s3.embl.de
+	 *   AccessKey : cbb-bigdata
+	 *   SecretKey : UZUTutgnW7
+	 *   API       : s3v4
+	 *   Lookup    : auto
+	 *
+	 *
+	 * $ mc cp --recursive /g/cba/exchange/s3 embl/cbb-bigdata
+	 *
+	 * https://s3.embl.de
+	 *
+	 */
+
 	@Override
 	public N5GenericImageLoader fromXml( final Element elem, final File basePath, final AbstractSequenceDescription< ?, ?, ? > sequenceDescription )
 	{
-//		final String version = elem.getAttributeValue( "version" );
-//		final File path = loadPath( elem, "n5", basePath );
+		final String version = elem.getAttributeValue( "version" );
+		final String serviceEndpoint = XmlHelpers.getText( elem, "ServiceEndpoint" );
+		final String signingRegion = XmlHelpers.getText( elem, "SigningRegion" );
+		final String bucketName = XmlHelpers.getText( elem, "BucketName" );
+		final String key = XmlHelpers.getText( elem, "Key" );
 
+		final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration( serviceEndpoint, signingRegion );
 
-		/**
-		 *
-		 * ssh tischer@login.cluster.embl.de
-		 * $ module load mc
-		 * $ mc config host ls
-		 * embl
-		 *   URL       : https://s3.embl.de
-		 *   AccessKey : cbb-bigdata
-		 *   SecretKey : UZUTutgnW7
-		 *   API       : s3v4
-		 *   Lookup    : auto
-		 *
-		 *
-		 * $ mc cp --recursive /g/cba/exchange/s3 embl/cbb-bigdata
-		 *
-		 * https://s3.embl.de
-		 *
-		 */
-
-		// TODO: fetch information from an xml
-		final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration("https://s3.embl.de", "us-west-2");
-
-		final BasicAWSCredentials credentials = new BasicAWSCredentials( "cbb-bigdata", "UZUTutgnW7" );
+		final AnonymousAWSCredentials anonymousAWSCredentials = new AnonymousAWSCredentials();
 
 		final AmazonS3 s3 = AmazonS3ClientBuilder
 				.standard()
-				.withPathStyleAccessEnabled(true)
-				.withEndpointConfiguration(endpoint)
-				.withCredentials(new AWSStaticCredentialsProvider(credentials))
+				.withPathStyleAccessEnabled( true )
+				.withEndpointConfiguration( endpoint )
+				.withCredentials( new AWSStaticCredentialsProvider( anonymousAWSCredentials ) )
 				.build();
 
-		String bucketName = "cbb-bigdata";
-
-		final boolean doesBucketExistV2 = s3.doesBucketExistV2( bucketName );
-
-		final boolean doesObjectExist = s3.doesObjectExist( "cbb-bigdata", "mri-stack-n5s3.xml" );
-
-		final S3Object object = s3.getObject( "cbb-bigdata", "mri-stack-n5s3.xml" );
-
-		final N5AmazonS3Reader reader = getReader( s3, bucketName );
-
-		final boolean exists = reader.exists( "mri-stack-n5s3.xml" );
+		final N5AmazonS3Reader reader = getReader( s3, bucketName, key );
 
 		return new N5GenericImageLoader( reader, sequenceDescription );
 	}
 
-	private N5AmazonS3Reader getReader( AmazonS3 s3, String bucketName )
+	private N5AmazonS3Reader getReader( AmazonS3 s3, String bucketName, String key )
 	{
 		try
 		{
-			return new N5AmazonS3Reader( s3, bucketName );
+			return new N5AmazonS3Reader( s3, bucketName, key );
 		} catch ( IOException e )
 		{
 			e.printStackTrace();

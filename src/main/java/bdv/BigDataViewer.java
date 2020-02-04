@@ -63,8 +63,8 @@ import org.scijava.ui.behaviour.io.InputTriggerConfig;
 import org.scijava.ui.behaviour.io.yaml.YamlConfigIO;
 
 import bdv.cache.CacheControl;
-import bdv.export.ProgressWriter;
-import bdv.export.ProgressWriterConsole;
+import bdv.io.ProgressWriter;
+import bdv.io.ProgressWriterConsole;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.WrapBasicImgLoader;
 import bdv.spimdata.XmlIoSpimDataMinimal;

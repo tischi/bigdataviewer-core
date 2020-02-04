@@ -27,23 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.export;
+package bdv.io;
 
-import bdv.img.hdf5.MipmapInfo;
-import bdv.img.hdf5.Util;
+import java.io.PrintStream;
 
-public class ExportMipmapInfo extends MipmapInfo
+public interface ProgressWriter
 {
-	public final int[][] intResolutions;
+	public PrintStream out();
 
-	public ExportMipmapInfo( final int[][] resolutions, final int[][] subdivisions )
-	{
-		super( Util.castToDoubles( resolutions ), null, subdivisions );
-		this.intResolutions = resolutions;
-	}
+	public PrintStream err();
 
-	public int[][] getExportResolutions()
-	{
-		return intResolutions;
-	}
+	public void setProgress( double completionRatio );
 }
