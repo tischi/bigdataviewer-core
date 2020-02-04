@@ -1,5 +1,7 @@
 package bdv.io;
 
+import bdv.export.ExportMipmapInfo;
+import bdv.export.WriteSequenceToHdf5;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.MipmapInfo;
 import bdv.img.hdf5.Util;

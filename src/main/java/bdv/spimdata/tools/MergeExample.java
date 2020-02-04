@@ -38,8 +38,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import bdv.io.ExportMipmapInfo;
-import bdv.io.WriteSequenceToHdf5;
+import bdv.export.ExportMipmapInfo;
+import bdv.export.WriteSequenceToHdf5;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.Partition;
 import bdv.spimdata.SequenceDescriptionMinimal;

@@ -63,8 +63,8 @@ import org.scijava.ui.behaviour.io.InputTriggerConfig;
 import org.scijava.ui.behaviour.io.yaml.YamlConfigIO;
 
 import bdv.cache.CacheControl;
-import bdv.io.ProgressWriter;
-import bdv.io.ProgressWriterConsole;
+import bdv.export.ProgressWriter;
+import bdv.export.ProgressWriterConsole;
 import bdv.spimdata.SpimDataMinimal;
 import bdv.spimdata.WrapBasicImgLoader;
 import bdv.spimdata.XmlIoSpimDataMinimal;
@@ -307,7 +307,7 @@ public class BigDataViewer
 	 * @param numTimepoints
 	 *            the number of timepoints in the dataset.
 	 * @param cache
-	 *            handle to cache. This is used to control io timing.
+	 *            handle to cache. This is used to control export timing.
 	 * @param windowTitle
 	 *            title of the viewer window.
 	 * @param progressWriter

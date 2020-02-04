@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.io;
+package bdv.export;
 
 import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;

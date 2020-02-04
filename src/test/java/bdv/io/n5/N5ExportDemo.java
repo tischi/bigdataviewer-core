@@ -1,6 +1,7 @@
 package bdv.io.n5;
 
-import bdv.io.ExportMipmapInfo;
+import bdv.export.ExportMipmapInfo;
+import bdv.export.n5.WriteSequenceToN5;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.MipmapInfo;
 import bdv.img.hdf5.Util;
@@ -20,15 +21,15 @@ public class N5ExportDemo
 	public static void main( String[] args ) throws SpimDataException, IOException
 	{
 		//final String xmlFilename = "src/test/resources/mri-stack.xml";
-		final String xmlFilename = "/Volumes/cba/exchange/s3/constantin/h5/io.xml";
+		final String xmlFilename = "/Volumes/cba/exchange/s3/constantin/h5/export.xml";
 
 		//final String outputBasePath = "src/test/resources";
 		final String outputBasePath = "/Volumes/cba/exchange/s3/constantin/n5";
 
 
-		final String n5OutputPath = outputBasePath + "/io.n5";
+		final String n5OutputPath = outputBasePath + "/export.n5";
 		final String n5BasePath = new File( n5OutputPath ).getParent();
-		final String n5XmlOutputPath = outputBasePath + "/io-n5.xml";
+		final String n5XmlOutputPath = outputBasePath + "/export-n5.xml";
 
 		SpimData spimData = new XmlIoSpimData().load( xmlFilename );
 

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.io;
+package bdv.export;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,7 +158,7 @@ public class ProposeMipmaps
 
 	/**
 	 * Format {@code in[][]} array, such as resolutions or chunksizes
-	 * definition, as a String (to be used in io dialog textfields).
+	 * definition, as a String (to be used in export dialog textfields).
 	 */
 	public static String getArrayString( final int[][] resolutions )
 	{

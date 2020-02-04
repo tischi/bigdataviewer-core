@@ -27,27 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.io;
+package bdv.export;
 
 import java.io.PrintStream;
 
-public class ProgressWriterConsole implements ProgressWriter
+public interface ProgressWriter
 {
-	@Override
-	public PrintStream out()
-	{
-		return System.out;
-	}
+	public PrintStream out();
 
-	@Override
-	public PrintStream err()
-	{
-		return System.err;
-	}
+	public PrintStream err();
 
-	@Override
-	public void setProgress( final double completionRatio )
-	{
-		System.out.printf( "progress: %.1f %% complete\n", completionRatio * 100 );
-	}
+	public void setProgress( double completionRatio );
 }

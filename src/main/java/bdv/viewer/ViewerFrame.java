@@ -79,7 +79,7 @@ public class ViewerFrame extends JFrame
 	 * @param numTimepoints
 	 *            number of available timepoints.
 	 * @param cacheControl
-	 *            handle to cache. This is used to control io timing.
+	 *            handle to cache. This is used to control export timing.
 	 * @param optional
 	 *            optional parameters. See {@link ViewerOptions#options()}.
 	 */

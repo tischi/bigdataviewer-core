@@ -1,4 +1,4 @@
-package bdv.io;
+package bdv.export;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

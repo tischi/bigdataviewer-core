@@ -72,7 +72,7 @@ import net.imglib2.ui.PainterThread;
 import net.imglib2.ui.RenderTarget;
 import net.imglib2.util.LinAlgHelpers;
 import bdv.cache.CacheControl;
-import bdv.io.ProgressWriter;
+import bdv.export.ProgressWriter;
 import bdv.util.Prefs;
 import bdv.viewer.ViewerPanel;
 import bdv.viewer.overlay.ScaleBarOverlayRenderer;
@@ -231,7 +231,7 @@ public class RecordMaxProjectionDialog extends JDialog implements OverlayRendere
 					dir.mkdirs();
 				if ( !dir.exists() || !dir.isDirectory() )
 				{
-					System.err.println( "Invalid io directory " + dirname );
+					System.err.println( "Invalid export directory " + dirname );
 					return;
 				}
 				final int minTimepointIndex = ( Integer ) spinnerMinTimepoint.getValue();

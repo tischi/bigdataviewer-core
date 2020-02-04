@@ -27,40 +27,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.io;
+package bdv.export;
 
-import java.io.PrintStream;
+import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
+import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
-public class SubTaskProgressWriter implements ProgressWriter
+interface IHDF5Access
 {
-	protected final ProgressWriter progressWriter;
+	public void writeMipmapDescription( final int setupIdPartition, final ExportMipmapInfo mipmapInfo );
 
-	protected final double min;
+	public void createAndOpenDataset( final String path, long[] dimensions, int[] cellDimensions, HDF5IntStorageFeatures features );
 
-	protected final double scale;
+	public void writeBlockWithOffset( final short[] data, final long[] blockDimensions, final long[] offset );
 
-	public SubTaskProgressWriter( final ProgressWriter progressWriter, final double startCompletionRatio, final double endCompletionRatio )
-	{
-		this.progressWriter = progressWriter;
-		this.min = startCompletionRatio;
-		this.scale = endCompletionRatio - startCompletionRatio;
-	}
+	public void closeDataset();
 
-	@Override
-	public PrintStream out()
-	{
-		return progressWriter.out();
-	}
+	public void close();
 
-	@Override
-	public PrintStream err()
-	{
-		return progressWriter.err();
-	}
-
-	@Override
-	public void setProgress( final double completionRatio )
-	{
-		progressWriter.setProgress( min + scale * completionRatio );
-	}
+	// this is for sharing with Hdf5ImageLoader for loopback loader when exporting
+	public IHDF5Writer getIHDF5Writer();
 }

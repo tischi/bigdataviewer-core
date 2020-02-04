@@ -60,8 +60,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import bdv.AbstractSpimSource;
-import bdv.io.ExportMipmapInfo;
-import bdv.io.WriteSequenceToHdf5;
+import bdv.export.ExportMipmapInfo;
+import bdv.export.WriteSequenceToHdf5;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.MipmapInfo;
 import bdv.img.hdf5.Util;
@@ -234,7 +234,7 @@ public class CropDialog extends JDialog
 				final File parent = seqFile.getParentFile();
 				if ( parent == null || !parent.exists() || !parent.isDirectory() )
 				{
-					System.err.println( "Invalid io filename " + seqFilename );
+					System.err.println( "Invalid export filename " + seqFilename );
 					return;
 				}
 				final String hdf5Filename = seqFilename.substring( 0, seqFilename.length() - 4 ) + ".h5";

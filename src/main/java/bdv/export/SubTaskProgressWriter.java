@@ -27,23 +27,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package bdv.io;
+package bdv.export;
 
-import bdv.img.hdf5.MipmapInfo;
-import bdv.img.hdf5.Util;
+import java.io.PrintStream;
 
-public class ExportMipmapInfo extends MipmapInfo
+public class SubTaskProgressWriter implements ProgressWriter
 {
-	public final int[][] intResolutions;
+	protected final ProgressWriter progressWriter;
 
-	public ExportMipmapInfo( final int[][] resolutions, final int[][] subdivisions )
+	protected final double min;
+
+	protected final double scale;
+
+	public SubTaskProgressWriter( final ProgressWriter progressWriter, final double startCompletionRatio, final double endCompletionRatio )
 	{
-		super( Util.castToDoubles( resolutions ), null, subdivisions );
-		this.intResolutions = resolutions;
+		this.progressWriter = progressWriter;
+		this.min = startCompletionRatio;
+		this.scale = endCompletionRatio - startCompletionRatio;
 	}
 
-	public int[][] getExportResolutions()
+	@Override
+	public PrintStream out()
 	{
-		return intResolutions;
+		return progressWriter.out();
+	}
+
+	@Override
+	public PrintStream err()
+	{
+		return progressWriter.err();
+	}
+
+	@Override
+	public void setProgress( final double completionRatio )
+	{
+		progressWriter.setProgress( min + scale * completionRatio );
 	}
 }
