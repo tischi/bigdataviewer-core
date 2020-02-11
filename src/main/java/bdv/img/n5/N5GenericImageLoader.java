@@ -320,19 +320,26 @@ public class N5GenericImageLoader implements ViewerImgLoader, MultiResolutionImg
 			{
 				final int[] blockSize = attributes.getBlockSize();
 				final int n = blockSize[ 0 ] * blockSize[ 1 ] * blockSize[ 2 ];
-				if ( attributes.getDataType().equals( DataType.UINT16 ))
+				switch ( attributes.getDataType() )
 				{
-					final ShortArrayDataBlock shortArrayDataBlock = new ShortArrayDataBlock( blockSize, gridPosition, new short[ n ] );
-					return createArray.apply( shortArrayDataBlock );
-				}
-				else if ( attributes.getDataType().equals( DataType.UINT8 ) )
-				{
-					final ByteArrayDataBlock byteArrayDataBlock = new ByteArrayDataBlock( blockSize, gridPosition, new byte[ n ] );
-					return createArray.apply( byteArrayDataBlock );
-				}
-				else
-				{
-					return null;
+					case UINT8:
+					case INT8:
+						return createArray.apply( new ByteArrayDataBlock( blockSize, gridPosition, new byte[ n ] ) );
+					case UINT16:
+					case INT16:
+						return createArray.apply( new ShortArrayDataBlock( blockSize, gridPosition, new short[ n ] ) );
+					case UINT32:
+					case INT32:
+						return createArray.apply( new IntArrayDataBlock( blockSize, gridPosition, new int[ n ] ) );
+					case UINT64:
+					case INT64:
+						return createArray.apply( new LongArrayDataBlock( blockSize, gridPosition, new long[ n ] ) );
+					case FLOAT32:
+						return createArray.apply( new FloatArrayDataBlock( blockSize, gridPosition, new float[ n ] ) );
+					case FLOAT64:
+						return createArray.apply( new DoubleArrayDataBlock( blockSize, gridPosition, new double[ n ] ) );
+					default:
+						throw new IllegalArgumentException();
 				}
 			}
 			else
