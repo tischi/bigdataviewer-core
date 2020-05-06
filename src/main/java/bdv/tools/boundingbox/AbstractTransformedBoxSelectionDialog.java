@@ -38,13 +38,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 import bdv.tools.boundingbox.BoxSelectionOptions.TimepointSelection;
 import bdv.tools.brightness.SliderPanel;
@@ -118,7 +112,7 @@ public abstract class AbstractTransformedBoxSelectionDialog< R > extends JDialog
 		synchronized ( monitor )
 		{
 			result = null;
-			setVisible( true );
+			SwingUtilities.invokeLater( () -> setVisible( true ) );
 			while( true )
 			{
 				try

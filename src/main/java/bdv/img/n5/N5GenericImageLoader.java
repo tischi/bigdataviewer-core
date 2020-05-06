@@ -36,6 +36,7 @@ import bdv.img.cache.SimpleCacheArrayLoader;
 import bdv.img.cache.VolatileGlobalCellCache;
 import bdv.util.ConstantRandomAccessible;
 import bdv.util.MipmapTransforms;
+import com.amazonaws.SdkClientException;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
@@ -66,6 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import static bdv.img.n5.BdvN5Format.*;
@@ -315,7 +317,17 @@ public class N5GenericImageLoader implements ViewerImgLoader, MultiResolutionImg
 		@Override
 		public A loadArray( final long[] gridPosition ) throws IOException
 		{
-			DataBlock< ? > block = n5.readBlock( pathName, attributes, gridPosition );
+
+			DataBlock< ? > block = null;
+
+			try {
+				block = n5.readBlock( pathName, attributes, gridPosition );
+			}
+			catch ( SdkClientException e )
+			{
+				// TODO: log as DEBUG
+			}
+
 			if ( block == null )
 			{
 				final int[] blockSize = attributes.getBlockSize();
