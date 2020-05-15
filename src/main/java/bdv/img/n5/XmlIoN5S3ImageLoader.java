@@ -29,10 +29,7 @@
  */
 package bdv.img.n5;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.*;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -91,6 +88,7 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 	public N5GenericImageLoader fromXml( final Element elem, final File basePath, final AbstractSequenceDescription< ?, ?, ? > sequenceDescription )
 	{
 		final String version = elem.getAttributeValue( "version" );
+
 		final String serviceEndpoint = XmlHelpers.getText( elem, "ServiceEndpoint" );
 		final String signingRegion = XmlHelpers.getText( elem, "SigningRegion" );
 		final String bucketName = XmlHelpers.getText( elem, "BucketName" );
@@ -98,13 +96,13 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 
 		final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration( serviceEndpoint, signingRegion );
 
-		final AnonymousAWSCredentials anonymousAWSCredentials = new AnonymousAWSCredentials();
+		AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
 
 		final AmazonS3 s3 = AmazonS3ClientBuilder
 				.standard()
 				.withPathStyleAccessEnabled( true )
 				.withEndpointConfiguration( endpoint )
-				.withCredentials( new AWSStaticCredentialsProvider( anonymousAWSCredentials ) )
+				.withCredentials( credentialsProvider )
 				.build();
 
 		final N5AmazonS3Reader reader = getReader( s3, bucketName, key );
