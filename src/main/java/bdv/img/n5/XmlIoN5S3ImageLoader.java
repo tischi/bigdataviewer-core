@@ -96,7 +96,19 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 
 		final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration( serviceEndpoint, signingRegion );
 
-		AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
+		AWSCredentialsProvider credentialsProvider;
+		try
+		{
+			final DefaultAWSCredentialsProviderChain defaultAWSCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
+			// Below line throws error if there are no credentials
+			defaultAWSCredentialsProviderChain.getCredentials();
+			credentialsProvider = defaultAWSCredentialsProviderChain;
+		}
+		catch ( Exception e )
+		{
+			// User has no credentials on their computer
+			credentialsProvider = new AWSStaticCredentialsProvider( new AnonymousAWSCredentials() );
+		}
 
 		final AmazonS3 s3 = AmazonS3ClientBuilder
 				.standard()
