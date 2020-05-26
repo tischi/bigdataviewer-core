@@ -29,13 +29,13 @@
  */
 package bdv.img.n5;
 
-import com.amazonaws.auth.*;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.AmazonS3URI;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.S3Object;
 import mpicbg.spim.data.XmlHelpers;
 import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.ImgLoaderIo;
@@ -45,11 +45,6 @@ import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-
-import static mpicbg.spim.data.XmlHelpers.loadPath;
-import static mpicbg.spim.data.XmlKeys.IMGLOADER_FORMAT_ATTRIBUTE_NAME;
 
 @ImgLoaderIo( format = "bdv.n5.s3", type = N5ImageLoader.class )
 public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImageLoader >
@@ -64,25 +59,6 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 //		elem.addContent( XmlHelpers.pathElement( "n5", imgLoader.getN5File(), basePath ) );
 		return elem;
 	}
-
-	/**
-	 *
-	 * ssh tischer@login.cluster.embl.de
-	 * $ module load mc
-	 * $ mc config host ls
-	 * embl
-	 *   URL       : https://s3.embl.de
-	 *   AccessKey : cbb-bigdata
-	 *   SecretKey : UZUTutgnW7
-	 *   API       : s3v4
-	 *   Lookup    : auto
-	 *
-	 *
-	 * $ mc cp --recursive /g/cba/exchange/s3 embl/cbb-bigdata
-	 *
-	 * https://s3.embl.de
-	 *
-	 */
 
 	@Override
 	public N5GenericImageLoader fromXml( final Element elem, final File basePath, final AbstractSequenceDescription< ?, ?, ? > sequenceDescription )
@@ -100,7 +76,7 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 		try
 		{
 			final DefaultAWSCredentialsProviderChain defaultAWSCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
-			// Below line throws error if there are no credentials
+			// Below call throws error if there are no credentials
 			defaultAWSCredentialsProviderChain.getCredentials();
 			credentialsProvider = defaultAWSCredentialsProviderChain;
 		}
