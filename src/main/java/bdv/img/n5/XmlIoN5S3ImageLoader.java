@@ -69,22 +69,11 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 		final String signingRegion = XmlHelpers.getText( elem, "SigningRegion" );
 		final String bucketName = XmlHelpers.getText( elem, "BucketName" );
 		final String key = XmlHelpers.getText( elem, "Key" );
+		final String authentication = XmlHelpers.getText( elem, "Authentication" );
 
 		final AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration( serviceEndpoint, signingRegion );
 
-		AWSCredentialsProvider credentialsProvider;
-		try
-		{
-			final DefaultAWSCredentialsProviderChain defaultAWSCredentialsProviderChain = new DefaultAWSCredentialsProviderChain();
-			// Below call throws error if there are no credentials
-			defaultAWSCredentialsProviderChain.getCredentials();
-			credentialsProvider = defaultAWSCredentialsProviderChain;
-		}
-		catch ( Exception e )
-		{
-			// User has no credentials on their computer
-			credentialsProvider = new AWSStaticCredentialsProvider( new AnonymousAWSCredentials() );
-		}
+		AWSCredentialsProvider credentialsProvider = getAwsCredentialsProvider( bucketName, key, authentication );
 
 		final AmazonS3 s3 = AmazonS3ClientBuilder
 				.standard()
@@ -96,6 +85,39 @@ public class XmlIoN5S3ImageLoader implements XmlIoBasicImgLoader< N5GenericImage
 		final N5AmazonS3Reader reader = getReader( s3, bucketName, key );
 
 		return new N5GenericImageLoader( reader, sequenceDescription );
+	}
+
+	private AWSCredentialsProvider getAwsCredentialsProvider( String bucketName, String key, String authentication )
+	{
+		if ( authentication == null )
+		{
+			throw new RuntimeException( "Authentication key missing in xml." +
+					" Bucket: " + bucketName +
+					" Key: " + key );
+		}
+
+		AWSCredentialsProvider credentialsProvider;
+		switch ( authentication )
+		{
+			case "Anonymous":
+				credentialsProvider = new AWSStaticCredentialsProvider( new AnonymousAWSCredentials() );
+				break;
+			case "Protected":
+				credentialsProvider = new DefaultAWSCredentialsProviderChain();
+				try
+				{
+					credentialsProvider.getCredentials();
+				}
+				catch ( RuntimeException e )
+				{
+					throw new RuntimeException( "Credentials for protected AWS-S3 data could not be found!" +
+							" Bucket: " + bucketName + "; Key: " + key );
+				}
+				break;
+			default:
+				throw new RuntimeException( "Credentials providing method not supported: " + authentication );
+		}
+		return credentialsProvider;
 	}
 
 	private N5AmazonS3Reader getReader( AmazonS3 s3, String bucketName, String key )
