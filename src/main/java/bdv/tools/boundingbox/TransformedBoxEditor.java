@@ -280,7 +280,10 @@ public class TransformedBoxEditor
 		final Map< InputTrigger, Set< String > > bindings = triggerbindings.getConcatenatedInputTriggerMap().getAllBindings();
 		final Set< String > behavioursToBlock = new HashSet<>();
 		for ( final InputTrigger t : moveCornerTriggers )
-			behavioursToBlock.addAll( bindings.get( t ) );
+		{
+			if ( bindings.containsKey( t ) )
+				behavioursToBlock.addAll( bindings.get( t ) );
+		}
 
 		blockMap.clear();
 		final Behaviour block = new Behaviour() {};
